@@ -8,7 +8,6 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -189,10 +188,6 @@ public class TwitterSource extends Source {
     private String searchLang;
     private String until;
     private String resultType;
-    /*private ArrayList<String> filterlevels;
-    private ArrayList<String> resultTypes;*/
-    private String[] filterlevels;
-    private String[] resultTypes;
     private TwitterStream twitterStream;
     private String siddhiAppName;
     private Twitter twitter;
@@ -214,42 +209,11 @@ public class TwitterSource extends Source {
                      SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         this.siddhiAppName = siddhiAppContext.getName();
-        /*this.filterlevels = new ArrayList<String>() {
-            {
-                add("none");
-                add("medium");
-                add("low");
-            }
-        };
-        this.resultTypes = new ArrayList<String>() {
-            {
-                add("mixed");
-                add("popular");
-                add("recent");
-            }
-        };*/
-        this.filterlevels = new String[]{"none", "low", "medium"};
-        this.resultTypes = new String[]{"mixed" , "popular", "recent"};
         this.consumerKey = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_KEY);
         this.consumerSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_SECRET);
         this.accessToken = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_TOKEN);
         this.accessSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_SECRET);
         this.mode = optionHolder.validateAndGetStaticValue(TwitterConstants.MODE);
-        if (this.mode.equals("streaming") || this.mode.equals("polling")) {
-            if (this.mode.equals("streaming")) {
-                log.info("In Streaming mode, you can only give these following parameters. " +
-                        "If you give any other parameters, they will be ignored.\n" +
-                        "{track, language, follow, location, filterlevel}");
-
-            } else {
-                log.info("In polling mode, you can only give these following parameters. " +
-                        "If you give any other parameters, they will be ignored.\n" +
-                        "{query, geocode, max.id, since.id, language, result.type, until}");
-            }
-        } else {
-            throw new SiddhiAppCreationException("There are only two possible values : streaming or polling");
-        }
-
         this.followParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_FOLLOW,
                 TwitterConstants.EMPTY_STRING);
         this.languageParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_LANGUAGE,
@@ -259,18 +223,7 @@ public class TwitterSource extends Source {
         this.trackParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_TRACK,
                 TwitterConstants.EMPTY_STRING);
         this.filterLevel = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_FILTER_LEVEL,
-                "none");
-        /*if (!this.filterlevels.contains(filterLevel)) {
-            throw new SiddhiAppCreationException("There are only three possible values : low or medium or none");
-        }*/
-        for (String filterlevel : this.filterlevels) {
-            if (filterlevel.equals(filterLevel)) {
-                break;
-            } else {
-                throw new SiddhiAppCreationException("There are only three possible values : none or " +
-                        "low or medium");
-            }
-        }
+        "none");
         this.query = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_QUERY,
                 TwitterConstants.EMPTY_STRING);
         this.geocode = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_GEOCODE,
@@ -285,14 +238,7 @@ public class TwitterSource extends Source {
                 TwitterConstants.EMPTY_STRING);
         this.resultType = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
                 "mixed");
-        for (String resulttype : this.resultTypes) {
-            if (resulttype.equals(resultType)) {
-                break;
-            } else {
-                throw new SiddhiAppCreationException("There are only three possible values : mixed or " +
-                        "popular or recent");
-            }
-        }
+        TwitterConsumer.validateParameter(mode, query, filterLevel, resultType);
     }
 
     /**

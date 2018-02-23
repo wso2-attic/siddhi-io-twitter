@@ -1,6 +1,7 @@
 package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import twitter4j.FilterQuery;
 import twitter4j.GeoLocation;
@@ -15,6 +16,7 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterObjectFactory;
 import twitter4j.TwitterStream;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,14 +26,16 @@ import java.util.List;
 public class TwitterConsumer {
     private static final Logger log = Logger.getLogger(TwitterSource.class);
 
+    private static FilterQuery filterQuery;
     private static String[] tracks;
     private static String[] filterLang;
     private static long[] follow;
     private static String[] locationPair;
     private static double[][] locations;
-    private static FilterQuery filterQuery;
     private static int i;
     private static int length;
+    private static ArrayList<String> resultTypes;
+    private static ArrayList<String> filterLevels;
 
 
     /**
@@ -185,6 +189,60 @@ public class TwitterConsumer {
             } while ((query = result.nextQuery()) != null);
         } catch (TwitterException te) {
             log.error("Failed to search tweets: " + te.getMessage());
+        }
+    }
+
+    /**
+     * Validates the parameters that allows specific values.
+     * @param mode
+     * @param filterLevel
+     * @param resultType
+     */
+    public static void validateParameter(String mode, String query, String filterLevel, String resultType) {
+        filterLevels = new ArrayList<String>() {
+            {
+                add("none");
+                add("medium");
+                add("low");
+            }
+        };
+        resultTypes = new ArrayList<String>() {
+            {
+                add("mixed");
+                add("popular");
+                add("recent");
+            }
+        };
+        if (mode.equals("streaming") || mode.equals("polling")) {
+            if (mode.equals("streaming")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("In Streaming mode, you can only give these following parameters. " +
+                            "If you give any other parameters, they will be ignored.\n" +
+                            "{track, language, follow, location, filterlevel}");
+                }
+            } else {
+                if (query.isEmpty()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("In polling mode, you can only give these following parameters. " +
+                                "If you give any other parameters, they will be ignored.\n" +
+                                "{query, geocode, max.id, since.id, language, result.type, until}");
+                    }
+                }
+            }
+        } else {
+            throw new SiddhiAppCreationException("There are only two possible values for mode : streaming or polling");
+        }
+
+        if (!filterLevels.contains(filterLevel)) {
+            throw new SiddhiAppCreationException("There are only three possible values for filterlevel :" +
+                    " low or medium or none");
+
+        }
+
+        if (!resultTypes.contains(resultType)) {
+            throw new SiddhiAppCreationException("There are only three possible values for result.type :" +
+                    " mixed or popular or recent");
+
         }
     }
 }
