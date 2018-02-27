@@ -170,10 +170,14 @@ public class TwitterConsumer {
         try {
             Query query = new Query(q);
             QueryResult result;
-            query.lang(language);
+            if (!language.isEmpty()) {
+                query.lang(language);
+            }
             query.sinceId(sinceId);
             query.maxId(maxId);
-            query.until(until);
+            if (!until.isEmpty()) {
+                query.until(until);
+            }
             if (!resultType.isEmpty()) {
                 query.resultType(Query.ResultType.valueOf(resultType));
             }

@@ -30,7 +30,7 @@ public class TwitterConstants {
     public static final String MODE = "mode";
     public static final String STREAMING_FILTER_FOLLOW = "follow";
     public static final String STREAMING_FILTER_TRACK = "track";
-    public static final String STREAMING_FILTER_LOCATIONS = "locations";
+    public static final String STREAMING_FILTER_LOCATIONS = "location";
     public static final String STREAMING_FILTER_LANGUAGE = "language";
     public static final String STREAMING_FILTER_FILTER_LEVEL = "filterlevel";
     public static final String POLLING_SEARCH_GEOCODE = "geocode";
