@@ -147,7 +147,7 @@ import java.util.Map;
                         description = "This is a optional parameter which returns results with an ID " +
                                 "less than (that is, older than) or equal to the specified ID",
                         optional = true,
-                        defaultValue = "0",
+                        defaultValue = "-1L",
                         type = {DataType.LONG}),
                 @Parameter(
                         name = "since.id",
@@ -158,7 +158,7 @@ import java.util.Map;
                                 " has occurred since the since_id, the since_id will be forced to the " +
                                 "oldest ID available",
                         optional = true,
-                        defaultValue = "0",
+                        defaultValue = "-1L",
                         type = {DataType.LONG}),
                 @Parameter(
                         name = "until",
@@ -350,6 +350,7 @@ public class TwitterSource extends Source {
      */
     @Override
     public void pause() {
+        TwitterConsumer.pause();
     }
 
     /**
@@ -357,6 +358,7 @@ public class TwitterSource extends Source {
      */
     @Override
     public void resume() {
+        TwitterConsumer.resume();
     }
 
     /**

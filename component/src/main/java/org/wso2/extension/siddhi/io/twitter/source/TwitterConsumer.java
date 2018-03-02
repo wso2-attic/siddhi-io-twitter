@@ -36,6 +36,8 @@ import twitter4j.TwitterStream;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class handles consuming livestream tweets .
@@ -43,36 +45,48 @@ import java.util.List;
 
 public class TwitterConsumer {
     private static final Logger log = Logger.getLogger(TwitterSource.class);
-
-    private static FilterQuery filterQuery;
-    private static String[] tracks;
-    private static String[] filterLang;
-    private static long[] follow;
-    private static String[] locationPair;
-    private static double[][] locations;
-    private static int i;
-    private static int length;
-    private static ArrayList<String> resultTypes;
-    private static ArrayList<String> filterLevels;
-
+    private static boolean isPaused = false;
+    private static ReentrantLock lock = new ReentrantLock();
+    private static Condition condition = lock.newCondition();
 
     /**
-     * this class is for twitter consuming.
      *
-     * @param languageParam
-     * @param trackParam
-     * @return
-     * @throws Exception
+     * @param twitterStream - For streaming mode
+     * @param sourceEventListener - Listen events
+     * @param languageParam - Specifies language
+     * @param trackParam - Specifies keyword to track
+     * @param followParam - Specifies follower's id
+     * @param filterLevel - Specifies filter level( low ,medium, none)
+     * @param locationParam - Specifies location
      */
-
-
     public static void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener,
                                String languageParam, String trackParam, String followParam,
                                String filterLevel, String locationParam) {
+        FilterQuery filterQuery;
+        String[] tracks;
+        String[] filterLang;
+        long[] follow;
+        String[] locationPair;
+        double[][] locations;
+        int i;
+        int length;
+
         StatusListener listener = new StatusListener() {
             @Override
             public void onStatus(Status status) {
-                sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
+                    if (isPaused) { //spurious wakeup condition is deliberately traded off for performance
+                        lock.lock();
+                        try {
+                            while (!isPaused) {
+                                condition.await();
+                            }
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
+                    sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
             }
 
             @Override
@@ -153,16 +167,15 @@ public class TwitterConsumer {
     /**
      * This method handles consuming past tweets within a week
      *
-     * @param twitter
-     * @param sourceEventListener
-     * @param q
-     * @param language
-     * @param sinceId
-     * @param maxId
-     * @param until
-     * @param resultType
-     * @param geoCode
-     * @throws Exception
+     * @param twitter - For Twitter Polling
+     * @param sourceEventListener - Listen Events
+     * @param q - Defines search query
+     * @param language - Restricts tweets to the given language
+     * @param sinceId - Returns results with an ID greater than the specified ID.
+     * @param maxId - Returns results with an ID less than or equal to the specified ID.
+     * @param until - Returns tweets created before the given date.
+     * @param resultType - Specifies what type of search results you would prefer to receive.
+     * @param geoCode - Returns tweets by users located within a given radius of the given latitude/longitude.
      */
 
     public static void consume(Twitter twitter, SourceEventListener sourceEventListener, String q, String language,
@@ -206,6 +219,18 @@ public class TwitterConsumer {
                 result = twitter.search(query);
                 List<Status> tweets = result.getTweets();
                 for (Status tweet : tweets) {
+                    if (isPaused) { //spurious wakeup condition is deliberately traded off for performance
+                        lock.lock();
+                        try {
+                            while (!isPaused) {
+                                condition.await();
+                            }
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
                     sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                 }
             } while ((query = result.nextQuery()) != null);
@@ -217,11 +242,14 @@ public class TwitterConsumer {
     /**
      * Validates the parameters that allows specific values.
      *
-     * @param mode
-     * @param filterLevel
-     * @param resultType
+     * @param mode - Streaming or polling mode
+     * @param filterLevel - Specifies filter level( low ,medium, none)
+     * @param resultType - Specifies what type of search results you would prefer to receive.
      */
     public static void validateParameter(String mode, String query, String filterLevel, String resultType) {
+        ArrayList<String> resultTypes;
+        ArrayList<String> filterLevels;
+
         filterLevels = new ArrayList<String>() {
             {
                 add("none");
@@ -268,4 +296,19 @@ public class TwitterConsumer {
                     " mixed or popular or recent");
         }
     }
+
+    public static void pause() {
+        isPaused = true;
+    }
+
+    public static void resume() {
+        isPaused = false;
+        try {
+            lock.lock();
+            condition.signalAll();
+        } finally {
+            lock.unlock();
+        }
+    }
 }
+

@@ -146,7 +146,7 @@
     <tr>
         <td style="vertical-align: top">max.id</td>
         <td style="vertical-align: top; word-wrap: break-word">This is a optional parameter which returns results with an ID less than (that is, older than) or equal to the specified ID</td>
-        <td style="vertical-align: top">0</td>
+        <td style="vertical-align: top">-1L</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
@@ -154,7 +154,7 @@
     <tr>
         <td style="vertical-align: top">since.id</td>
         <td style="vertical-align: top; word-wrap: break-word">This is a optional parameter which returns results with an ID greater than (that is, more recent than) the specified ID. There are limits to the number of Tweets which can be accessed through the API. If the limit of Tweets has occurred since the since_id, the since_id will be forced to the oldest ID available</td>
-        <td style="vertical-align: top">0</td>
+        <td style="vertical-align: top">-1L</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
