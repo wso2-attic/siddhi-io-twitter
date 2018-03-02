@@ -49,15 +49,15 @@ public class TwitterConsumer {
     private static ReentrantLock lock = new ReentrantLock();
     private static Condition condition = lock.newCondition();
 
+
     /**
-     *
-     * @param twitterStream - For streaming mode
+     * @param twitterStream       - For streaming mode
      * @param sourceEventListener - Listen events
-     * @param languageParam - Specifies language
-     * @param trackParam - Specifies keyword to track
-     * @param followParam - Specifies follower's id
-     * @param filterLevel - Specifies filter level( low ,medium, none)
-     * @param locationParam - Specifies location
+     * @param languageParam       - Specifies language
+     * @param trackParam          - Specifies keyword to track
+     * @param followParam         - Specifies follower's id
+     * @param filterLevel         - Specifies filter level( low ,medium, none)
+     * @param locationParam       - Specifies location
      */
     public static void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener,
                                String languageParam, String trackParam, String followParam,
@@ -74,19 +74,19 @@ public class TwitterConsumer {
         StatusListener listener = new StatusListener() {
             @Override
             public void onStatus(Status status) {
-                    if (isPaused) { //spurious wakeup condition is deliberately traded off for performance
-                        lock.lock();
-                        try {
-                            while (!isPaused) {
-                                condition.await();
-                            }
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                        } finally {
-                            lock.unlock();
+                if (isPaused) { //spurious wakeup condition is deliberately traded off for performance
+                    lock.lock();
+                    try {
+                        while (!isPaused) {
+                            condition.await();
                         }
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    } finally {
+                        lock.unlock();
                     }
-                    sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
+                }
+                sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
             }
 
             @Override
@@ -167,15 +167,15 @@ public class TwitterConsumer {
     /**
      * This method handles consuming past tweets within a week
      *
-     * @param twitter - For Twitter Polling
+     * @param twitter             - For Twitter Polling
      * @param sourceEventListener - Listen Events
-     * @param q - Defines search query
-     * @param language - Restricts tweets to the given language
-     * @param sinceId - Returns results with an ID greater than the specified ID.
-     * @param maxId - Returns results with an ID less than or equal to the specified ID.
-     * @param until - Returns tweets created before the given date.
-     * @param resultType - Specifies what type of search results you would prefer to receive.
-     * @param geoCode - Returns tweets by users located within a given radius of the given latitude/longitude.
+     * @param q                   - Defines search query
+     * @param language            - Restricts tweets to the given language
+     * @param sinceId             - Returns results with an ID greater than the specified ID.
+     * @param maxId               - Returns results with an ID less than or equal to the specified ID.
+     * @param until               - Returns tweets created before the given date.
+     * @param resultType          - Specifies what type of search results you would prefer to receive.
+     * @param geoCode             - Returns tweets by users located within a given radius of the given latitude/longitude.
      */
 
     public static void consume(Twitter twitter, SourceEventListener sourceEventListener, String q, String language,
@@ -242,28 +242,20 @@ public class TwitterConsumer {
     /**
      * Validates the parameters that allows specific values.
      *
-     * @param mode - Streaming or polling mode
+     * @param mode        - Streaming or polling mode
      * @param filterLevel - Specifies filter level( low ,medium, none)
-     * @param resultType - Specifies what type of search results you would prefer to receive.
+     * @param resultType  - Specifies what type of search results you would prefer to receive.
      */
     public static void validateParameter(String mode, String query, String filterLevel, String resultType) {
-        ArrayList<String> resultTypes;
-        ArrayList<String> filterLevels;
+        ArrayList<String> resultTypes = new ArrayList();
+        resultTypes.add("none");
+        resultTypes.add("medium");
+        resultTypes.add("low");
+        ArrayList<String> filterLevels = new ArrayList();
+        resultTypes.add("mixed");
+        resultTypes.add("popular");
+        resultTypes.add("recent");
 
-        filterLevels = new ArrayList<String>() {
-            {
-                add("none");
-                add("medium");
-                add("low");
-            }
-        };
-        resultTypes = new ArrayList<String>() {
-            {
-                add("mixed");
-                add("popular");
-                add("recent");
-            }
-        };
         if (mode.equals("streaming") || mode.equals("polling")) {
             if (mode.equals("streaming")) {
                 if (log.isDebugEnabled()) {

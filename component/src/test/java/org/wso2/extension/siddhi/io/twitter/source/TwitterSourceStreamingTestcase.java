@@ -132,9 +132,6 @@ public class TwitterSourceStreamingTestcase {
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         Assert.assertTrue(eventArrived);
-        /*if(!eventArrived) {
-            LOG.info("No tweets tweeted by the given followers");
-        }*/
         siddhiAppRuntime.shutdown();
     }
 
@@ -290,7 +287,7 @@ public class TwitterSourceStreamingTestcase {
     public void testTwitterPolling1() throws InterruptedException {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 1 - Retrieving tweets in English containing " +
-                "the extract phrase 'happy our'.");
+                "the extract phrase 'happy hour'.");
         LOG.info("----------------------------------------------------------------------------------");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
@@ -417,66 +414,5 @@ public class TwitterSourceStreamingTestcase {
         Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
-
-    /*@Test
-    public void testTwitterPolling4() throws InterruptedException {
-        LOG.info("----------------------------------------------------------------------------------");
-        LOG.info("TwitterSourcePolling TestCase 4 - Test for pause and resume method.");
-        LOG.info("----------------------------------------------------------------------------------");
-        SiddhiManager siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "" +
-                "@app:name('TwitterPollingSample')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'polling' , query = 'happy hour', result.type = 'popular' ,@map(type='json', fail.on.missing.attribute='false' ," +
-                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
-                " coordinates='coordinates', user='user')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String, " +
-                "coordinates string, user string);";
-        String query = ("@info(name = 'query1') " +
-                "from inputStream " +
-                "select *  " +
-                "insert into outputStream;");
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
-                query);
-
-        Collection<List<Source>> sources = siddhiAppRuntime.getSources();
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-                for (Event event : inEvents) {
-                    eventCount.getAndIncrement();
-                    LOG.info(event);
-                    eventArrived = true;
-                }
-            }
-        });
-
-        siddhiAppRuntime.start();
-        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, 1000);
-        LOG.info("----------------------------------------------------------");
-        LOG.info(eventCount);
-        Assert.assertTrue(eventArrived);
-        sources.forEach(e -> e.forEach(Source::pause));
-        Thread.sleep(100);
-        LOG.info("----------------------------------------------------------");
-        LOG.info(eventCount + " , " +eventArrived);
-        eventArrived = false;
-        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, 1000);
-        LOG.info("----------------------------------------------------------");
-        LOG.info(eventCount + " , " + eventArrived);
-        Assert.assertFalse(eventArrived);
-        *//*sources.forEach(e -> e.forEach(Source::resume));
-        Thread.sleep(100);
-        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, 500);
-        LOG.info("----------------------------------------------------------");
-        LOG.info(eventCount);
-        Assert.assertTrue(eventArrived);*//*
-        siddhiAppRuntime.shutdown();
-    }*/
 }
 
