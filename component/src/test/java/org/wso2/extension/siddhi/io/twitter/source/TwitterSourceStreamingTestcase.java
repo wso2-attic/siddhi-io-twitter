@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -268,23 +268,19 @@ public class TwitterSourceStreamingTestcase {
 
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        LOG.info("----------------------------------------------------------");
-        LOG.info(eventCount);
+        //LOG.info(eventCount);
         Assert.assertTrue(eventArrived);
         sources.forEach(e -> e.forEach(Source::pause));
         Thread.sleep(200);
-        LOG.info("----------------------------------------------------------");
-        LOG.info(eventCount + " , " + eventArrived);
+        //LOG.info(eventCount + " , " + eventArrived);
         eventArrived = false;
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        LOG.info("----------------------------------------------------------");
-        LOG.info(eventCount + " , " + eventArrived);
+        //LOG.info(eventCount + " , " + eventArrived);
         Assert.assertFalse(eventArrived);
         sources.forEach(e -> e.forEach(Source::resume));
         Thread.sleep(500);
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        LOG.info("----------------------------------------------------------");
-        LOG.info(eventCount);
+        //LOG.info(eventCount);
         Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
@@ -294,7 +290,7 @@ public class TwitterSourceStreamingTestcase {
     public void testTwitterPolling1() throws InterruptedException {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 1 - Retrieving tweets in English containing " +
-                "'puppy' and an image or video.");
+                "the extract phrase 'happy our'.");
         LOG.info("----------------------------------------------------------------------------------");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
@@ -303,7 +299,7 @@ public class TwitterSourceStreamingTestcase {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'polling', query = 'puppy filter:media' , language = 'en', " +
+                "mode= 'polling', query = 'happy hour' , language = 'en', " +
                 "geocode = '44.467186,-73.214804,2500km'" +
                 " ,@map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id',id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
@@ -434,7 +430,7 @@ public class TwitterSourceStreamingTestcase {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'polling' , query = '@NASA' ,@map(type='json', fail.on.missing.attribute='false' ," +
+                "mode= 'polling' , query = 'happy hour', result.type = 'popular' ,@map(type='json', fail.on.missing.attribute='false' ," +
                 "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
                 " coordinates='coordinates', user='user')))" +
                 "define stream inputStream(created_at String, id long, id_str String, text String, " +
