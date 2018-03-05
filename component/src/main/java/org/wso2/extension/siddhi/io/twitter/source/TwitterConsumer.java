@@ -175,7 +175,8 @@ public class TwitterConsumer {
      * @param maxId               - Returns results with an ID less than or equal to the specified ID.
      * @param until               - Returns tweets created before the given date.
      * @param resultType          - Specifies what type of search results you would prefer to receive.
-     * @param geoCode             - Returns tweets by users located within a given radius of the given latitude/longitude.
+     * @param geoCode             - Returns tweets by users located within a given radius of the given
+     *                            latitude/longitude.
      */
 
     public static void consume(Twitter twitter, SourceEventListener sourceEventListener, String q, String language,
@@ -247,11 +248,11 @@ public class TwitterConsumer {
      * @param resultType  - Specifies what type of search results you would prefer to receive.
      */
     public static void validateParameter(String mode, String query, String filterLevel, String resultType) {
-        ArrayList<String> resultTypes = new ArrayList();
-        resultTypes.add("none");
-        resultTypes.add("medium");
-        resultTypes.add("low");
         ArrayList<String> filterLevels = new ArrayList();
+        filterLevels.add("none");
+        filterLevels.add("medium");
+        filterLevels.add("low");
+        ArrayList<String> resultTypes = new ArrayList();
         resultTypes.add("mixed");
         resultTypes.add("popular");
         resultTypes.add("recent");
