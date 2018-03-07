@@ -26,7 +26,7 @@
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@source(type="twitter", consumer.key="<STRING>", consumer.secret="<STRING>", access.token="<STRING>", access.token.secret="<STRING>", mode="<STRING>", filterlevel="<STRING>", track="<STRING>", follow="<LONG>", location="<DOUBLE>", query="<STRING>", geocode="<STRING>", result.type="<STRING>", language="<STRING>", max.id="<LONG>", since.id="<LONG>", until="<STRING>", @map(...)))
+@source(type="twitter", consumer.key="<STRING>", consumer.secret="<STRING>", access.token="<STRING>", access.token.secret="<STRING>", mode="<STRING>", filterlevel="<STRING>", track="<STRING>", follow="<LONG>", location="<DOUBLE>", language="<STRING>", query="<STRING>", geocode="<STRING>", result.type="<STRING>", max.id="<LONG>", since.id="<LONG>", until="<STRING>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -105,9 +105,17 @@
     </tr>
     <tr>
         <td style="vertical-align: top">location</td>
-        <td style="vertical-align: top; word-wrap: break-word">Specifies the locations to track. Here, We have to specify latitude and the longitude of tha location</td>
+        <td style="vertical-align: top; word-wrap: break-word">Specifies the locations to track. Here, We have to specify latitude and the longitude of tha location. For Example : 51.683979:0.278970</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">DOUBLE</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">language</td>
+        <td style="vertical-align: top; word-wrap: break-word">Restricts tweets to the given language, given by an ISO 639-1 code.</td>
+        <td style="vertical-align: top">null</td>
+        <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
@@ -131,14 +139,6 @@
         <td style="vertical-align: top">result.type</td>
         <td style="vertical-align: top; word-wrap: break-word">Specifies what type of results you would prefer to receive. The current default is 'mixed'. Valid values include:<br>* mixed : Include both popular and real time results in the response.<br>* recent : return only the most recent results in the response<br>* popular : return only the most popular results in the response.)</td>
         <td style="vertical-align: top">mixed</td>
-        <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">Yes</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">language</td>
-        <td style="vertical-align: top; word-wrap: break-word">Restricts tweets to the given language, given by an ISO 639-1 code.</td>
-        <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
@@ -186,7 +186,7 @@ define stream rcvEvents(created_at String, id long, id_str String, text String);
 
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
-@source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'polling', Query = 'happy hour', @map(type='json', fail.on.missing.attribute='false' , attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))
+@source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'polling', query = 'happy hour', @map(type='json', fail.on.missing.attribute='false' , attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))
 define stream rcvEvents(created_at String, id long, id_str String, text String);
 ```
 <p style="word-wrap: break-word">Under this configuration, it starts listening tweets containing the exact phrase 'happy hour' and they are passed to the rcvEvents stream.</p>

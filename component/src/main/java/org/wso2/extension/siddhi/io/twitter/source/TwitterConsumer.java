@@ -36,8 +36,6 @@ import twitter4j.TwitterStream;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class handles consuming livestream tweets .
@@ -46,8 +44,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class TwitterConsumer {
     private static final Logger log = Logger.getLogger(TwitterSource.class);
     private static boolean isPaused = false;
-    private static ReentrantLock lock = new ReentrantLock();
-    private static Condition condition = lock.newCondition();
 
 
     /**
@@ -175,7 +171,8 @@ public class TwitterConsumer {
      */
 
     public static void consume (Twitter twitter, SourceEventListener sourceEventListener, String q, String language,
-                               long sinceId, long maxId, String until, String resultType, String geoCode) throws InterruptedException {
+                               long sinceId, long maxId, String until, String resultType, String geoCode)
+            throws InterruptedException {
         try {
             Query query = new Query(q);
             QueryResult result;
