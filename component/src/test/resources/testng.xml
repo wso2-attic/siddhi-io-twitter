@@ -6,7 +6,7 @@
     <test name="Siddhi-io-twitter-tests" enabled="true" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.extension.siddhi.io.twitter.sink.TestCaseOfTwitterSink"/>
-            <class name="org.wso2.extension.siddhi.io.twitter.source.TwitterSourceStreamingTestcase"/>
+            <class name="org.wso2.extension.siddhi.io.twitter.source.TestCaseOfTwitterSource"/>
         </classes>
     </test>
 </suite>

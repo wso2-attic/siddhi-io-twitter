@@ -74,18 +74,13 @@ public class TwitterConsumer {
         StatusListener listener = new StatusListener() {
             @Override
             public void onStatus(Status status) {
-                if (isPaused) { //spurious wakeup condition is deliberately traded off for performance
-                    lock.lock();
-                    try {
-                        while (!isPaused) {
-                            condition.await();
+                    if (isPaused) {
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
                         }
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                    } finally {
-                        lock.unlock();
                     }
-                }
                 sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
             }
 
@@ -117,17 +112,17 @@ public class TwitterConsumer {
 
         twitterStream.addListener(listener);
         filterQuery = new FilterQuery();
-        if (!trackParam.isEmpty()) {
-            tracks = trackParam.split(",");
+        if (!trackParam.trim().isEmpty()) {
+            tracks = extract(trackParam);
             filterQuery.track(tracks);
         }
 
-        if (!languageParam.isEmpty()) {
-            filterLang = languageParam.split(",");
+        if (!languageParam.trim().isEmpty()) {
+            filterLang = extract(languageParam);
             filterQuery.language(filterLang);
         }
 
-        if (!followParam.isEmpty()) {
+        if (!followParam.trim().isEmpty()) {
             length = followParam.split(",").length;
             follow = new long[length];
             for (i = 0; i < length; i++) {
@@ -136,11 +131,11 @@ public class TwitterConsumer {
             filterQuery.follow(follow);
         }
 
-        if (!filterLevel.isEmpty()) {
+        if (!filterLevel.trim().isEmpty()) {
             filterQuery.filterLevel(filterLevel);
         }
 
-        if (!locationParam.isEmpty()) {
+        if (!locationParam.trim().isEmpty()) {
             length = locationParam.split(",").length;
             locationPair = new String[length];
             for (i = 0; i < length; ++i) {
@@ -156,8 +151,8 @@ public class TwitterConsumer {
             filterQuery.locations(locations);
         }
 
-        if (followParam.isEmpty() && trackParam.isEmpty() &&
-                languageParam.isEmpty() && locationParam.isEmpty()) {
+        if (followParam.trim().isEmpty() && trackParam.trim().isEmpty() &&
+                languageParam.trim().isEmpty() && locationParam.trim().isEmpty()) {
             twitterStream.sample();
         } else {
             twitterStream.filter(filterQuery);
@@ -179,24 +174,24 @@ public class TwitterConsumer {
      *                            latitude/longitude.
      */
 
-    public static void consume(Twitter twitter, SourceEventListener sourceEventListener, String q, String language,
-                               long sinceId, long maxId, String until, String resultType, String geoCode) {
+    public static void consume (Twitter twitter, SourceEventListener sourceEventListener, String q, String language,
+                               long sinceId, long maxId, String until, String resultType, String geoCode) throws InterruptedException {
         try {
             Query query = new Query(q);
             QueryResult result;
-            if (!language.isEmpty()) {
+            if (!language.trim().isEmpty()) {
                 query.lang(language);
             }
             query.sinceId(sinceId);
             query.maxId(maxId);
-            if (!until.isEmpty()) {
+            if (!until.trim().isEmpty()) {
                 query.until(until);
             }
-            if (!resultType.isEmpty()) {
+            if (!resultType.trim().isEmpty()) {
                 query.resultType(Query.ResultType.valueOf(resultType));
             }
-            if (!geoCode.isEmpty()) {
-                String[] parts = geoCode.split(",");
+            if (!geoCode.trim().isEmpty()) {
+                String[] parts = extract(geoCode);
                 double latitude = Double.parseDouble(parts[0]);
                 double longitude = Double.parseDouble(parts[1]);
                 double radius = 0.0;
@@ -210,7 +205,7 @@ public class TwitterConsumer {
                     }
                 }
                 if (unit == null) {
-                    throw new IllegalArgumentException("unrecognized geocode radius: " + radiusstr);
+                    throw new IllegalArgumentException("Unrecognized geocode radius: " + radiusstr);
                 }
                 String unitName = unit.name();
                 query.geoCode(new GeoLocation(latitude, longitude), radius, unitName);
@@ -220,17 +215,8 @@ public class TwitterConsumer {
                 result = twitter.search(query);
                 List<Status> tweets = result.getTweets();
                 for (Status tweet : tweets) {
-                    if (isPaused) { //spurious wakeup condition is deliberately traded off for performance
-                        lock.lock();
-                        try {
-                            while (!isPaused) {
-                                condition.await();
-                            }
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                        } finally {
-                            lock.unlock();
-                        }
+                    if (isPaused) {
+                        Thread.sleep(10000);
                     }
                     sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                 }
@@ -257,8 +243,8 @@ public class TwitterConsumer {
         resultTypes.add("popular");
         resultTypes.add("recent");
 
-        if (mode.equals("streaming") || mode.equals("polling")) {
-            if (mode.equals("streaming")) {
+        if (mode.equalsIgnoreCase("STREAMING") || mode.equalsIgnoreCase("POLLING")) {
+            if (mode.equalsIgnoreCase("STREAMING")) {
                 if (log.isDebugEnabled()) {
                     log.debug("In Streaming mode, you can only give these following parameters. " +
                             "If you give any other parameters, they will be ignored.\n" +
@@ -276,17 +262,18 @@ public class TwitterConsumer {
                 }
             }
         } else {
-            throw new SiddhiAppCreationException("There are only two possible values for mode : streaming or polling");
+            throw new SiddhiAppCreationException("There are only two possible values for mode :" +
+                    " streaming or polling. But found '" + mode + "'.");
         }
 
         if (!filterLevels.contains(filterLevel)) {
             throw new SiddhiAppCreationException("There are only three possible values for filterlevel :" +
-                    " low or medium or none");
+                    " low or medium or none. But found '" + filterLevel + "'.");
         }
 
         if (!resultTypes.contains(resultType)) {
             throw new SiddhiAppCreationException("There are only three possible values for result.type :" +
-                    " mixed or popular or recent");
+                    " mixed or popular or recent. But found '" + resultType + "'.");
         }
     }
 
@@ -296,12 +283,10 @@ public class TwitterConsumer {
 
     public static void resume() {
         isPaused = false;
-        try {
-            lock.lock();
-            condition.signalAll();
-        } finally {
-            lock.unlock();
-        }
+    }
+
+    public static String[] extract (String str) {
+       return str.split(",");
     }
 }
 
