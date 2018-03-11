@@ -26,7 +26,7 @@
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@source(type="twitter", consumer.key="<STRING>", consumer.secret="<STRING>", access.token="<STRING>", access.token.secret="<STRING>", mode="<STRING>", filterlevel="<STRING>", track="<STRING>", follow="<LONG>", location="<DOUBLE>", language="<STRING>", query="<STRING>", geocode="<STRING>", result.type="<STRING>", max.id="<LONG>", since.id="<LONG>", until="<STRING>", @map(...)))
+@source(type="twitter", consumer.key="<STRING>", consumer.secret="<STRING>", access.token="<STRING>", access.token.secret="<STRING>", mode="<STRING>", filter.level="<STRING>", track="<STRING>", follow="<LONG>", location="<DOUBLE>", language="<STRING>", query="<STRING>", geocode="<STRING>", result.type="<STRING>", max.id="<LONG>", since.id="<LONG>", until="<STRING>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -57,7 +57,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">access.token</td>
-        <td style="vertical-align: top; word-wrap: break-word">This access token is used to make API requests on behalf of your account.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Access token is used to make API requests on behalf of your account.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -65,7 +65,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">access.token.secret</td>
-        <td style="vertical-align: top; word-wrap: break-word">This access token is used to make API requests on behalf of your account.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Access token secret is used to make API requests on behalf of your account.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -73,15 +73,15 @@
     </tr>
     <tr>
         <td style="vertical-align: top">mode</td>
-        <td style="vertical-align: top; word-wrap: break-word">There are two possible values for mode. <br>1. Streaming - Retrieves real time tweets, <br>2. Polling - Retrieves historical tweets within one week).</td>
+        <td style="vertical-align: top; word-wrap: break-word">There are two possible values for mode. <br>1. Streaming - Retrieves real time tweets, <br>2. Polling - Retrieves historical tweets within one week.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
-        <td style="vertical-align: top">filterlevel</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters the tweets from the twitter stream based on the parameter filter_level. Values will be one of either none, low, or medium.</td>
+        <td style="vertical-align: top">filter.level</td>
+        <td style="vertical-align: top; word-wrap: break-word">Filters tweets by the level of engagement based on the  filter.level. The highest level(medium) corresponds loosely to the “top tweets” filter the service already offers in its on-site search function Values will be one of either none, low, or medium.</td>
         <td style="vertical-align: top">none</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -97,7 +97,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">follow</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters the tweets that is tweeted by the given follow ids</td>
+        <td style="vertical-align: top; word-wrap: break-word">Filters the tweets that is tweeted by the given user ids</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
@@ -105,7 +105,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">location</td>
-        <td style="vertical-align: top; word-wrap: break-word">Specifies the locations to track. Here, We have to specify latitude and the longitude of tha location. For Example : 51.683979:0.278970</td>
+        <td style="vertical-align: top; word-wrap: break-word">Filters the tweets based on the locations. Here, We have to specify latitude and the longitude of the location. For Example : 51.683979:0.278970</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">DOUBLE</td>
         <td style="vertical-align: top">Yes</td>
@@ -113,7 +113,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">language</td>
-        <td style="vertical-align: top; word-wrap: break-word">Restricts tweets to the given language, given by an ISO 639-1 code.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Filters tweets in the given language, given by an ISO 639-1 code.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -129,7 +129,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">geocode</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns tweets by users located within a given radius of the given latitude/longitude. The location is preferentially taking from the Geotagging API, but will fall back to their Twitter profile. The parameter value is specified by latitude,longitude,radius, where radius units must be specified as either ” mi ” (miles) or ” km ” (kilometers). Note that you cannot use the near operator via the API to geocode arbitrary locations; however you can use this geocode parameter to search near geocodes directly. A maximum of 1,000 distinct “sub-regions” will be considered when using the radius modifier</td>
+        <td style="vertical-align: top; word-wrap: break-word">Returns tweets by users located within a given radius of the given latitude/longitude. The location is preferentially taking from the Geotagging API, but will fall back to their Twitter profile. The parameter value is specified by latitude,longitude,radius, where radius units must be specified as either ” mi ” (miles) or ” km ” (kilometers).</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -137,7 +137,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">result.type</td>
-        <td style="vertical-align: top; word-wrap: break-word">Specifies what type of results you would prefer to receive. The current default is 'mixed'. Valid values include:<br>* mixed : Include both popular and real time results in the response.<br>* recent : return only the most recent results in the response<br>* popular : return only the most popular results in the response.)</td>
+        <td style="vertical-align: top; word-wrap: break-word">Returns the tweets based on what type of results you would prefer to receive. The current default is 'mixed'. Valid values include:<br>* mixed : Include both popular and recent results in the response.<br>* recent : return only the most recent results in the response<br>* popular : return only the most popular results in the response.)</td>
         <td style="vertical-align: top">mixed</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -145,7 +145,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">max.id</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns results with an ID less than (that is, older than) or equal to the specified ID</td>
+        <td style="vertical-align: top; word-wrap: break-word">Returns results with an tweet ID less than (that is, older than) or equal to the specified ID</td>
         <td style="vertical-align: top">-1</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
@@ -153,7 +153,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">since.id</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns results with an ID greater than (that is, more recent than) the specified ID. There are limits to the number of Tweets which can be accessed through the API. If the limit of Tweets has occurred since the since_id, the since_id will be forced to the oldest ID available</td>
+        <td style="vertical-align: top; word-wrap: break-word">Returns results with an tweet ID greater than (that is, more recent than) the specified ID.</td>
         <td style="vertical-align: top">-1</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
@@ -172,7 +172,7 @@
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
-@source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'streaming', language = 'en', @map(type='json', fail.on.missing.attribute='false' , attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))
+@source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'streaming', @map(type='json', fail.on.missing.attribute='false', attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))
 define stream rcvEvents(created_at String, id long, id_str String, text String);
 ```
 <p style="word-wrap: break-word">Under this configuration, it starts listening on random sample of public statuses and they are passed to the rcvEvents stream.</p>
@@ -186,8 +186,22 @@ define stream rcvEvents(created_at String, id long, id_str String, text String);
 
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
+@source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'streaming', track = 'Amazon,Google,Apple', language = 'en', follow = '11348282,20536157,15670515,17193794,58561993,18139619',filter.level = 'low', location = '51.280430:-0.563160,51.683979:0.278970', @map(type='json', fail.on.missing.attribute='false' , attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))
+define stream rcvEvents(created_at String, id long, id_str String, text String);
+```
+<p style="word-wrap: break-word">Under this configuration, it starts listening tweets in English that containing the keywords Amazon,google or apple or tweeted by the given followers or tweeted from the given location based on the filter.level. and they are passed to the rcvEvents stream.</p>
+
+<span id="example-4" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 4</span>
+```
 @source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'polling', query = 'happy hour', @map(type='json', fail.on.missing.attribute='false' , attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))
 define stream rcvEvents(created_at String, id long, id_str String, text String);
 ```
-<p style="word-wrap: break-word">Under this configuration, it starts listening tweets containing the exact phrase 'happy hour' and they are passed to the rcvEvents stream.</p>
+<p style="word-wrap: break-word">Under this configuration, it starts polling tweets containing the exact phrase 'happy hour' and they are passed to the rcvEvents stream.</p>
+
+<span id="example-5" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 5</span>
+```
+@source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'polling', query = '@NASA', language = 'en', result.type = 'recent', geocode = '43.913723261972855,-72.54272478125,150km', since.id = 24012619984051000, max.id = 250126199840518145, until = 2018-03-10,  @map(type='json', fail.on.missing.attribute='false' , attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))
+define stream rcvEvents(created_at String, id long, id_str String, text String);
+```
+<p style="word-wrap: break-word">Under this configuration, it starts polling recent tweets in english that having tweet id greater than since.id and less than ma.id, mentioning NASA  and they are passed to the rcvEvents stream.</p>
 

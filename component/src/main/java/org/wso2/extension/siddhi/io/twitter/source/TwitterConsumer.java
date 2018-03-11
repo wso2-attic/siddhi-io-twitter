@@ -19,6 +19,7 @@
 package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
+import org.wso2.extension.siddhi.io.twitter.util.TwitterConstants;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import twitter4j.FilterQuery;
@@ -34,14 +35,15 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterObjectFactory;
 import twitter4j.TwitterStream;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class handles consuming livestream tweets .
  */
 
-public class TwitterConsumer {
+class TwitterConsumer {
     private static final Logger log = Logger.getLogger(TwitterSource.class);
     private static boolean isPaused = false;
 
@@ -70,13 +72,14 @@ public class TwitterConsumer {
         StatusListener listener = new StatusListener() {
             @Override
             public void onStatus(Status status) {
-                    if (isPaused) {
-                        try {
-                            Thread.sleep(10000);
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                        }
+                if (isPaused) {
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        log.error(ie);
                     }
+                }
                 sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
             }
 
@@ -121,8 +124,12 @@ public class TwitterConsumer {
         if (!followParam.trim().isEmpty()) {
             length = followParam.split(",").length;
             follow = new long[length];
-            for (i = 0; i < length; i++) {
-                follow[i] = Long.parseLong(followParam.split(",")[i]);
+            try {
+                for (i = 0; i < length; i++) {
+                    follow[i] = Long.parseLong(followParam.split(",")[i]);
+                }
+            } catch (IllegalArgumentException e) {
+                log.error("follow is a long value : "+e);
             }
             filterQuery.follow(follow);
         }
@@ -156,7 +163,7 @@ public class TwitterConsumer {
     }
 
     /**
-     * This method handles consuming past tweets within a week
+     * This method handles consuming past tweets within a week.
      *
      * @param twitter             - For Twitter Polling
      * @param sourceEventListener - Listen Events
@@ -170,7 +177,7 @@ public class TwitterConsumer {
      *                            latitude/longitude.
      */
 
-    public static void consume (Twitter twitter, SourceEventListener sourceEventListener, String q, String language,
+    public static void consume(Twitter twitter, SourceEventListener sourceEventListener, String q, String language,
                                long sinceId, long maxId, String until, String resultType, String geoCode)
             throws InterruptedException {
         try {
@@ -193,7 +200,7 @@ public class TwitterConsumer {
                 double longitude = Double.parseDouble(parts[1]);
                 double radius = 0.0;
                 Query.Unit unit = null;
-                String radiusstr = parts[2];
+                String radiusstr = parts[2].trim();
                 for (Query.Unit value : Query.Unit.values()) {
                     if (radiusstr.endsWith(value.name())) {
                         radius = Double.parseDouble(radiusstr.substring(0, radiusstr.length() - 2));
@@ -230,32 +237,51 @@ public class TwitterConsumer {
      * @param filterLevel - Specifies filter level( low ,medium, none)
      * @param resultType  - Specifies what type of search results you would prefer to receive.
      */
-    public static void validateParameter(String mode, String query, String filterLevel, String resultType) {
-        ArrayList<String> filterLevels = new ArrayList();
-        filterLevels.add("none");
-        filterLevels.add("medium");
-        filterLevels.add("low");
-        ArrayList<String> resultTypes = new ArrayList();
-        resultTypes.add("mixed");
-        resultTypes.add("popular");
-        resultTypes.add("recent");
 
-        if (mode.equalsIgnoreCase("STREAMING") || mode.equalsIgnoreCase("POLLING")) {
-            if (mode.equalsIgnoreCase("STREAMING")) {
-                if (log.isDebugEnabled()) {
-                    log.debug("In Streaming mode, you can only give these following parameters. " +
-                            "If you give any other parameters, they will be ignored.\n" +
-                            "{track, language, follow, location, filterlevel}");
+    public static void validateParameter(String mode, String query, String filterLevel, String resultType,
+                                         Set<String> staticOptionsKeys) {
+        Query.ResultType resultType1 = Query.ResultType.valueOf(resultType);
+        List<String> filterLevels = Arrays.asList(
+                TwitterConstants.FILTER_LEVEL_LOW,
+                TwitterConstants.FILTER_LEVEL_MEDIUM,
+                TwitterConstants.FILTER_LEVEL_NONE);
+        List<Query.ResultType> resultTypes = Arrays.asList(
+                Query.ResultType.mixed,
+                Query.ResultType.popular,
+                Query.ResultType.recent);
+        List<String> mandatoryParam = Arrays.asList(
+                TwitterConstants.CONSUMER_KEY,
+                TwitterConstants.CONSUMER_SECRET,
+                TwitterConstants.ACCESS_TOKEN,
+                TwitterConstants.ACCESS_SECRET,
+                TwitterConstants.MODE, "type");
+        List<String> streamingParam = Arrays.asList(
+                TwitterConstants.STREAMING_FILTER_TRACK,
+                TwitterConstants.STREAMING_FILTER_FOLLOW,
+                TwitterConstants.STREAMING_FILTER_FILTER_LEVEL,
+                TwitterConstants.STREAMING_FILTER_LOCATIONS,
+                TwitterConstants.STREAMING_FILTER_LANGUAGE);
+        List<String> pollingParam = Arrays.asList(
+                TwitterConstants.POLLING_SEARCH_QUERY,
+                TwitterConstants.POLLING_SEARCH_LANGUAGE,
+                TwitterConstants.POLLING_SEARCH_GEOCODE,
+                TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
+                TwitterConstants.POLLING_SEARCH_MAXID,
+                TwitterConstants.POLLING_SEARCH_SINCEID,
+                TwitterConstants.POLLING_SEARCH_UNTIL);
+        if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
+            for (String s : staticOptionsKeys) {
+                if (!streamingParam.contains(s) && !mandatoryParam.contains(s)) {
+                    throw new SiddhiAppCreationException(s + " is not valid for the " + mode + " mode");
                 }
-            } else {
-                if (query.isEmpty()) {
-                    throw new SiddhiAppCreationException("In polling mode, query is a mandatory parameter.");
-                }
-
-                if (log.isDebugEnabled()) {
-                    log.debug("In polling mode, you can only give these following parameters. " +
-                            "If you give any other parameters, they will be ignored.\n" +
-                            "{query, geocode, max.id, since.id, language, result.type, until}");
+            }
+        } else if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
+            if (query.isEmpty()) {
+                throw new SiddhiAppCreationException("In polling mode, query is a mandatory parameter.");
+            }
+            for (String s : staticOptionsKeys) {
+                if (!pollingParam.contains(s) && !mandatoryParam.contains(s)) {
+                    throw new SiddhiAppCreationException(s + " is not valid for the " + mode + " mode");
                 }
             }
         } else {
@@ -264,11 +290,11 @@ public class TwitterConsumer {
         }
 
         if (!filterLevels.contains(filterLevel)) {
-            throw new SiddhiAppCreationException("There are only three possible values for filterlevel :" +
+            throw new SiddhiAppCreationException("There are only three possible values for filter.level :" +
                     " low or medium or none. But found '" + filterLevel + "'.");
         }
 
-        if (!resultTypes.contains(resultType)) {
+        if (!resultTypes.contains(resultType1)) {
             throw new SiddhiAppCreationException("There are only three possible values for result.type :" +
                     " mixed or popular or recent. But found '" + resultType + "'.");
         }
@@ -282,8 +308,8 @@ public class TwitterConsumer {
         isPaused = false;
     }
 
-    public static String[] extract (String str) {
-       return str.split(",");
+    private static String[] extract(String str) {
+        return str.split(",");
     }
 }
 

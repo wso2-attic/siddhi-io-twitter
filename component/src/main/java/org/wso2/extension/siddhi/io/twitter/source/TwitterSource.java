@@ -37,8 +37,9 @@ import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.util.Map;
+import java.util.Set;
 
-/**
+ /**
  * Twitter Source Implementation
  */
 
@@ -57,24 +58,26 @@ import java.util.Map;
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "access.token",
-                        description = "This access token is used to make API requests on behalf" +
+                        description = "Access token is used to make API requests on behalf" +
                                 " of your account.",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "access.token.secret",
-                        description = "This access token is used to make API requests on behalf" +
+                        description = "Access token secret is used to make API requests on behalf" +
                                 " of your account.",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "mode",
                         description = "There are two possible values for mode. \n" +
                                 "1. Streaming - Retrieves real time tweets, \n2. Polling - Retrieves historical" +
-                                " tweets within one week).",
+                                " tweets within one week.",
                         type = {DataType.STRING}),
                 @Parameter(
-                        name = "filterlevel",
-                        description = "Filters the tweets from the twitter stream based on the parameter" +
-                                " filter_level. Values will be one of either none, low, or medium.",
+                        name = "filter.level",
+                        description = "Filters tweets by the level of engagement based on the " +
+                                " filter.level. The highest level(medium) corresponds loosely to the “top tweets” " +
+                                "filter the service already offers in its on-site search function Values will be one " +
+                                "of either none, low, or medium.",
                         optional = true,
                         defaultValue = "none",
                         type = {DataType.STRING}),
@@ -86,20 +89,20 @@ import java.util.Map;
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "follow",
-                        description = "Filters the tweets that is tweeted by the given follow ids",
+                        description = "Filters the tweets that is tweeted by the given user ids",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.LONG}),
                 @Parameter(
                         name = "location",
-                        description = "Specifies the locations to track. Here, We have to specify " +
-                                "latitude and the longitude of tha location. For Example : 51.683979:0.278970",
+                        description = "Filters the tweets based on the locations. Here, We have to specify " +
+                                "latitude and the longitude of the location. For Example : 51.683979:0.278970",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.DOUBLE}),
                 @Parameter(
                         name = "language",
-                        description = "Restricts tweets to the given language, given by an ISO 639-1 code.",
+                        description = "Filters tweets in the given language, given by an ISO 639-1 code.",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
@@ -116,19 +119,15 @@ import java.util.Map;
                                 "latitude/longitude. The location is preferentially taking from the Geotagging" +
                                 " API, but will fall back to their Twitter profile. The parameter value is specified" +
                                 " by latitude,longitude,radius, where radius units must be specified as " +
-                                "either ” mi ” (miles) or ” km ” (kilometers). Note that you cannot use the " +
-                                "near operator via the API to geocode arbitrary locations; however " +
-                                "you can use this geocode parameter to search near geocodes directly. " +
-                                "A maximum of 1,000 distinct “sub-regions” will be considered when " +
-                                "using the radius modifier",
+                                "either ” mi ” (miles) or ” km ” (kilometers).",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "result.type",
-                        description = "Specifies what type of results you would prefer to receive. " +
-                                "The current default is 'mixed'. Valid values include:\n" +
-                                "* mixed : Include both popular and real time results in the response.\n" +
+                        description = "Returns the tweets based on what type of results you would prefer to receive." +
+                                " The current default is 'mixed'. Valid values include:\n" +
+                                "* mixed : Include both popular and recent results in the response.\n" +
                                 "* recent : return only the most recent results in the response\n" +
                                 "* popular : return only the most popular results in the response.)",
                         optional = true,
@@ -136,17 +135,15 @@ import java.util.Map;
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "max.id",
-                        description = "Returns results with an ID less than (that is, older than)" +
+                        description = "Returns results with an tweet ID less than (that is, older than)" +
                                 " or equal to the specified ID",
                         optional = true,
                         defaultValue = "-1",
                         type = {DataType.LONG}),
                 @Parameter(
                         name = "since.id",
-                        description = "Returns results with an ID greater than (that is, more recent than)" +
-                                " the specified ID. There are limits to the number of Tweets which can be accessed" +
-                                " through the API. If the limit of Tweets has occurred since the since_id," +
-                                " the since_id will be forced to the oldest ID available",
+                        description = "Returns results with an tweet ID greater than (that is, more recent than)" +
+                                " the specified ID.",
                         optional = true,
                         defaultValue = "-1",
                         type = {DataType.LONG}),
@@ -164,8 +161,8 @@ import java.util.Map;
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
                                 "consumer.secret='consumerSecret', access.token='accessToken'," +
                                 "access.token.secret='accessTokenSecret', mode= 'streaming', " +
-                                "language = 'en', @map(type='json', fail.on.missing.attribute='false'" +
-                                " , attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', " +
+                                "@map(type='json', fail.on.missing.attribute='false', attributes" +
+                                "(created_at = 'created_at', id = 'id' ,id_str = 'id_str', " +
                                 "text = 'text')))\n" +
                                 "define stream rcvEvents(created_at String, id long, id_str String, text String);",
                         description = "Under this configuration, it starts listening on random " +
@@ -186,13 +183,42 @@ import java.util.Map;
                 @Example(
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
                                 "consumer.secret='consumerSecret', access.token='accessToken'," +
+                                "access.token.secret='accessTokenSecret', mode= 'streaming'" +
+                                ", track = 'Amazon,Google,Apple', language = 'en', follow = '11348282,20536157," +
+                                "15670515,17193794,58561993,18139619',filter.level = 'low', " +
+                                "location = '51.280430:-0.563160,51.683979:0.278970', @map(type='json', " +
+                                "fail.on.missing.attribute='false' , attributes(created_at = 'created_at'," +
+                                " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
+                                "define stream rcvEvents(created_at String, id long, id_str String, text String);",
+                        description = "Under this configuration, it starts listening tweets in English that " +
+                                "containing the keywords Amazon,google or apple or tweeted by the given followers" +
+                                " or tweeted from the given location based on the filter.level. and they are passed" +
+                                " to the rcvEvents stream."
+                ),
+                @Example(
+                        syntax = "@source(type='twitter', consumer.key='consumer.key'," +
+                                "consumer.secret='consumerSecret', access.token='accessToken'," +
                                 "access.token.secret='accessTokenSecret', mode= 'polling'" +
                                 ", query = 'happy hour', @map(type='json', " +
                                 "fail.on.missing.attribute='false' , attributes(created_at = 'created_at'," +
                                 " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
                                 "define stream rcvEvents(created_at String, id long, id_str String, text String);",
-                        description = "Under this configuration, it starts listening tweets containing the" +
+                        description = "Under this configuration, it starts polling tweets containing the" +
                                 " exact phrase 'happy hour' and they are passed to the rcvEvents stream."
+                ),
+                @Example(
+                        syntax = "@source(type='twitter', consumer.key='consumer.key'," +
+                                "consumer.secret='consumerSecret', access.token='accessToken'," +
+                                "access.token.secret='accessTokenSecret', mode= 'polling'" +
+                                ", query = '@NASA', language = 'en', result.type = 'recent'," +
+                                " geocode = '43.913723261972855,-72.54272478125,150km', since.id = 24012619984051000," +
+                                " max.id = 250126199840518145, until = 2018-03-10,  @map(type='json', " +
+                                "fail.on.missing.attribute='false' , attributes(created_at = 'created_at'," +
+                                " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
+                                "define stream rcvEvents(created_at String, id long, id_str String, text String);",
+                        description = "Under this configuration, it starts polling recent tweets in english that" +
+                                " having tweet id greater than since.id and less than ma.id, mentioning NASA " +
+                                " and they are passed to the rcvEvents stream."
                 )
         }
 )
@@ -218,7 +244,7 @@ public class TwitterSource extends Source {
     private String until;
     private String resultType;
     private TwitterStream twitterStream;
-    private Twitter twitter;
+
 
     /**
      * The initialization method for {@link Source}, will be called before other methods. It used to validate
@@ -236,6 +262,7 @@ public class TwitterSource extends Source {
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
+        Set<String> staticOptionsKeys;
         this.sourceEventListener = sourceEventListener;
         this.consumerKey = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_KEY);
         this.consumerSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_SECRET);
@@ -266,7 +293,9 @@ public class TwitterSource extends Source {
                 TwitterConstants.EMPTY_STRING);
         this.resultType = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
                 "mixed");
-        TwitterConsumer.validateParameter(mode, query, filterLevel, resultType);
+        staticOptionsKeys = optionHolder.getStaticOptionsKeys();
+        TwitterConsumer.validateParameter(mode, query, filterLevel, resultType, staticOptionsKeys);
+
     }
 
     /**
@@ -289,9 +318,7 @@ public class TwitterSource extends Source {
      */
     @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
-        if (log.isDebugEnabled()) {
-            log.debug("Starting to load the twitter credentials");
-        }
+        Twitter twitter;
         try {
             ConfigurationBuilder cb = new ConfigurationBuilder();
             cb.setDebugEnabled(true)
@@ -301,18 +328,15 @@ public class TwitterSource extends Source {
                     .setOAuthAccessTokenSecret(accessSecret)
                     .setJSONStoreEnabled(true)
                     .setIncludeEntitiesEnabled(true);
-            if (this.mode.equalsIgnoreCase("STREAMING")) {
+            if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
                 this.twitterStream = (new TwitterStreamFactory(cb.build())).getInstance();
                 TwitterConsumer.consume(this.twitterStream, this.sourceEventListener, this.languageParam,
                         this.trackParam, this.followParam, this.filterLevel, this.locationParam);
             }
 
-            if (this.mode.equalsIgnoreCase("POLLING")) {
-                log.info("Establishing connection");
-                this.twitter = (new TwitterFactory(cb.build())).getInstance();
-                log.info("Connection established");
-                log.info("Receiving status");
-                TwitterConsumer.consume(this.twitter, this.sourceEventListener, this.query,
+            if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
+                twitter = (new TwitterFactory(cb.build())).getInstance();
+                TwitterConsumer.consume(twitter, this.sourceEventListener, this.query,
                         this.searchLang, this.sinceId, this.maxId, this.until, this.resultType, this.geocode);
             }
         } catch (Exception e) {
@@ -328,7 +352,7 @@ public class TwitterSource extends Source {
     @Override
     public void disconnect() {
         if (this.twitterStream != null) {
-            this.twitterStream.clearListeners();
+            this.twitterStream.shutdown();
             if (log.isDebugEnabled()) {
                 log.debug("The status listener has been cleared!");
             }
@@ -341,7 +365,7 @@ public class TwitterSource extends Source {
     @Override
     public void destroy() {
         if (this.twitterStream != null) {
-            this.twitterStream.shutdown();
+            this.twitterStream.clearListeners();
             if (log.isDebugEnabled()) {
                 log.debug("The twitter stream has been shutdown !");
             }
