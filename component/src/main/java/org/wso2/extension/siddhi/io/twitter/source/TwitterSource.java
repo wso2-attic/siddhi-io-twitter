@@ -19,8 +19,8 @@
 package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
+import org.wso2.extension.siddhi.io.twitter.util.ExtractParam;
 import org.wso2.extension.siddhi.io.twitter.util.TwitterConstants;
-import org.wso2.extension.siddhi.io.twitter.util.extractParam;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -32,6 +32,7 @@ import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import twitter4j.Query;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
@@ -39,12 +40,10 @@ import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
- /**
+/**
  * Twitter Source Implementation
  */
 
@@ -251,6 +250,11 @@ public class TwitterSource extends Source {
     private TwitterStream twitterStream;
     private long[] follow;
     private double[][] locations;
+    private double latitude;
+    private double longitude;
+    private double radius;
+    private String unitName;
+    private Set<String> staticOptionsKeys;
 
 
     /**
@@ -269,7 +273,6 @@ public class TwitterSource extends Source {
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
-        Set<String> staticOptionsKeys;
         this.sourceEventListener = sourceEventListener;
         this.consumerKey = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_KEY);
         this.consumerSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_SECRET);
@@ -300,8 +303,8 @@ public class TwitterSource extends Source {
                 TwitterConstants.EMPTY_STRING);
         this.resultType = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
                 "mixed");
-        staticOptionsKeys = optionHolder.getStaticOptionsKeys();
-        validateParameter(mode, query, filterLevel, resultType, staticOptionsKeys);
+        this.staticOptionsKeys = optionHolder.getStaticOptionsKeys();
+        validateParameter();
     }
 
     /**
@@ -342,8 +345,9 @@ public class TwitterSource extends Source {
 
             if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
                 twitter = (new TwitterFactory(cb.build())).getInstance();
-                TwitterConsumer.consume(twitter, this.sourceEventListener, this.query,
-                        this.searchLang, this.sinceId, this.maxId, this.until, this.resultType, this.geocode);
+                TwitterConsumer.consume(twitter, this.sourceEventListener, this.query, this.searchLang,
+                        this.sinceId, this.maxId, this.until, this.resultType, this.geocode, this.latitude,
+                        this.longitude, this.radius, this.unitName);
             }
         } catch (Exception e) {
             throw new ConnectionUnavailableException(
@@ -416,77 +420,74 @@ public class TwitterSource extends Source {
     public void restoreState(Map<String, Object> map) {
     }
 
-     /**
-      * Validating parameters.
-      */
+    /**
+     * Validating parameters.
+     */
 
-     private void validateParameter(String mode, String query, String filterLevel, String resultType,
-                                    Set<String> staticOptionsKeys) {
-         Query.ResultType resultType1 = Query.ResultType.valueOf(resultType);
-         List<String> filterLevels = Arrays.asList(
-                 TwitterConstants.FILTER_LEVEL_LOW,
-                 TwitterConstants.FILTER_LEVEL_MEDIUM,
-                 TwitterConstants.FILTER_LEVEL_NONE);
-         List<Query.ResultType> resultTypes = Arrays.asList(
-                 Query.ResultType.mixed,
-                 Query.ResultType.popular,
-                 Query.ResultType.recent);
-         List<String> mandatoryParam = Arrays.asList(
-                 TwitterConstants.CONSUMER_KEY,
-                 TwitterConstants.CONSUMER_SECRET,
-                 TwitterConstants.ACCESS_TOKEN,
-                 TwitterConstants.ACCESS_SECRET,
-                 TwitterConstants.MODE, "type");
-         List<String> streamingParam = Arrays.asList(
-                 TwitterConstants.STREAMING_FILTER_TRACK,
-                 TwitterConstants.STREAMING_FILTER_FOLLOW,
-                 TwitterConstants.STREAMING_FILTER_FILTER_LEVEL,
-                 TwitterConstants.STREAMING_FILTER_LOCATIONS,
-                 TwitterConstants.STREAMING_FILTER_LANGUAGE);
-         List<String> pollingParam = Arrays.asList(
-                 TwitterConstants.POLLING_SEARCH_QUERY,
-                 TwitterConstants.POLLING_SEARCH_LANGUAGE,
-                 TwitterConstants.POLLING_SEARCH_GEOCODE,
-                 TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
-                 TwitterConstants.POLLING_SEARCH_MAXID,
-                 TwitterConstants.POLLING_SEARCH_SINCEID,
-                 TwitterConstants.POLLING_SEARCH_UNTIL);
-         if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
-             for (String s : staticOptionsKeys) {
-                 if (!streamingParam.contains(s) && !mandatoryParam.contains(s)) {
-                     throw new SiddhiAppCreationException(s + " is not valid for the " + mode + " mode");
-                 }
-             }
-         } else if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
-             if (query.isEmpty()) {
-                 throw new SiddhiAppCreationException("In polling mode, query is a mandatory parameter.");
-             }
-             for (String s : staticOptionsKeys) {
-                 if (!pollingParam.contains(s) && !mandatoryParam.contains(s)) {
-                     throw new SiddhiAppCreationException(s + " is not valid for the " + mode + " mode");
-                 }
-             }
-         } else {
-             throw new SiddhiAppCreationException("There are only two possible values for mode :" +
-                     " streaming or polling. But found '" + mode + "'.");
-         }
-         if (!followParam.isEmpty()) {
-             this.follow = extractParam.followParam(followParam);
-         }
+    private void validateParameter() {
+        Query.ResultType resultType1 = Query.ResultType.valueOf(this.resultType);
+        if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
+            for (String s : this.staticOptionsKeys) {
+                if (!TwitterConstants.STREAMING_PARAM.contains(s) && !TwitterConstants.MANDATORY_PARAM.contains(s)) {
+                    throw new SiddhiAppCreationException(s + " is not valid for the " + this.mode + " mode");
+                }
+            }
+        } else if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
+            if (query.isEmpty()) {
+                throw new SiddhiAppCreationException("In polling mode, query is a mandatory parameter.");
+            }
+            for (String s : this.staticOptionsKeys) {
+                if (!TwitterConstants.POLLING_PARAM.contains(s) && !TwitterConstants.MANDATORY_PARAM.contains(s)) {
+                    throw new SiddhiAppCreationException(s + " is not valid for the " + this.mode + " mode");
+                }
+            }
+        } else {
+            throw new SiddhiAppCreationException("There are only two possible values for mode :" +
+                    " streaming or polling. But found '" + this.mode + "'.");
+        }
+        if (!this.followParam.isEmpty()) {
+            this.follow = ExtractParam.followParam(followParam);
+        }
 
-         if (!locationParam.isEmpty()) {
-             this.locations = extractParam.locationParam(locationParam);
-         }
+        if (!this.locationParam.isEmpty()) {
+            this.locations = ExtractParam.locationParam(locationParam);
+        }
 
-         if (!filterLevels.contains(this.filterLevel)) {
-             throw new SiddhiAppCreationException("There are only three possible values for filter.level :" +
-                     " low or medium or none. But found '" + filterLevel + "'.");
-         }
+        if (!this.geocode.isEmpty()) {
+            Query.Unit unit = null;
+            String[] parts = ExtractParam.extract(geocode);
+            String radiusstr = parts[2].trim();
+            try {
+               this.latitude = Double.parseDouble(parts[0]);
+               this.longitude = Double.parseDouble(parts[1]);
+               this.radius = Double.parseDouble(radiusstr.substring(0, radiusstr.length() - 2));
+            } catch (NumberFormatException e) {
+                throw new SiddhiAppValidationException("In geocode, Latitude,Longitude,Radius should be " +
+                        "a double value : " + e);
+            }
 
-         if (!resultTypes.contains(resultType1)) {
-             throw new SiddhiAppCreationException("There are only three possible values for result.type :" +
-                     " mixed or popular or recent. But found '" + resultType + "'.");
-         }
-     }
+            for (Query.Unit value : Query.Unit.values()) {
+                if (radiusstr.endsWith(value.name())) {
+                    unit = value;
+                    break;
+                }
+            }
+
+            if (unit == null) {
+                throw new SiddhiAppValidationException("Unrecognized geocode radius: " + radiusstr);
+            }
+            this.unitName = unit.name();
+        }
+
+        if (!TwitterConstants.FILTER_LEVELS.contains(this.filterLevel)) {
+            throw new SiddhiAppCreationException("There are only three possible values for filter.level :" +
+                    " low or medium or none. But found '" + filterLevel + "'.");
+        }
+
+        if (!TwitterConstants.RESULT_TYPES.contains(resultType1)) {
+            throw new SiddhiAppCreationException("There are only three possible values for result.type :" +
+                    " mixed or popular or recent. But found '" + resultType + "'.");
+        }
+    }
 }
 

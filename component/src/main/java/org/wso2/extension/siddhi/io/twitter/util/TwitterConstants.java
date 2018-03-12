@@ -19,6 +19,12 @@
 package org.wso2.extension.siddhi.io.twitter.util;
 
 
+import twitter4j.Query;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * {@code TwitterConstant }Twitter Source Constants.
  */
@@ -47,4 +53,37 @@ public class TwitterConstants {
     public static final String FILTER_LEVEL_MEDIUM = "medium";
     public static final String FILTER_LEVEL_LOW = "low";
     public static final String EMPTY_STRING = "";
+
+    public static final List<String> MANDATORY_PARAM = Collections.unmodifiableList(Arrays.asList(
+            TwitterConstants.CONSUMER_KEY,
+            TwitterConstants.CONSUMER_SECRET,
+            TwitterConstants.ACCESS_TOKEN,
+            TwitterConstants.ACCESS_SECRET,
+            TwitterConstants.MODE, "type"));
+
+    public static final List<String> STREAMING_PARAM = Collections.unmodifiableList(Arrays.asList(
+            TwitterConstants.STREAMING_FILTER_TRACK,
+            TwitterConstants.STREAMING_FILTER_FOLLOW,
+            TwitterConstants.STREAMING_FILTER_FILTER_LEVEL,
+            TwitterConstants.STREAMING_FILTER_LOCATIONS,
+            TwitterConstants.STREAMING_FILTER_LANGUAGE));
+
+    public static final List<String> POLLING_PARAM = Collections.unmodifiableList(Arrays.asList(
+            TwitterConstants.POLLING_SEARCH_QUERY,
+            TwitterConstants.POLLING_SEARCH_LANGUAGE,
+            TwitterConstants.POLLING_SEARCH_GEOCODE,
+            TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
+            TwitterConstants.POLLING_SEARCH_MAXID,
+            TwitterConstants.POLLING_SEARCH_SINCEID,
+            TwitterConstants.POLLING_SEARCH_UNTIL));
+
+    public static final List<String> FILTER_LEVELS = Collections.unmodifiableList(Arrays.asList(
+            TwitterConstants.FILTER_LEVEL_LOW,
+            TwitterConstants.FILTER_LEVEL_MEDIUM,
+            TwitterConstants.FILTER_LEVEL_NONE));
+
+    public static final List<Query.ResultType> RESULT_TYPES = Collections.unmodifiableList(Arrays.asList(
+            Query.ResultType.mixed,
+            Query.ResultType.popular,
+            Query.ResultType.recent));
 }

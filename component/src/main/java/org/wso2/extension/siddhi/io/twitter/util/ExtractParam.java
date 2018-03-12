@@ -24,7 +24,7 @@ public class ExtractParam {
             }
             length = locationPair.length;
             locations = new double[length][2];
-            for (i = 0; i < locationPair.length; ++i) {
+            for (i = 0; i < length; ++i) {
                 try {
                     locations[i][0] = Double.parseDouble(locationPair[i].split(":")[0]);
                     locations[i][1] = Double.parseDouble(locationPair[i].split(":")[1]);
@@ -48,6 +48,5 @@ public class ExtractParam {
             }
             return follow;
         }
-
     }
 

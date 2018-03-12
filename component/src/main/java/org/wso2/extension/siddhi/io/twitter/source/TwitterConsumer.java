@@ -19,9 +19,7 @@
 package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.io.twitter.util.TwitterConstants;
-import org.wso2.extension.siddhi.io.twitter.util.extractParam;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.extension.siddhi.io.twitter.util.ExtractParam;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import twitter4j.FilterQuery;
 import twitter4j.GeoLocation;
@@ -36,9 +34,7 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterObjectFactory;
 import twitter4j.TwitterStream;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This class handles consuming livestream tweets .
@@ -108,12 +104,12 @@ public class TwitterConsumer {
         twitterStream.addListener(listener);
         filterQuery = new FilterQuery();
         if (!trackParam.trim().isEmpty()) {
-            tracks = extractParam.extract(trackParam);
+            tracks = ExtractParam.extract(trackParam);
             filterQuery.track(tracks);
         }
 
         if (!languageParam.trim().isEmpty()) {
-            filterLang = extractParam.extract(languageParam);
+            filterLang = ExtractParam.extract(languageParam);
             filterQuery.language(filterLang);
         }
 
@@ -138,7 +134,6 @@ public class TwitterConsumer {
     }
 
     /**
-     * This method handles consuming past tweets within a week.
      *
      * @param twitter             - For Twitter Polling
      * @param sourceEventListener - Listen Events
@@ -148,12 +143,16 @@ public class TwitterConsumer {
      * @param maxId               - Returns results with an ID less than or equal to the specified ID.
      * @param until               - Returns tweets created before the given date.
      * @param resultType          - Specifies what type of search results you would prefer to receive.
-     * @param geoCode             - Returns tweets by users located within a given radius of the given
-     *                            latitude/longitude.
+     * @param latitude            - Specifies the latitude of the location
+     * @param longitude           - Specifies the longitude of the location
+     * @param radius              - Specify the radius of the given location
+     * @param unitName            - Specifies the unit name of the radius
+     * @throws InterruptedException - The InterruptedException is thrown when a thread is waiting or sleeping
      */
 
     public static void consume(Twitter twitter, SourceEventListener sourceEventListener, String q, String language,
-                               long sinceId, long maxId, String until, String resultType, String geoCode)
+                               long sinceId, long maxId, String until, String resultType, String geoCode,
+                               double latitude, double longitude, double radius, String unitName)
             throws InterruptedException {
         try {
             Query query = new Query(q);
@@ -170,23 +169,6 @@ public class TwitterConsumer {
                 query.resultType(Query.ResultType.valueOf(resultType));
             }
             if (!geoCode.trim().isEmpty()) {
-                String[] parts = extractParam.extract(geoCode);
-                double latitude = Double.parseDouble(parts[0]);
-                double longitude = Double.parseDouble(parts[1]);
-                double radius = 0.0;
-                Query.Unit unit = null;
-                String radiusstr = parts[2].trim();
-                for (Query.Unit value : Query.Unit.values()) {
-                    if (radiusstr.endsWith(value.name())) {
-                        radius = Double.parseDouble(radiusstr.substring(0, radiusstr.length() - 2));
-                        unit = value;
-                        break;
-                    }
-                }
-                if (unit == null) {
-                    throw new IllegalArgumentException("Unrecognized geocode radius: " + radiusstr);
-                }
-                String unitName = unit.name();
                 query.geoCode(new GeoLocation(latitude, longitude), radius, unitName);
             }
 

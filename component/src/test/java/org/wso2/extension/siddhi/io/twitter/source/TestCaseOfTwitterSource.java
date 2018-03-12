@@ -148,7 +148,7 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'streaming', track = 'Amazon,Google', location = '49.871159: -6.379880,55.811741:1.768960'," +
+                "mode= 'streaming', track = 'google,Amazon', location = '49.871159:-6.379880, 55.811741:1.768960'," +
                 " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
                 "define stream inputStream(created_at String, id long, id_str String, text String, " +
@@ -338,7 +338,7 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'polling', query = '#Amazon', result.type = 'popular', until = '2018-02-26'," +
+                "mode= 'polling', query = '#Amazon', geocode = '43.913723261972855,-72.54272478125,150km'," +
                 " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
                 "define stream inputStream(created_at String, id long, id_str String, text String, " +
@@ -412,60 +412,5 @@ public class TestCaseOfTwitterSource {
         Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
-
-    /*@Test
-    public void testTwitterPolling4() throws InterruptedException {
-        LOG.info("----------------------------------------------------------------------------------");
-        LOG.info("TwitterPolling TestCase 4 - Test for pause and resume method.");
-        LOG.info("----------------------------------------------------------------------------------");
-        SiddhiManager siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "" +
-                "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'polling' , query = 'happy hour', language = 'en' ," +
-                " @map(type='json', fail.on.missing.attribute='false' ," +
-                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
-                " coordinates='coordinates', user='user')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String, " +
-                "coordinates string, user string);";
-        String query = ("@info(name = 'query1') " +
-                "from inputStream " +
-                "select *  " +
-                "insert into outputStream;");
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
-                query);
-
-        Collection<List<Source>> sources = siddhiAppRuntime.getSources();
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-                for (Event event : inEvents) {
-                    eventCount.getAndIncrement();
-                    LOG.info(eventCount + " . " + event);
-                    eventArrived = true;
-                }
-            }
-        });
-
-        siddhiAppRuntime.start();
-        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertTrue(eventArrived);
-        LOG.info(eventCount);
-        sources.forEach(e -> e.forEach(Source::pause));
-        eventArrived = false;
-        eventCount.set(0);
-        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        LOG.info(eventCount);
-        Assert.assertFalse(eventArrived);
-        sources.forEach(e -> e.forEach(Source::resume));
-        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertTrue(eventArrived);
-        siddhiAppRuntime.shutdown();
-    }*/
 }
 
