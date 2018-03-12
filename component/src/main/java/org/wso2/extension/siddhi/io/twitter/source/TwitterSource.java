@@ -20,22 +20,27 @@ package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.io.twitter.util.TwitterConstants;
+import org.wso2.extension.siddhi.io.twitter.util.extractParam;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import twitter4j.Query;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -232,9 +237,9 @@ public class TwitterSource extends Source {
     private String accessSecret;
     private String mode;
     private String followParam;
+    private String locationParam;
     private String trackParam;
     private String languageParam;
-    private String locationParam;
     private String filterLevel;
     private String query;
     private String geocode;
@@ -244,6 +249,8 @@ public class TwitterSource extends Source {
     private String until;
     private String resultType;
     private TwitterStream twitterStream;
+    private long[] follow;
+    private double[][] locations;
 
 
     /**
@@ -269,11 +276,11 @@ public class TwitterSource extends Source {
         this.accessToken = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_TOKEN);
         this.accessSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_SECRET);
         this.mode = optionHolder.validateAndGetStaticValue(TwitterConstants.MODE);
+        this.locationParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_LOCATIONS,
+                TwitterConstants.EMPTY_STRING);
         this.followParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_FOLLOW,
                 TwitterConstants.EMPTY_STRING);
         this.languageParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_LANGUAGE,
-                TwitterConstants.EMPTY_STRING);
-        this.locationParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_LOCATIONS,
                 TwitterConstants.EMPTY_STRING);
         this.trackParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_TRACK,
                 TwitterConstants.EMPTY_STRING);
@@ -294,8 +301,7 @@ public class TwitterSource extends Source {
         this.resultType = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
                 "mixed");
         staticOptionsKeys = optionHolder.getStaticOptionsKeys();
-        TwitterConsumer.validateParameter(mode, query, filterLevel, resultType, staticOptionsKeys);
-
+        validateParameter(mode, query, filterLevel, resultType, staticOptionsKeys);
     }
 
     /**
@@ -331,7 +337,7 @@ public class TwitterSource extends Source {
             if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
                 this.twitterStream = (new TwitterStreamFactory(cb.build())).getInstance();
                 TwitterConsumer.consume(this.twitterStream, this.sourceEventListener, this.languageParam,
-                        this.trackParam, this.followParam, this.filterLevel, this.locationParam);
+                        this.trackParam, this.follow, this.filterLevel, this.locations);
             }
 
             if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
@@ -409,5 +415,78 @@ public class TwitterSource extends Source {
     @Override
     public void restoreState(Map<String, Object> map) {
     }
+
+     /**
+      * Validating parameters.
+      */
+
+     private void validateParameter(String mode, String query, String filterLevel, String resultType,
+                                    Set<String> staticOptionsKeys) {
+         Query.ResultType resultType1 = Query.ResultType.valueOf(resultType);
+         List<String> filterLevels = Arrays.asList(
+                 TwitterConstants.FILTER_LEVEL_LOW,
+                 TwitterConstants.FILTER_LEVEL_MEDIUM,
+                 TwitterConstants.FILTER_LEVEL_NONE);
+         List<Query.ResultType> resultTypes = Arrays.asList(
+                 Query.ResultType.mixed,
+                 Query.ResultType.popular,
+                 Query.ResultType.recent);
+         List<String> mandatoryParam = Arrays.asList(
+                 TwitterConstants.CONSUMER_KEY,
+                 TwitterConstants.CONSUMER_SECRET,
+                 TwitterConstants.ACCESS_TOKEN,
+                 TwitterConstants.ACCESS_SECRET,
+                 TwitterConstants.MODE, "type");
+         List<String> streamingParam = Arrays.asList(
+                 TwitterConstants.STREAMING_FILTER_TRACK,
+                 TwitterConstants.STREAMING_FILTER_FOLLOW,
+                 TwitterConstants.STREAMING_FILTER_FILTER_LEVEL,
+                 TwitterConstants.STREAMING_FILTER_LOCATIONS,
+                 TwitterConstants.STREAMING_FILTER_LANGUAGE);
+         List<String> pollingParam = Arrays.asList(
+                 TwitterConstants.POLLING_SEARCH_QUERY,
+                 TwitterConstants.POLLING_SEARCH_LANGUAGE,
+                 TwitterConstants.POLLING_SEARCH_GEOCODE,
+                 TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
+                 TwitterConstants.POLLING_SEARCH_MAXID,
+                 TwitterConstants.POLLING_SEARCH_SINCEID,
+                 TwitterConstants.POLLING_SEARCH_UNTIL);
+         if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
+             for (String s : staticOptionsKeys) {
+                 if (!streamingParam.contains(s) && !mandatoryParam.contains(s)) {
+                     throw new SiddhiAppCreationException(s + " is not valid for the " + mode + " mode");
+                 }
+             }
+         } else if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
+             if (query.isEmpty()) {
+                 throw new SiddhiAppCreationException("In polling mode, query is a mandatory parameter.");
+             }
+             for (String s : staticOptionsKeys) {
+                 if (!pollingParam.contains(s) && !mandatoryParam.contains(s)) {
+                     throw new SiddhiAppCreationException(s + " is not valid for the " + mode + " mode");
+                 }
+             }
+         } else {
+             throw new SiddhiAppCreationException("There are only two possible values for mode :" +
+                     " streaming or polling. But found '" + mode + "'.");
+         }
+         if (!followParam.isEmpty()) {
+             this.follow = extractParam.followParam(followParam);
+         }
+
+         if (!locationParam.isEmpty()) {
+             this.locations = extractParam.locationParam(locationParam);
+         }
+
+         if (!filterLevels.contains(this.filterLevel)) {
+             throw new SiddhiAppCreationException("There are only three possible values for filter.level :" +
+                     " low or medium or none. But found '" + filterLevel + "'.");
+         }
+
+         if (!resultTypes.contains(resultType1)) {
+             throw new SiddhiAppCreationException("There are only three possible values for result.type :" +
+                     " mixed or popular or recent. But found '" + resultType + "'.");
+         }
+     }
 }
 
