@@ -80,8 +80,8 @@ import java.util.Set;
                         name = "filter.level",
                         description = "Filters tweets by the level of engagement based on the " +
                                 " filter.level. The highest level(medium) corresponds loosely to the “top tweets” " +
-                                "filter the service already offers in its on-site search function Values will be one " +
-                                "of either none, low, or medium.",
+                                "filter the service already offers in its on-site search function. Values will " +
+                                "be one of either none, low, or medium.",
                         optional = true,
                         defaultValue = "none",
                         type = {DataType.STRING}),
@@ -99,7 +99,7 @@ import java.util.Set;
                         type = {DataType.LONG}),
                 @Parameter(
                         name = "location",
-                        description = "Filters the tweets based on the locations. Here, We have to specify " +
+                        description = "Filters tweets based on the locations. Here, We have to specify " +
                                 "latitude and the longitude of the location. For Example : 51.683979:0.278970",
                         optional = true,
                         defaultValue = "null",
@@ -112,8 +112,9 @@ import java.util.Set;
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "query",
-                        description = "Query is a UTF-8, URL-encoded search query of 500 characters maximum, " +
-                                "including operators. \nFor example : '@NASA - mentioning Twitter account 'NASA'.",
+                        description = "Filters tweets that matches the given Query, UTF-8, URL-encoded search" +
+                                " query of 500 characters maximum, including operators. \nFor example : " +
+                                "'@NASA' - mentioning Twitter account 'NASA'.",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
@@ -129,7 +130,7 @@ import java.util.Set;
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "result.type",
-                        description = "Returns the tweets based on what type of results you would prefer to receive." +
+                        description = "Returns tweets based on what type of results you would prefer to receive." +
                                 " The current default is 'mixed'. Valid values include:\n" +
                                 "* mixed : Include both popular and recent results in the response.\n" +
                                 "* recent : return only the most recent results in the response\n" +
@@ -139,14 +140,14 @@ import java.util.Set;
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "max.id",
-                        description = "Returns results with an tweet ID less than (that is, older than)" +
+                        description = "Returns tweets with an tweet ID less than (that is, older than)" +
                                 " or equal to the specified ID",
                         optional = true,
                         defaultValue = "-1",
                         type = {DataType.LONG}),
                 @Parameter(
                         name = "since.id",
-                        description = "Returns results with an tweet ID greater than (that is, more recent than)" +
+                        description = "Returns tweets with an tweet ID greater than (that is, more recent than)" +
                                 " the specified ID.",
                         optional = true,
                         defaultValue = "-1",
@@ -195,7 +196,7 @@ import java.util.Set;
                                 " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
                                 "define stream rcvEvents(created_at String, id long, id_str String, text String);",
                         description = "Under this configuration, it starts listening tweets in English that " +
-                                "containing the keywords Amazon,google or apple or tweeted by the given followers" +
+                                "containing the keywords Amazon,google,apple or tweeted by the given followers" +
                                 " or tweeted from the given location based on the filter.level. and they are passed" +
                                 " to the rcvEvents stream."
                 ),
@@ -214,14 +215,26 @@ import java.util.Set;
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
                                 "consumer.secret='consumerSecret', access.token='accessToken'," +
                                 "access.token.secret='accessTokenSecret', mode= 'polling'" +
+                                ", query = '#Amazon', since.id = '973439483906420736', @map(type='json', " +
+                                "fail.on.missing.attribute='false' , attributes(created_at = 'created_at'," +
+                                " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
+                                "define stream rcvEvents(created_at String, id long, id_str String, text String);",
+                        description = "Under this configuration, it starts polling tweets, containing the hashtag" +
+                                " '#Amazon' and tweet Id is greater than since.id and they are passed to the " +
+                                "rcvEvents stream."
+                ),
+                @Example(
+                        syntax = "@source(type='twitter', consumer.key='consumer.key'," +
+                                "consumer.secret='consumerSecret', access.token='accessToken'," +
+                                "access.token.secret='accessTokenSecret', mode= 'polling'" +
                                 ", query = '@NASA', language = 'en', result.type = 'recent'," +
                                 " geocode = '43.913723261972855,-72.54272478125,150km', since.id = 24012619984051000," +
                                 " max.id = 250126199840518145, until = 2018-03-10,  @map(type='json', " +
                                 "fail.on.missing.attribute='false' , attributes(created_at = 'created_at'," +
                                 " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
                                 "define stream rcvEvents(created_at String, id long, id_str String, text String);",
-                        description = "Under this configuration, it starts polling recent tweets in english that" +
-                                " having tweet id greater than since.id and less than ma.id, mentioning NASA " +
+                        description = "Under this configuration, it starts polling recent tweets in english that is " +
+                                " having tweet id greater than since.id and less than max.id, mentioning NASA " +
                                 " and they are passed to the rcvEvents stream."
                 )
         }
@@ -315,7 +328,7 @@ public class TwitterSource extends Source {
      */
     @Override
     public Class[] getOutputEventClasses() {
-        return new Class[0];
+        return new Class[]{String.class};
     }
 
     /**
@@ -340,10 +353,8 @@ public class TwitterSource extends Source {
             if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
                 this.twitterStream = (new TwitterStreamFactory(cb.build())).getInstance();
                 TwitterConsumer.consume(this.twitterStream, this.sourceEventListener, this.languageParam,
-                        this.trackParam, this.follow, this.filterLevel, this.locations);
-            }
-
-            if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
+                        this.trackParam, this.follow, this.filterLevel, this.locations, this.staticOptionsKeys.size());
+            } else {
                 twitter = (new TwitterFactory(cb.build())).getInstance();
                 TwitterConsumer.consume(twitter, this.sourceEventListener, this.query, this.searchLang,
                         this.sinceId, this.maxId, this.until, this.resultType, this.geocode, this.latitude,
@@ -354,7 +365,6 @@ public class TwitterSource extends Source {
                     "Error in connecting with the Twitter API" + e.getMessage(), e);
         }
     }
-
 
     /**
      * This method can be called when it is needed to disconnect from the end point.
@@ -434,7 +444,7 @@ public class TwitterSource extends Source {
             }
         } else if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
             if (query.isEmpty()) {
-                throw new SiddhiAppCreationException("In polling mode, query is a mandatory parameter.");
+                throw new SiddhiAppCreationException("For polling mode, query should be given.");
             }
             for (String s : this.staticOptionsKeys) {
                 if (!TwitterConstants.POLLING_PARAM.contains(s) && !TwitterConstants.MANDATORY_PARAM.contains(s)) {
@@ -446,11 +456,11 @@ public class TwitterSource extends Source {
                     " streaming or polling. But found '" + this.mode + "'.");
         }
         if (!this.followParam.isEmpty()) {
-            this.follow = ExtractParam.followParam(followParam);
+            this.follow = ExtractParam.followParam(this.followParam);
         }
 
         if (!this.locationParam.isEmpty()) {
-            this.locations = ExtractParam.locationParam(locationParam);
+            this.locations = ExtractParam.locationParam(this.locationParam);
         }
 
         if (!this.geocode.isEmpty()) {
@@ -474,7 +484,8 @@ public class TwitterSource extends Source {
             }
 
             if (unit == null) {
-                throw new SiddhiAppValidationException("Unrecognized geocode radius: " + radiusstr);
+                throw new SiddhiAppValidationException("Unrecognized geocode radius: " + radiusstr + ". Radius units" +
+                        " must be specified as either 'mi' (miles) or 'km' (kilometers).");
             }
             this.unitName = unit.name();
         }

@@ -81,7 +81,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">filter.level</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters tweets by the level of engagement based on the  filter.level. The highest level(medium) corresponds loosely to the “top tweets” filter the service already offers in its on-site search function Values will be one of either none, low, or medium.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Filters tweets by the level of engagement based on the  filter.level. The highest level(medium) corresponds loosely to the “top tweets” filter the service already offers in its on-site search function. Values will be one of either none, low, or medium.</td>
         <td style="vertical-align: top">none</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -105,7 +105,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">location</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters the tweets based on the locations. Here, We have to specify latitude and the longitude of the location. For Example : 51.683979:0.278970</td>
+        <td style="vertical-align: top; word-wrap: break-word">Filters tweets based on the locations. Here, We have to specify latitude and the longitude of the location. For Example : 51.683979:0.278970</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">DOUBLE</td>
         <td style="vertical-align: top">Yes</td>
@@ -121,7 +121,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">query</td>
-        <td style="vertical-align: top; word-wrap: break-word">Query is a UTF-8, URL-encoded search query of 500 characters maximum, including operators. <br>For example : '@NASA - mentioning Twitter account 'NASA'.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Filters tweets that matches the given Query, UTF-8, URL-encoded search query of 500 characters maximum, including operators. <br>For example : '@NASA' - mentioning Twitter account 'NASA'.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -137,7 +137,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">result.type</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns the tweets based on what type of results you would prefer to receive. The current default is 'mixed'. Valid values include:<br>* mixed : Include both popular and recent results in the response.<br>* recent : return only the most recent results in the response<br>* popular : return only the most popular results in the response.)</td>
+        <td style="vertical-align: top; word-wrap: break-word">Returns tweets based on what type of results you would prefer to receive. The current default is 'mixed'. Valid values include:<br>* mixed : Include both popular and recent results in the response.<br>* recent : return only the most recent results in the response<br>* popular : return only the most popular results in the response.)</td>
         <td style="vertical-align: top">mixed</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -145,7 +145,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">max.id</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns results with an tweet ID less than (that is, older than) or equal to the specified ID</td>
+        <td style="vertical-align: top; word-wrap: break-word">Returns tweets with an tweet ID less than (that is, older than) or equal to the specified ID</td>
         <td style="vertical-align: top">-1</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
@@ -153,7 +153,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">since.id</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns results with an tweet ID greater than (that is, more recent than) the specified ID.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Returns tweets with an tweet ID greater than (that is, more recent than) the specified ID.</td>
         <td style="vertical-align: top">-1</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
@@ -189,7 +189,7 @@ define stream rcvEvents(created_at String, id long, id_str String, text String);
 @source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'streaming', track = 'Amazon,Google,Apple', language = 'en', follow = '11348282,20536157,15670515,17193794,58561993,18139619',filter.level = 'low', location = '51.280430:-0.563160,51.683979:0.278970', @map(type='json', fail.on.missing.attribute='false' , attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))
 define stream rcvEvents(created_at String, id long, id_str String, text String);
 ```
-<p style="word-wrap: break-word">Under this configuration, it starts listening tweets in English that containing the keywords Amazon,google or apple or tweeted by the given followers or tweeted from the given location based on the filter.level. and they are passed to the rcvEvents stream.</p>
+<p style="word-wrap: break-word">Under this configuration, it starts listening tweets in English that containing the keywords Amazon,google,apple or tweeted by the given followers or tweeted from the given location based on the filter.level. and they are passed to the rcvEvents stream.</p>
 
 <span id="example-4" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 4</span>
 ```
@@ -200,8 +200,15 @@ define stream rcvEvents(created_at String, id long, id_str String, text String);
 
 <span id="example-5" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 5</span>
 ```
+@source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'polling', query = '#Amazon', since.id = '973439483906420736', @map(type='json', fail.on.missing.attribute='false' , attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))
+define stream rcvEvents(created_at String, id long, id_str String, text String);
+```
+<p style="word-wrap: break-word">Under this configuration, it starts polling tweets, containing the hashtag '#Amazon' and tweet Id is greater than since.id and they are passed to the rcvEvents stream.</p>
+
+<span id="example-6" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 6</span>
+```
 @source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'polling', query = '@NASA', language = 'en', result.type = 'recent', geocode = '43.913723261972855,-72.54272478125,150km', since.id = 24012619984051000, max.id = 250126199840518145, until = 2018-03-10,  @map(type='json', fail.on.missing.attribute='false' , attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))
 define stream rcvEvents(created_at String, id long, id_str String, text String);
 ```
-<p style="word-wrap: break-word">Under this configuration, it starts polling recent tweets in english that having tweet id greater than since.id and less than ma.id, mentioning NASA  and they are passed to the rcvEvents stream.</p>
+<p style="word-wrap: break-word">Under this configuration, it starts polling recent tweets in english that is  having tweet id greater than since.id and less than max.id, mentioning NASA  and they are passed to the rcvEvents stream.</p>
 

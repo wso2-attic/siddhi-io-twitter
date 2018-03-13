@@ -26,10 +26,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * {@code TwitterConstant }Twitter Source Constants.
+ * {@code TwitterConstants}Twitter Source Constants.
  */
 
 public class TwitterConstants {
+
+    private TwitterConstants() {
+    }
+
     public static final String CONSUMER_KEY = "consumer.key";
     public static final String CONSUMER_SECRET = "consumer.secret";
     public static final String ACCESS_TOKEN = "access.token";
@@ -49,9 +53,9 @@ public class TwitterConstants {
     public static final String POLLING_SEARCH_LANGUAGE = "language";
     public static final String POLLING_SEARCH_RESULT_TYPE = "result.type";
     public static final String POLLING_SEARCH_UNTIL = "until";
-    public static final String FILTER_LEVEL_NONE = "none";
-    public static final String FILTER_LEVEL_MEDIUM = "medium";
-    public static final String FILTER_LEVEL_LOW = "low";
+    private static final String FILTER_LEVEL_NONE = "none";
+    private static final String FILTER_LEVEL_MEDIUM = "medium";
+    private static final String FILTER_LEVEL_LOW = "low";
     public static final String EMPTY_STRING = "";
 
     public static final List<String> MANDATORY_PARAM = Collections.unmodifiableList(Arrays.asList(

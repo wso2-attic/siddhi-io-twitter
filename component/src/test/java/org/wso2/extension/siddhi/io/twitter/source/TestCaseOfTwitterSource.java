@@ -53,7 +53,8 @@ public class TestCaseOfTwitterSource {
     @Test
     public void testTwitterStreaming1() throws InterruptedException {
         LOG.info("------------------------------------------------------------------------------------------------");
-        LOG.info("TwitterSourceStreaming TestCase 1 - Filtering tweets in English that include the given keywords");
+        LOG.info("TwitterSourceStreaming TestCase 1 - Filtering tweets in English that include the given keywords" +
+                " on the basis of filter.level");
         LOG.info("------------------------------------------------------------------------------------------------");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
@@ -62,7 +63,7 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'streaming', track = 'Amazon,Google,Apple', language = 'en', " +
+                "mode= 'streaming', track = 'Amazon,Google,Apple', language = 'en',filter.level = 'none' , " +
                 "@map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
                 "define stream inputStream(created_at String, id long, id_str String, text String, " +
@@ -148,7 +149,7 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'streaming', track = 'google,Amazon', location = '49.871159:-6.379880, 55.811741:1.768960'," +
+                "mode= 'streaming', track = 'google,Amazon', location = '-122.75,36.8,-121.75,37.8,-74,40,-73,41'," +
                 " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
                 "define stream inputStream(created_at String, id long, id_str String, text String, " +

@@ -37,15 +37,19 @@ import twitter4j.TwitterStream;
 import java.util.List;
 
 /**
- * This class handles consuming livestream tweets .
+ * This class handles consuming tweets .
  */
 
 public class TwitterConsumer {
     private static final Logger log = Logger.getLogger(TwitterSource.class);
     private static boolean isPaused = false;
 
+    private TwitterConsumer() {
+    }
 
     /**
+     * This method handles consuming livestream tweets.
+     *
      * @param twitterStream       - For streaming mode
      * @param sourceEventListener - Listen events
      * @param languageParam       - Specifies language
@@ -56,7 +60,7 @@ public class TwitterConsumer {
      */
     public static void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener,
                                String languageParam, String trackParam, long[] follow,
-                               String filterLevel, double[][] locations) {
+                               String filterLevel, double[][] locations, int paramSize) {
         FilterQuery filterQuery;
         String[] tracks;
         String[] filterLang;
@@ -125,8 +129,7 @@ public class TwitterConsumer {
             filterQuery.locations(locations);
         }
 
-        if (follow == null && trackParam.trim().isEmpty() &&
-                languageParam.trim().isEmpty() && locations == null) {
+        if (paramSize == 6) {
             twitterStream.sample();
         } else {
             twitterStream.filter(filterQuery);
@@ -134,6 +137,7 @@ public class TwitterConsumer {
     }
 
     /**
+     * This method handles consuming historical tweets within a week.
      *
      * @param twitter             - For Twitter Polling
      * @param sourceEventListener - Listen Events
@@ -160,17 +164,17 @@ public class TwitterConsumer {
             if (!language.trim().isEmpty()) {
                 query.lang(language);
             }
-            query.sinceId(sinceId);
-            query.maxId(maxId);
-            if (!until.trim().isEmpty()) {
-                query.until(until);
-            }
             if (!resultType.trim().isEmpty()) {
                 query.resultType(Query.ResultType.valueOf(resultType));
             }
             if (!geoCode.trim().isEmpty()) {
                 query.geoCode(new GeoLocation(latitude, longitude), radius, unitName);
             }
+            if (!until.trim().isEmpty()) {
+                query.until(until);
+            }
+            query.sinceId(sinceId);
+            query.maxId(maxId);
 
             do {
                 result = twitter.search(query);
