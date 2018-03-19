@@ -19,7 +19,7 @@
 package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.io.twitter.util.ExtractParam;
+import org.wso2.extension.siddhi.io.twitter.util.Util;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import twitter4j.FilterQuery;
 import twitter4j.GeoLocation;
@@ -37,15 +37,16 @@ import twitter4j.TwitterStream;
 import java.util.List;
 
 /**
- * This class handles consuming tweets .
+ * This class handles consuming tweets and passing to the stream.
  */
 
-public class TwitterConsumer {
-    private static final Logger log = Logger.getLogger(TwitterSource.class);
-    private static boolean isPaused = false;
+public enum TwitterConsumer {
+    INSTANCE;
 
-    private TwitterConsumer() {
-    }
+
+    private static final Logger log = Logger.getLogger(TwitterConsumer.class);
+    private static boolean isPaused = false;
+    private static int sleepTime = 10000;
 
     /**
      * This method handles consuming livestream tweets.
@@ -58,7 +59,8 @@ public class TwitterConsumer {
      * @param filterLevel         - Specifies filter level( low ,medium, none)
      * @param locations           - Specifies location
      */
-    public static void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener,
+
+    public void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener,
                                String languageParam, String trackParam, long[] follow,
                                String filterLevel, double[][] locations, int paramSize) {
         FilterQuery filterQuery;
@@ -70,10 +72,10 @@ public class TwitterConsumer {
             public void onStatus(Status status) {
                 if (isPaused) {
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(sleepTime);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
-                        log.error(ie);
+                        log.error("Thread was interrupted during sleep or wait : " + ie);
                     }
                 }
                 sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
@@ -108,12 +110,12 @@ public class TwitterConsumer {
         twitterStream.addListener(listener);
         filterQuery = new FilterQuery();
         if (!trackParam.trim().isEmpty()) {
-            tracks = ExtractParam.extract(trackParam);
+            tracks = Util.extract(trackParam);
             filterQuery.track(tracks);
         }
 
         if (!languageParam.trim().isEmpty()) {
-            filterLang = ExtractParam.extract(languageParam);
+            filterLang = Util.extract(languageParam);
             filterQuery.language(filterLang);
         }
 
@@ -154,13 +156,16 @@ public class TwitterConsumer {
      * @throws InterruptedException - The InterruptedException is thrown when a thread is waiting or sleeping
      */
 
-    public static void consume(Twitter twitter, SourceEventListener sourceEventListener, String q, String language,
-                               long sinceId, long maxId, String until, String resultType, String geoCode,
-                               double latitude, double longitude, double radius, String unitName)
+    public void consume(Twitter twitter, SourceEventListener sourceEventListener, String q , int count,
+                               String language, long sinceId, long maxId, String until, String since, String resultType,
+                               String geoCode, double latitude, double longitude, double radius, String unitName)
             throws InterruptedException {
         try {
             Query query = new Query(q);
-            QueryResult result;
+            QueryResult result = null;
+            if (count > 0) {
+                query.count(count);
+            }
             if (!language.trim().isEmpty()) {
                 query.lang(language);
             }
@@ -173,19 +178,21 @@ public class TwitterConsumer {
             if (!until.trim().isEmpty()) {
                 query.until(until);
             }
+            if (!since.trim().isEmpty()) {
+                query.since(until);
+            }
             query.sinceId(sinceId);
             query.maxId(maxId);
-
             do {
                 result = twitter.search(query);
                 List<Status> tweets = result.getTweets();
                 for (Status tweet : tweets) {
-                    if (isPaused) {
-                        Thread.sleep(10000);
+                    if (isPaused){
+                            Thread.sleep(sleepTime);
                     }
                     sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                 }
-            } while ((query = result.nextQuery()) != null);
+            } while ((result.hasNext()));
         } catch (TwitterException te) {
             log.error("Failed to search tweets: " + te.getMessage());
         }
@@ -198,7 +205,5 @@ public class TwitterConsumer {
     public static void resume() {
         isPaused = false;
     }
-
-
 }
 

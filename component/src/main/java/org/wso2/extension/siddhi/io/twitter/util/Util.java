@@ -21,11 +21,10 @@ package org.wso2.extension.siddhi.io.twitter.util;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 /**
- * This extracts the parameters that need to be extracted in to parts.
+ * This class contains util methods for the extensions.
  */
-
-public class ExtractParam {
-    private ExtractParam() {
+public class Util {
+    private Util() {
     }
 
     private static int length;
@@ -38,6 +37,9 @@ public class ExtractParam {
     public static double[][] locationParam(String locationParam) {
         String[] boundary = extract(locationParam);
         length = boundary.length;
+        if (length < 5) {
+            throw new SiddhiAppValidationException ("For the location, the bounding box specified is invalid.");
+        }
         double[][] locations = new double[length / 2][2];
         int k = 0;
         for (i = 0; i < length / 2; i++) {
@@ -45,7 +47,8 @@ public class ExtractParam {
                 try {
                     locations[i][j] = Double.parseDouble(boundary[k++]);
                 } catch (NumberFormatException e) {
-                    throw new SiddhiAppValidationException("Latitude/Longitude should be a double value: " + e);
+                    throw new SiddhiAppValidationException("Latitude/Longitude should be a double value: "
+                            + e.getMessage() , e);
                 }
             }
         }
@@ -54,13 +57,13 @@ public class ExtractParam {
 
     public static long[] followParam(String followParam) {
         long[] follow;
-        length = followParam.split(",").length;
+        length = extract(followParam).length;
         follow = new long[length];
         for (i = 0; i < length; i++) {
             try {
                 follow[i] = Long.parseLong(extract(followParam)[i]);
             } catch (NumberFormatException e) {
-                throw new SiddhiAppValidationException("Follow should be a long value: " + e);
+                throw new SiddhiAppValidationException("Follow should be a long value: " + e.getMessage() , e);
             }
         }
         return follow;

@@ -19,8 +19,8 @@
 package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.io.twitter.util.ExtractParam;
 import org.wso2.extension.siddhi.io.twitter.util.TwitterConstants;
+import org.wso2.extension.siddhi.io.twitter.util.Util;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -40,6 +40,7 @@ import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -115,6 +116,12 @@ import java.util.Set;
                         description = "Filters tweets that matches the given Query, UTF-8, URL-encoded search" +
                                 " query of 500 characters maximum, including operators. \nFor example : " +
                                 "'@NASA' - mentioning Twitter account 'NASA'.",
+                        optional = true,
+                        defaultValue = "null",
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = "count",
+                        description = "Returns specified number of tweets per page, up to a maximum of 100.",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
@@ -242,6 +249,7 @@ import java.util.Set;
 
 public class TwitterSource extends Source {
     private static final Logger log = Logger.getLogger(TwitterSource.class);
+    private TwitterConsumer twitterConsumer = TwitterConsumer.INSTANCE;
     private SourceEventListener sourceEventListener;
     private String consumerKey;
     private String consumerSecret;
@@ -254,11 +262,13 @@ public class TwitterSource extends Source {
     private String languageParam;
     private String filterLevel;
     private String query;
+    private int count;
     private String geocode;
     private long maxId;
     private long sinceId;
     private String searchLang;
     private String until;
+    private String since;
     private String resultType;
     private TwitterStream twitterStream;
     private long[] follow;
@@ -304,6 +314,8 @@ public class TwitterSource extends Source {
                 "none");
         this.query = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_QUERY,
                 TwitterConstants.EMPTY_STRING);
+        this.count = Integer.parseInt(optionHolder.validateAndGetStaticValue(
+                TwitterConstants.POLLING_SEARCH_COUNT,"-1"));
         this.geocode = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_GEOCODE,
                 TwitterConstants.EMPTY_STRING);
         this.maxId = Long.parseLong(optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_MAXID,
@@ -313,6 +325,8 @@ public class TwitterSource extends Source {
         this.searchLang = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_LANGUAGE,
                 TwitterConstants.EMPTY_STRING);
         this.until = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_UNTIL,
+                TwitterConstants.EMPTY_STRING);
+        this.since = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_SINCE,
                 TwitterConstants.EMPTY_STRING);
         this.resultType = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
                 "mixed");
@@ -342,27 +356,25 @@ public class TwitterSource extends Source {
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         Twitter twitter;
         try {
-            ConfigurationBuilder cb = new ConfigurationBuilder();
-            cb.setDebugEnabled(true)
-                    .setOAuthConsumerKey(consumerKey)
+            ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+            configurationBuilder.setOAuthConsumerKey(consumerKey)
                     .setOAuthConsumerSecret(consumerSecret)
                     .setOAuthAccessToken(accessToken)
                     .setOAuthAccessTokenSecret(accessSecret)
-                    .setJSONStoreEnabled(true)
-                    .setIncludeEntitiesEnabled(true);
+                    .setJSONStoreEnabled(true);
             if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
-                this.twitterStream = (new TwitterStreamFactory(cb.build())).getInstance();
-                TwitterConsumer.consume(this.twitterStream, this.sourceEventListener, this.languageParam,
+                this.twitterStream = (new TwitterStreamFactory(configurationBuilder.build())).getInstance();
+                twitterConsumer.consume(this.twitterStream, this.sourceEventListener, this.languageParam,
                         this.trackParam, this.follow, this.filterLevel, this.locations, this.staticOptionsKeys.size());
             } else {
-                twitter = (new TwitterFactory(cb.build())).getInstance();
-                TwitterConsumer.consume(twitter, this.sourceEventListener, this.query, this.searchLang,
-                        this.sinceId, this.maxId, this.until, this.resultType, this.geocode, this.latitude,
+                twitter = (new TwitterFactory(configurationBuilder.build())).getInstance();
+                twitterConsumer.consume(twitter, this.sourceEventListener, this.query,this.count , this.searchLang,
+                        this.sinceId, this.maxId, this.until, this.since, this.resultType, this.geocode, this.latitude,
                         this.longitude, this.radius, this.unitName);
             }
         } catch (Exception e) {
             throw new ConnectionUnavailableException(
-                    "Error in connecting with the Twitter API" + e.getMessage(), e);
+                    "Error in connecting with the Twitter API : " + e.getMessage(), e);
         }
     }
 
@@ -416,7 +428,9 @@ public class TwitterSource extends Source {
      */
     @Override
     public Map<String, Object> currentState() {
-        return null;
+        Map<String, Object> currentState = new HashMap<>();
+        currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, this.since);
+        return currentState;
     }
 
     /**
@@ -431,49 +445,52 @@ public class TwitterSource extends Source {
     }
 
     /**
-     * Validating parameters.
+     * Used to validate the parameters.
      */
 
     private void validateParameter() {
         Query.ResultType resultType1 = Query.ResultType.valueOf(this.resultType);
-        if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
+        if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
             for (String s : this.staticOptionsKeys) {
                 if (!TwitterConstants.STREAMING_PARAM.contains(s) && !TwitterConstants.MANDATORY_PARAM.contains(s)) {
-                    throw new SiddhiAppCreationException(s + " is not valid for the " + this.mode + " mode");
+                    throw new SiddhiAppCreationException(s + " is not valid for the " + mode + " " +
+                            TwitterConstants.MODE);
                 }
             }
-        } else if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
+        } else if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
             if (query.isEmpty()) {
                 throw new SiddhiAppCreationException("For polling mode, query should be given.");
             }
-            for (String s : this.staticOptionsKeys) {
-                if (!TwitterConstants.POLLING_PARAM.contains(s) && !TwitterConstants.MANDATORY_PARAM.contains(s)) {
-                    throw new SiddhiAppCreationException(s + " is not valid for the " + this.mode + " mode");
+            for (String parameters : staticOptionsKeys) {
+                if (!TwitterConstants.POLLING_PARAM.contains(parameters) &&
+                        !TwitterConstants.MANDATORY_PARAM.contains(parameters)) {
+                    throw new SiddhiAppCreationException(parameters + " is not valid for the " + mode + " " +
+                            TwitterConstants.MODE);
                 }
             }
         } else {
             throw new SiddhiAppCreationException("There are only two possible values for mode :" +
-                    " streaming or polling. But found '" + this.mode + "'.");
+                    " streaming or polling. But found '" + mode + "'.");
         }
-        if (!this.followParam.isEmpty()) {
-            this.follow = ExtractParam.followParam(this.followParam);
-        }
-
-        if (!this.locationParam.isEmpty()) {
-            this.locations = ExtractParam.locationParam(this.locationParam);
+        if (!followParam.isEmpty()) {
+            follow = Util.followParam(followParam);
         }
 
-        if (!this.geocode.isEmpty()) {
+        if (!locationParam.isEmpty()) {
+            locations = Util.locationParam(locationParam);
+        }
+
+        if (!geocode.isEmpty()) {
             Query.Unit unit = null;
-            String[] parts = ExtractParam.extract(geocode);
+            String[] parts = Util.extract(geocode);
             String radiusstr = parts[2].trim();
             try {
-               this.latitude = Double.parseDouble(parts[0]);
-               this.longitude = Double.parseDouble(parts[1]);
-               this.radius = Double.parseDouble(radiusstr.substring(0, radiusstr.length() - 2));
+               latitude = Double.parseDouble(parts[0]);
+               longitude = Double.parseDouble(parts[1]);
+               radius = Double.parseDouble(radiusstr.substring(0, radiusstr.length() - 2));
             } catch (NumberFormatException e) {
                 throw new SiddhiAppValidationException("In geocode, Latitude,Longitude,Radius should be " +
-                        "a double value : " + e);
+                        "a double value : " + e.getMessage());
             }
 
             for (Query.Unit value : Query.Unit.values()) {
@@ -487,10 +504,10 @@ public class TwitterSource extends Source {
                 throw new SiddhiAppValidationException("Unrecognized geocode radius: " + radiusstr + ". Radius units" +
                         " must be specified as either 'mi' (miles) or 'km' (kilometers).");
             }
-            this.unitName = unit.name();
+            unitName = unit.name();
         }
 
-        if (!TwitterConstants.FILTER_LEVELS.contains(this.filterLevel)) {
+        if (!TwitterConstants.FILTER_LEVELS.contains(filterLevel)) {
             throw new SiddhiAppCreationException("There are only three possible values for filter.level :" +
                     " low or medium or none. But found '" + filterLevel + "'.");
         }

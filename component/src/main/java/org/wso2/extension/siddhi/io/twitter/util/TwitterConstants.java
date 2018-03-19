@@ -46,6 +46,7 @@ public class TwitterConstants {
     public static final String STREAMING_FILTER_LOCATIONS = "location";
     public static final String STREAMING_FILTER_LANGUAGE = "language";
     public static final String STREAMING_FILTER_FILTER_LEVEL = "filter.level";
+    public static final String POLLING_SEARCH_COUNT = "count";
     public static final String POLLING_SEARCH_GEOCODE = "geocode";
     public static final String POLLING_SEARCH_QUERY = "query";
     public static final String POLLING_SEARCH_MAXID = "max.id";
@@ -53,6 +54,7 @@ public class TwitterConstants {
     public static final String POLLING_SEARCH_LANGUAGE = "language";
     public static final String POLLING_SEARCH_RESULT_TYPE = "result.type";
     public static final String POLLING_SEARCH_UNTIL = "until";
+    public static final String POLLING_SEARCH_SINCE = "since";
     private static final String FILTER_LEVEL_NONE = "none";
     private static final String FILTER_LEVEL_MEDIUM = "medium";
     private static final String FILTER_LEVEL_LOW = "low";
@@ -73,11 +75,13 @@ public class TwitterConstants {
             TwitterConstants.STREAMING_FILTER_LANGUAGE));
 
     public static final List<String> POLLING_PARAM = Collections.unmodifiableList(Arrays.asList(
+            TwitterConstants.POLLING_SEARCH_COUNT,
             TwitterConstants.POLLING_SEARCH_QUERY,
             TwitterConstants.POLLING_SEARCH_LANGUAGE,
             TwitterConstants.POLLING_SEARCH_GEOCODE,
             TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
             TwitterConstants.POLLING_SEARCH_MAXID,
+            TwitterConstants.POLLING_SEARCH_SINCE,
             TwitterConstants.POLLING_SEARCH_SINCEID,
             TwitterConstants.POLLING_SEARCH_UNTIL));
 
