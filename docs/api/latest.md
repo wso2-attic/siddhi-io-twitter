@@ -26,7 +26,7 @@
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@source(type="twitter", consumer.key="<STRING>", consumer.secret="<STRING>", access.token="<STRING>", access.token.secret="<STRING>", mode="<STRING>", filter.level="<STRING>", track="<STRING>", follow="<LONG>", location="<DOUBLE>", language="<STRING>", query="<STRING>", geocode="<STRING>", result.type="<STRING>", max.id="<LONG>", since.id="<LONG>", until="<STRING>", @map(...)))
+@source(type="twitter", consumer.key="<STRING>", consumer.secret="<STRING>", access.token="<STRING>", access.token.secret="<STRING>", mode="<STRING>", filter.level="<STRING>", track="<STRING>", follow="<LONG>", location="<DOUBLE>", language="<STRING>", query="<STRING>", count="<STRING>", geocode="<STRING>", result.type="<STRING>", max.id="<LONG>", since.id="<LONG>", until="<STRING>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -122,6 +122,14 @@
     <tr>
         <td style="vertical-align: top">query</td>
         <td style="vertical-align: top; word-wrap: break-word">Filters tweets that matches the given Query, UTF-8, URL-encoded search query of 500 characters maximum, including operators. <br>For example : '@NASA' - mentioning Twitter account 'NASA'.</td>
+        <td style="vertical-align: top">null</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">count</td>
+        <td style="vertical-align: top; word-wrap: break-word">Returns specified number of tweets per page, up to a maximum of 100.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>

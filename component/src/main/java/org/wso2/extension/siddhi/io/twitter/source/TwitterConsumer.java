@@ -20,6 +20,7 @@ package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.io.twitter.util.Util;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import twitter4j.FilterQuery;
 import twitter4j.GeoLocation;
@@ -35,6 +36,7 @@ import twitter4j.TwitterObjectFactory;
 import twitter4j.TwitterStream;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * This class handles consuming tweets and passing to the stream.
@@ -43,10 +45,9 @@ import java.util.List;
 public enum TwitterConsumer {
     INSTANCE;
 
-
     private static final Logger log = Logger.getLogger(TwitterConsumer.class);
-    private static boolean isPaused = false;
-    private static int sleepTime = 10000;
+    private boolean isPaused = false;
+    private int sleepTime = 10000;
 
     /**
      * This method handles consuming livestream tweets.
@@ -61,8 +62,8 @@ public enum TwitterConsumer {
      */
 
     public void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener,
-                               String languageParam, String trackParam, long[] follow,
-                               String filterLevel, double[][] locations, int paramSize) {
+                        String languageParam, String trackParam, long[] follow,
+                        String filterLevel, double[][] locations, int paramSize) {
         FilterQuery filterQuery;
         String[] tracks;
         String[] filterLang;
@@ -153,57 +154,88 @@ public enum TwitterConsumer {
      * @param longitude           - Specifies the longitude of the location
      * @param radius              - Specify the radius of the given location
      * @param unitName            - Specifies the unit name of the radius
-     * @throws InterruptedException - The InterruptedException is thrown when a thread is waiting or sleeping
      */
 
-    public void consume(Twitter twitter, SourceEventListener sourceEventListener, String q , int count,
-                               String language, long sinceId, long maxId, String until, String since, String resultType,
-                               String geoCode, double latitude, double longitude, double radius, String unitName)
-            throws InterruptedException {
-        try {
-            Query query = new Query(q);
-            QueryResult result = null;
-            if (count > 0) {
-                query.count(count);
-            }
-            if (!language.trim().isEmpty()) {
-                query.lang(language);
-            }
-            if (!resultType.trim().isEmpty()) {
-                query.resultType(Query.ResultType.valueOf(resultType));
-            }
-            if (!geoCode.trim().isEmpty()) {
-                query.geoCode(new GeoLocation(latitude, longitude), radius, unitName);
-            }
-            if (!until.trim().isEmpty()) {
-                query.until(until);
-            }
-            if (!since.trim().isEmpty()) {
-                query.since(until);
-            }
-            query.sinceId(sinceId);
-            query.maxId(maxId);
-            do {
-                result = twitter.search(query);
-                List<Status> tweets = result.getTweets();
-                for (Status tweet : tweets) {
-                    if (isPaused){
-                            Thread.sleep(sleepTime);
-                    }
-                    sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
-                }
-            } while ((result.hasNext()));
-        } catch (TwitterException te) {
-            log.error("Failed to search tweets: " + te.getMessage());
+    public void consume(Twitter twitter, SourceEventListener sourceEventListener, SiddhiAppContext siddhiAppContext,
+                        String q, int count, String language, long sinceId, long maxId, String until, String since,
+                        String resultType, String geoCode, double latitude, double longitude, double radius,
+                        String unitName) {
+        ExecutorService executorService = siddhiAppContext.getExecutorService();
+        Query query = new Query(q);
+        if (count > 0) {
+            query.count(count);
         }
+        if (!language.trim().isEmpty()) {
+            query.lang(language);
+        }
+        if (!resultType.trim().isEmpty()) {
+            query.resultType(Query.ResultType.valueOf(resultType));
+        }
+        if (!geoCode.trim().isEmpty()) {
+            query.geoCode(new GeoLocation(latitude, longitude), radius, unitName);
+        }
+        if (!until.trim().isEmpty()) {
+            query.until(until);
+        }
+        if (!since.trim().isEmpty()) {
+            query.since(until);
+        }
+        query.sinceId(sinceId);
+        query.maxId(maxId);
+        executorService.execute(new Polling(twitter, query, sourceEventListener));
     }
 
-    public static void pause() {
+    public void pause() {
         isPaused = true;
     }
 
-    public static void resume() {
+    public void resume() {
         isPaused = false;
+    }
+
+    /**
+     * This class is for polling tweets continuously.
+     */
+
+    static class Polling implements Runnable {
+        Twitter twitter;
+        Query query;
+        QueryResult result;
+        SourceEventListener sourceEventListener;
+
+        Polling(Twitter twitter, Query query, SourceEventListener sourceEventListener) {
+            this.twitter = twitter;
+            this.query = query;
+            this.sourceEventListener = sourceEventListener;
+        }
+
+        @Override
+        public void run() {
+            do {
+                try {
+                    result = twitter.search(query);
+                    List<Status> tweets = result.getTweets();
+                    for (Status tweet : tweets) {
+                        sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
+                    }
+                    query = result.nextQuery();
+                    checkRateLimit(result);
+                } catch (TwitterException te) {
+                    log.error("Failed to search tweets: " + te.getMessage());
+                }
+            } while (result.hasNext());
+        }
+
+        private void checkRateLimit(QueryResult result) {
+            if (result.getRateLimitStatus().getRemaining() <= 0) {
+                try {
+                    Thread.sleep(result.getRateLimitStatus().getSecondsUntilReset() * 1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("Thread was interrupted during sleep or wait : " + e);
+                }
+            }
+        }
     }
 }
 

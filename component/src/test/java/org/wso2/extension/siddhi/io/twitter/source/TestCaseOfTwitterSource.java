@@ -292,9 +292,8 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'polling', query = 'happy hour' , language = 'en', " +
-                "geocode = '44.467186,-73.214804,2500km'" +
-                " ,@map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
+                "mode= 'polling', query = '@NASA' , count = '45', " +
+                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id',id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
                 "define stream inputStream(created_at String, id long, id_str String, text String, " +
                 "coordinates string, user string);";
@@ -311,7 +310,7 @@ public class TestCaseOfTwitterSource {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
-                    LOG.info(event);
+                    LOG.info(eventCount + " . " + event);
                     eventArrived = true;
                 }
             }
@@ -319,7 +318,7 @@ public class TestCaseOfTwitterSource {
 
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        //Assert.assertTrue(eventArrived);
+        Assert.assertTrue(eventArrived);
         if (!eventArrived) {
             LOG.info("No tweets matched with the given query");
         }

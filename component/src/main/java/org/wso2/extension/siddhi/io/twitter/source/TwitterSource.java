@@ -249,8 +249,9 @@ import java.util.Set;
 
 public class TwitterSource extends Source {
     private static final Logger log = Logger.getLogger(TwitterSource.class);
-    private TwitterConsumer twitterConsumer = TwitterConsumer.INSTANCE;
+    private TwitterConsumer twitterConsumer;
     private SourceEventListener sourceEventListener;
+    private SiddhiAppContext siddhiAppContext;
     private String consumerKey;
     private String consumerSecret;
     private String accessToken;
@@ -280,6 +281,7 @@ public class TwitterSource extends Source {
     private Set<String> staticOptionsKeys;
 
 
+
     /**
      * The initialization method for {@link Source}, will be called before other methods. It used to validate
      * all configurations and to get initial values.
@@ -297,6 +299,8 @@ public class TwitterSource extends Source {
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
+        this.twitterConsumer = TwitterConsumer.INSTANCE;
+        this.siddhiAppContext = siddhiAppContext;
         this.consumerKey = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_KEY);
         this.consumerSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_SECRET);
         this.accessToken = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_TOKEN);
@@ -315,7 +319,7 @@ public class TwitterSource extends Source {
         this.query = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_QUERY,
                 TwitterConstants.EMPTY_STRING);
         this.count = Integer.parseInt(optionHolder.validateAndGetStaticValue(
-                TwitterConstants.POLLING_SEARCH_COUNT,"-1"));
+                TwitterConstants.POLLING_SEARCH_COUNT, "-1"));
         this.geocode = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_GEOCODE,
                 TwitterConstants.EMPTY_STRING);
         this.maxId = Long.parseLong(optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_MAXID,
@@ -368,9 +372,9 @@ public class TwitterSource extends Source {
                         this.trackParam, this.follow, this.filterLevel, this.locations, this.staticOptionsKeys.size());
             } else {
                 twitter = (new TwitterFactory(configurationBuilder.build())).getInstance();
-                twitterConsumer.consume(twitter, this.sourceEventListener, this.query,this.count , this.searchLang,
-                        this.sinceId, this.maxId, this.until, this.since, this.resultType, this.geocode, this.latitude,
-                        this.longitude, this.radius, this.unitName);
+                twitterConsumer.consume(twitter, this.sourceEventListener, this.siddhiAppContext, this.query,
+                        this.count , this.searchLang, this.sinceId, this.maxId, this.until, this.since,
+                        this.resultType, this.geocode, this.latitude, this.longitude, this.radius, this.unitName);
             }
         } catch (Exception e) {
             throw new ConnectionUnavailableException(
@@ -409,7 +413,7 @@ public class TwitterSource extends Source {
      */
     @Override
     public void pause() {
-        TwitterConsumer.pause();
+        twitterConsumer.pause();
     }
 
     /**
@@ -417,7 +421,7 @@ public class TwitterSource extends Source {
      */
     @Override
     public void resume() {
-        TwitterConsumer.resume();
+        twitterConsumer.resume();
     }
 
     /**
