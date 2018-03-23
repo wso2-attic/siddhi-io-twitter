@@ -26,7 +26,7 @@
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@source(type="twitter", consumer.key="<STRING>", consumer.secret="<STRING>", access.token="<STRING>", access.token.secret="<STRING>", mode="<STRING>", filter.level="<STRING>", track="<STRING>", follow="<LONG>", location="<DOUBLE>", language="<STRING>", query="<STRING>", count="<STRING>", geocode="<STRING>", result.type="<STRING>", max.id="<LONG>", since.id="<LONG>", until="<STRING>", @map(...)))
+@source(type="twitter", consumer.key="<STRING>", consumer.secret="<STRING>", access.token="<STRING>", access.token.secret="<STRING>", mode="<STRING>", filter.level="<STRING>", track="<STRING>", follow="<LONG>", location="<DOUBLE>", language="<STRING>", query="<STRING>", count="<STRING>", geocode="<STRING>", result.type="<STRING>", max.id="<LONG>", since.id="<LONG>", until="<STRING>", polling.interval="<LONG>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -172,6 +172,14 @@
         <td style="vertical-align: top; word-wrap: break-word">Returns tweets created before the given date. Date should be formatted as YYYY-MM-DD. Search index has a 7-day limit. So no tweets will be found for a date older than one week.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">polling.interval</td>
+        <td style="vertical-align: top; word-wrap: break-word">Specifies the period of time to poll tweets periodically</td>
+        <td style="vertical-align: top">3600000</td>
+        <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>

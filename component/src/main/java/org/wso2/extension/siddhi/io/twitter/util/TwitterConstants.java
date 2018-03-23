@@ -55,6 +55,7 @@ public class TwitterConstants {
     public static final String POLLING_SEARCH_RESULT_TYPE = "result.type";
     public static final String POLLING_SEARCH_UNTIL = "until";
     public static final String POLLING_SEARCH_SINCE = "since";
+    public static final String POLLING_INTERVAL = "polling.interval";
     private static final String FILTER_LEVEL_NONE = "none";
     private static final String FILTER_LEVEL_MEDIUM = "medium";
     private static final String FILTER_LEVEL_LOW = "low";
@@ -83,7 +84,8 @@ public class TwitterConstants {
             TwitterConstants.POLLING_SEARCH_MAXID,
             TwitterConstants.POLLING_SEARCH_SINCE,
             TwitterConstants.POLLING_SEARCH_SINCEID,
-            TwitterConstants.POLLING_SEARCH_UNTIL));
+            TwitterConstants.POLLING_SEARCH_UNTIL,
+            TwitterConstants.POLLING_INTERVAL));
 
     public static final List<String> FILTER_LEVELS = Collections.unmodifiableList(Arrays.asList(
             TwitterConstants.FILTER_LEVEL_LOW,

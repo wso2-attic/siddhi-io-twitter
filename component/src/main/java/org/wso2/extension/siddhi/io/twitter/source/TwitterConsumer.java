@@ -48,6 +48,7 @@ public enum TwitterConsumer {
     private static final Logger log = Logger.getLogger(TwitterConsumer.class);
     private boolean isPaused = false;
     private int sleepTime = 10000;
+    Query query;
 
     /**
      * This method handles consuming livestream tweets.
@@ -76,7 +77,7 @@ public enum TwitterConsumer {
                         Thread.sleep(sleepTime);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
-                        log.error("Thread was interrupted during sleep or wait : " + ie);
+                        log.error("Thread was interrupted during sleep : " + ie);
                     }
                 }
                 sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
@@ -159,9 +160,9 @@ public enum TwitterConsumer {
     public void consume(Twitter twitter, SourceEventListener sourceEventListener, SiddhiAppContext siddhiAppContext,
                         String q, int count, String language, long sinceId, long maxId, String until, String since,
                         String resultType, String geoCode, double latitude, double longitude, double radius,
-                        String unitName) {
+                        String unitName, long pollingInterval, long tweetId) {
         ExecutorService executorService = siddhiAppContext.getExecutorService();
-        Query query = new Query(q);
+        query = new Query(q);
         if (count > 0) {
             query.count(count);
         }
@@ -178,11 +179,11 @@ public enum TwitterConsumer {
             query.until(until);
         }
         if (!since.trim().isEmpty()) {
-            query.since(until);
+            query.since(since);
         }
         query.sinceId(sinceId);
         query.maxId(maxId);
-        executorService.execute(new Polling(twitter, query, sourceEventListener));
+        executorService.execute(new Polling(twitter, query, sourceEventListener, pollingInterval, tweetId));
     }
 
     public void pause() {
@@ -202,34 +203,60 @@ public enum TwitterConsumer {
         Query query;
         QueryResult result;
         SourceEventListener sourceEventListener;
+        long pollingInterval;
+        long tweetId;
 
-        Polling(Twitter twitter, Query query, SourceEventListener sourceEventListener) {
+
+        Polling(Twitter twitter, Query query, SourceEventListener sourceEventListener, long pollingInterval,
+                long tweetId) {
             this.twitter = twitter;
             this.query = query;
             this.sourceEventListener = sourceEventListener;
+            this.pollingInterval = pollingInterval;
+            this.tweetId = tweetId;
         }
 
         @Override
         public void run() {
-            do {
-                try {
-                    result = twitter.search(query);
-                    List<Status> tweets = result.getTweets();
-                    for (Status tweet : tweets) {
-                        sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
+            int i = 0;
+            boolean flag = true;
+            while (true) {
+                do {
+                    try {
+                        result = twitter.search(query);
+                        List<Status> tweets = result.getTweets();
+                        for (Status tweet : tweets) {
+                            if (flag) {
+                                tweetId = tweet.getId();
+                                flag = false;
+                            }
+                            log.info(++i + "\n" + "---------------------------------------------");
+                            sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
+                        }
+                        if (result.nextQuery() == null) {
+                            query.setSinceId(tweetId);
+                            query.setMaxId(-1);
+                        } else {
+                            query = result.nextQuery();
+                        }
+                        checkRateLimit(result);
+                    } catch (TwitterException te) {
+                        log.error("Failed to search tweets: " + te.getMessage());
                     }
-                    query = result.nextQuery();
-                    checkRateLimit(result);
-                } catch (TwitterException te) {
-                    log.error("Failed to search tweets: " + te.getMessage());
+                } while (result.hasNext());
+                try {
+                    Thread.sleep(pollingInterval);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("Thread was interrupted during sleep or wait : " + e);
                 }
-            } while (result.hasNext());
+            }
         }
 
         private void checkRateLimit(QueryResult result) {
             if (result.getRateLimitStatus().getRemaining() <= 0) {
                 try {
-                    Thread.sleep(result.getRateLimitStatus().getSecondsUntilReset() * 1000);
+                    Thread.sleep(result.getRateLimitStatus().getSecondsUntilReset());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.error("Thread was interrupted during sleep or wait : " + e);

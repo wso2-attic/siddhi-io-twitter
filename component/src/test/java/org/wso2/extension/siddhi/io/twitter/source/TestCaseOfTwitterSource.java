@@ -292,7 +292,7 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'polling', query = '@NASA' , count = '45', " +
+                "mode= 'polling', query = '@Anjali' , count = '100', " +
                 " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id',id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
                 "define stream inputStream(created_at String, id long, id_str String, text String, " +
@@ -317,7 +317,7 @@ public class TestCaseOfTwitterSource {
         });
 
         siddhiAppRuntime.start();
-        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
+        SiddhiTestHelper.waitForEvents(1800000, 10000, eventCount, timeout);
         Assert.assertTrue(eventArrived);
         if (!eventArrived) {
             LOG.info("No tweets matched with the given query");

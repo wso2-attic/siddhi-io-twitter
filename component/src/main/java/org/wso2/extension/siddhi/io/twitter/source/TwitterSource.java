@@ -166,7 +166,13 @@ import java.util.Set;
                                 " will be found for a date older than one week.",
                         optional = true,
                         defaultValue = "null",
-                        type = {DataType.STRING})
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = "polling.interval",
+                        description = "Specifies the period of time to poll tweets periodically",
+                        optional = true,
+                        defaultValue = "3600000",
+                        type = {DataType.LONG}),
         },
         examples = {
                 @Example(
@@ -252,6 +258,7 @@ public class TwitterSource extends Source {
     private TwitterConsumer twitterConsumer;
     private SourceEventListener sourceEventListener;
     private SiddhiAppContext siddhiAppContext;
+    private TwitterStream twitterStream;
     private String consumerKey;
     private String consumerSecret;
     private String accessToken;
@@ -266,18 +273,19 @@ public class TwitterSource extends Source {
     private int count;
     private String geocode;
     private long maxId;
-    private long sinceId;
+    private Long sinceId;
     private String searchLang;
     private String until;
     private String since;
     private String resultType;
-    private TwitterStream twitterStream;
+    private long pollingInterval;
     private long[] follow;
     private double[][] locations;
     private double latitude;
     private double longitude;
     private double radius;
     private String unitName;
+    private long tweetId;
     private Set<String> staticOptionsKeys;
 
 
@@ -334,6 +342,9 @@ public class TwitterSource extends Source {
                 TwitterConstants.EMPTY_STRING);
         this.resultType = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
                 "mixed");
+        this.pollingInterval = Long.parseLong (optionHolder.validateAndGetStaticValue
+                (TwitterConstants.POLLING_INTERVAL, "1200000"));
+        this.tweetId = -1;
         this.staticOptionsKeys = optionHolder.getStaticOptionsKeys();
         validateParameter();
     }
@@ -374,7 +385,8 @@ public class TwitterSource extends Source {
                 twitter = (new TwitterFactory(configurationBuilder.build())).getInstance();
                 twitterConsumer.consume(twitter, this.sourceEventListener, this.siddhiAppContext, this.query,
                         this.count , this.searchLang, this.sinceId, this.maxId, this.until, this.since,
-                        this.resultType, this.geocode, this.latitude, this.longitude, this.radius, this.unitName);
+                        this.resultType, this.geocode, this.latitude, this.longitude, this.radius, this.unitName,
+                        this.pollingInterval, this.tweetId);
             }
         } catch (Exception e) {
             throw new ConnectionUnavailableException(
@@ -433,7 +445,6 @@ public class TwitterSource extends Source {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> currentState = new HashMap<>();
-        currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, this.since);
         return currentState;
     }
 
