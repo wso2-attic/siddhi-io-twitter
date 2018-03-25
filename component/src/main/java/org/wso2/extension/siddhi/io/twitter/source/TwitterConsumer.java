@@ -145,23 +145,17 @@ public enum TwitterConsumer {
      *
      * @param twitter             - For Twitter Polling
      * @param sourceEventListener - Listen Events
-     * @param q                   - Defines search query
-     * @param language            - Restricts tweets to the given language
-     * @param sinceId             - Returns results with an ID greater than the specified ID.
-     * @param maxId               - Returns results with an ID less than or equal to the specified ID.
-     * @param until               - Returns tweets created before the given date.
-     * @param resultType          - Specifies what type of search results you would prefer to receive.
-     * @param latitude            - Specifies the latitude of the location
-     * @param longitude           - Specifies the longitude of the location
-     * @param radius              - Specify the radius of the given location
-     * @param unitName            - Specifies the unit name of the radius
      */
 
-    public void consume(Twitter twitter, SourceEventListener sourceEventListener, SiddhiAppContext siddhiAppContext,
-                        String q, int count, String language, long sinceId, long maxId, String until, String since,
-                        String resultType, String geoCode, double latitude, double longitude, double radius,
-                        String unitName, long pollingInterval, long tweetId) {
+    public void consume(Twitter twitter, Query query, SourceEventListener sourceEventListener, SiddhiAppContext
+            siddhiAppContext, long pollingInterval, long tweetId) {
         ExecutorService executorService = siddhiAppContext.getExecutorService();
+        executorService.execute(new Polling(twitter, query, sourceEventListener, pollingInterval, tweetId));
+    }
+
+    public Query createQuery (String q, int count, String language, long sinceId, long maxId, String until,
+                              String since, String resultType, String geoCode, double latitude, double longitude,
+                              double radius, String unitName) {
         query = new Query(q);
         if (count > 0) {
             query.count(count);
@@ -183,7 +177,8 @@ public enum TwitterConsumer {
         }
         query.sinceId(sinceId);
         query.maxId(maxId);
-        executorService.execute(new Polling(twitter, query, sourceEventListener, pollingInterval, tweetId));
+
+        return query;
     }
 
     public void pause() {
@@ -201,6 +196,7 @@ public enum TwitterConsumer {
     static class Polling implements Runnable {
         Twitter twitter;
         Query query;
+        Query query1;
         QueryResult result;
         SourceEventListener sourceEventListener;
         long pollingInterval;
@@ -219,6 +215,7 @@ public enum TwitterConsumer {
         @Override
         public void run() {
             int i = 0;
+            query1 = query;
             boolean flag = true;
             while (true) {
                 do {
@@ -234,8 +231,8 @@ public enum TwitterConsumer {
                             sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                         }
                         if (result.nextQuery() == null) {
+                            query = query1;
                             query.setSinceId(tweetId);
-                            query.setMaxId(-1);
                         } else {
                             query = result.nextQuery();
                         }

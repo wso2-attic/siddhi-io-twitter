@@ -60,6 +60,7 @@ public class TwitterConstants {
     private static final String FILTER_LEVEL_MEDIUM = "medium";
     private static final String FILTER_LEVEL_LOW = "low";
     public static final String EMPTY_STRING = "";
+    public static final String PREVIOUS_QUERY = null;
 
     public static final List<String> MANDATORY_PARAM = Collections.unmodifiableList(Arrays.asList(
             TwitterConstants.CONSUMER_KEY,

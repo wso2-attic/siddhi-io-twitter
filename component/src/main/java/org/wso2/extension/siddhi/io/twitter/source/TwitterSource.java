@@ -269,7 +269,7 @@ public class TwitterSource extends Source {
     private String trackParam;
     private String languageParam;
     private String filterLevel;
-    private String query;
+    private String queryParam;
     private int count;
     private String geocode;
     private long maxId;
@@ -286,6 +286,7 @@ public class TwitterSource extends Source {
     private double radius;
     private String unitName;
     private long tweetId;
+    private Query query;
     private Set<String> staticOptionsKeys;
 
 
@@ -324,7 +325,7 @@ public class TwitterSource extends Source {
                 TwitterConstants.EMPTY_STRING);
         this.filterLevel = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_FILTER_LEVEL,
                 "none");
-        this.query = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_QUERY,
+        this.queryParam = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_QUERY,
                 TwitterConstants.EMPTY_STRING);
         this.count = Integer.parseInt(optionHolder.validateAndGetStaticValue(
                 TwitterConstants.POLLING_SEARCH_COUNT, "-1"));
@@ -345,6 +346,7 @@ public class TwitterSource extends Source {
         this.pollingInterval = Long.parseLong (optionHolder.validateAndGetStaticValue
                 (TwitterConstants.POLLING_INTERVAL, "1200000"));
         this.tweetId = -1;
+        this.query = null;
         this.staticOptionsKeys = optionHolder.getStaticOptionsKeys();
         validateParameter();
     }
@@ -383,9 +385,10 @@ public class TwitterSource extends Source {
                         this.trackParam, this.follow, this.filterLevel, this.locations, this.staticOptionsKeys.size());
             } else {
                 twitter = (new TwitterFactory(configurationBuilder.build())).getInstance();
-                twitterConsumer.consume(twitter, this.sourceEventListener, this.siddhiAppContext, this.query,
-                        this.count , this.searchLang, this.sinceId, this.maxId, this.until, this.since,
-                        this.resultType, this.geocode, this.latitude, this.longitude, this.radius, this.unitName,
+                this.query = twitterConsumer.createQuery(this.queryParam, this.count , this.searchLang, this.sinceId,
+                        this.maxId, this.until, this.since, this.resultType, this.geocode, this.latitude,
+                        this.longitude, this.radius, this.unitName);
+                twitterConsumer.consume(twitter, this.query, this.sourceEventListener, this.siddhiAppContext,
                         this.pollingInterval, this.tweetId);
             }
         } catch (Exception e) {
@@ -445,6 +448,8 @@ public class TwitterSource extends Source {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> currentState = new HashMap<>();
+        currentState.put(TwitterConstants.PREVIOUS_QUERY, this.query.toString());
+        currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, tweetId);
         return currentState;
     }
 
@@ -457,6 +462,11 @@ public class TwitterSource extends Source {
      */
     @Override
     public void restoreState(Map<String, Object> map) {
+        String previousQuery = map.get(TwitterConstants.PREVIOUS_QUERY).toString();
+        long id = Long.parseLong(map.get (TwitterConstants.POLLING_SEARCH_SINCEID).toString());
+        if (previousQuery.equals(this.query.toString())) {
+            query.setSinceId(id);
+        }
     }
 
     /**
@@ -473,7 +483,7 @@ public class TwitterSource extends Source {
                 }
             }
         } else if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
-            if (query.isEmpty()) {
+            if (queryParam.isEmpty()) {
                 throw new SiddhiAppCreationException("For polling mode, query should be given.");
             }
             for (String parameters : staticOptionsKeys) {
