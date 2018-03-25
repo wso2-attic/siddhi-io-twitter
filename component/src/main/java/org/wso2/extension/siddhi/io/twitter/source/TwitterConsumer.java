@@ -214,6 +214,7 @@ public enum TwitterConsumer {
         @Override
         public void run() {
             int i = 0;
+            Query query1 = query;
             boolean flag = true;
             while (true) {
                 do {
@@ -229,6 +230,7 @@ public enum TwitterConsumer {
                             sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                         }
                         if (result.nextQuery() == null) {
+                            query = query1;
                             query.setSinceId(tweetId);
                             query.setMaxId(-1L);
                         } else {
