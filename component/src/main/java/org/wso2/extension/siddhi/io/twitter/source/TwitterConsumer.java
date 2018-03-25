@@ -196,7 +196,6 @@ public enum TwitterConsumer {
     static class Polling implements Runnable {
         Twitter twitter;
         Query query;
-        Query query1;
         QueryResult result;
         SourceEventListener sourceEventListener;
         long pollingInterval;
@@ -215,7 +214,6 @@ public enum TwitterConsumer {
         @Override
         public void run() {
             int i = 0;
-            query1 = query;
             boolean flag = true;
             while (true) {
                 do {
@@ -231,8 +229,8 @@ public enum TwitterConsumer {
                             sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                         }
                         if (result.nextQuery() == null) {
-                            query = query1;
                             query.setSinceId(tweetId);
+                            query.setMaxId(-1L);
                         } else {
                             query = result.nextQuery();
                         }
