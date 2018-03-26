@@ -19,6 +19,7 @@
 package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
+import org.wso2.extension.siddhi.io.twitter.util.QueryBuilder;
 import org.wso2.extension.siddhi.io.twitter.util.TwitterConstants;
 import org.wso2.extension.siddhi.io.twitter.util.Util;
 import org.wso2.siddhi.annotation.Example;
@@ -33,6 +34,7 @@ import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import twitter4j.FilterQuery;
 import twitter4j.Query;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
@@ -40,7 +42,6 @@ import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,7 +75,7 @@ import java.util.Set;
                 @Parameter(
                         name = "mode",
                         description = "There are two possible values for mode. \n" +
-                                "1. Streaming - Retrieves real time tweets, \n2. Polling - Retrieves historical" +
+                                "1. Streaming - Retrieves real time tweets, \n2. TwitterPoller - Retrieves historical" +
                                 " tweets within one week.",
                         type = {DataType.STRING}),
                 @Parameter(
@@ -287,8 +288,9 @@ public class TwitterSource extends Source {
     private String unitName;
     private long tweetId;
     private Query query;
+    private FilterQuery filterQuery;
     private Set<String> staticOptionsKeys;
-
+    private TwitterStatusListener twitterStatusListener;
 
 
     /**
@@ -343,10 +345,11 @@ public class TwitterSource extends Source {
                 TwitterConstants.EMPTY_STRING);
         this.resultType = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
                 "mixed");
-        this.pollingInterval = Long.parseLong (optionHolder.validateAndGetStaticValue
+        this.pollingInterval = Long.parseLong(optionHolder.validateAndGetStaticValue
                 (TwitterConstants.POLLING_INTERVAL, "1200000"));
         this.tweetId = -1;
         this.query = null;
+        this.filterQuery = null;
         this.staticOptionsKeys = optionHolder.getStaticOptionsKeys();
         validateParameter();
     }
@@ -379,17 +382,19 @@ public class TwitterSource extends Source {
                     .setOAuthAccessToken(accessToken)
                     .setOAuthAccessTokenSecret(accessSecret)
                     .setJSONStoreEnabled(true);
-            if (this.mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
-                this.twitterStream = (new TwitterStreamFactory(configurationBuilder.build())).getInstance();
-                twitterConsumer.consume(this.twitterStream, this.sourceEventListener, this.languageParam,
-                        this.trackParam, this.follow, this.filterLevel, this.locations, this.staticOptionsKeys.size());
+            if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
+                twitterStream = (new TwitterStreamFactory(configurationBuilder.build())).getInstance();
+                twitterStatusListener = new TwitterStatusListener(sourceEventListener);
+                filterQuery = QueryBuilder.createFilterQuery(languageParam, trackParam, follow, filterLevel,
+                        locations);
+                twitterConsumer.consume(twitterStream, twitterStatusListener, this.filterQuery,
+                        staticOptionsKeys.size());
             } else {
                 twitter = (new TwitterFactory(configurationBuilder.build())).getInstance();
-                this.query = twitterConsumer.createQuery(this.queryParam, this.count , this.searchLang, this.sinceId,
-                        this.maxId, this.until, this.since, this.resultType, this.geocode, this.latitude,
-                        this.longitude, this.radius, this.unitName);
-                twitterConsumer.consume(twitter, this.query, this.sourceEventListener, this.siddhiAppContext,
-                        this.pollingInterval, this.tweetId);
+                query = QueryBuilder.createQuery(queryParam, count, searchLang, sinceId, maxId, until, since,
+                        resultType, geocode, latitude, longitude, radius, unitName);
+                twitterConsumer.consume(twitter, query, sourceEventListener, siddhiAppContext, pollingInterval,
+                        tweetId);
             }
         } catch (Exception e) {
             throw new ConnectionUnavailableException(
@@ -402,8 +407,8 @@ public class TwitterSource extends Source {
      */
     @Override
     public void disconnect() {
-        if (this.twitterStream != null) {
-            this.twitterStream.shutdown();
+        if (twitterStream != null) {
+            twitterStream.shutdown();
             if (log.isDebugEnabled()) {
                 log.debug("The status listener has been cleared!");
             }
@@ -415,8 +420,8 @@ public class TwitterSource extends Source {
      */
     @Override
     public void destroy() {
-        if (this.twitterStream != null) {
-            this.twitterStream.clearListeners();
+        if (twitterStream != null) {
+            twitterStream.clearListeners();
             if (log.isDebugEnabled()) {
                 log.debug("The twitter stream has been shutdown !");
             }
@@ -428,7 +433,7 @@ public class TwitterSource extends Source {
      */
     @Override
     public void pause() {
-        twitterConsumer.pause();
+        twitterStatusListener.pause();
     }
 
     /**
@@ -436,7 +441,7 @@ public class TwitterSource extends Source {
      */
     @Override
     public void resume() {
-        twitterConsumer.resume();
+        twitterStatusListener.resume();
     }
 
     /**
@@ -447,9 +452,10 @@ public class TwitterSource extends Source {
      */
     @Override
     public Map<String, Object> currentState() {
-        Map<String, Object> currentState = new HashMap<>();
+        /*Map<String, Object> currentState = new HashMap<>();
         currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, tweetId);
-        return currentState;
+        return currentState;*/
+        return null;
     }
 
     /**
@@ -461,8 +467,9 @@ public class TwitterSource extends Source {
      */
     @Override
     public void restoreState(Map<String, Object> map) {
-        long id = Long.parseLong(map.get (TwitterConstants.POLLING_SEARCH_SINCEID).toString());
-        query.setSinceId(id);
+        /*if (TwitterConstants.POLLING_SEARCH_SINCEID == "-1") {
+            long id = Long.parseLong(map.get(TwitterConstants.POLLING_SEARCH_SINCEID).toString());
+            query.setSinceId(id);*/
     }
 
     /**
@@ -472,7 +479,7 @@ public class TwitterSource extends Source {
     private void validateParameter() {
         Query.ResultType resultType1 = Query.ResultType.valueOf(this.resultType);
         if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
-            for (String s : this.staticOptionsKeys) {
+            for (String s : staticOptionsKeys) {
                 if (!TwitterConstants.STREAMING_PARAM.contains(s) && !TwitterConstants.MANDATORY_PARAM.contains(s)) {
                     throw new SiddhiAppCreationException(s + " is not valid for the " + mode + " " +
                             TwitterConstants.MODE);
@@ -506,9 +513,9 @@ public class TwitterSource extends Source {
             String[] parts = Util.extract(geocode);
             String radiusstr = parts[2].trim();
             try {
-               latitude = Double.parseDouble(parts[0]);
-               longitude = Double.parseDouble(parts[1]);
-               radius = Double.parseDouble(radiusstr.substring(0, radiusstr.length() - 2));
+                latitude = Double.parseDouble(parts[0]);
+                longitude = Double.parseDouble(parts[1]);
+                radius = Double.parseDouble(radiusstr.substring(0, radiusstr.length() - 2));
             } catch (NumberFormatException e) {
                 throw new SiddhiAppValidationException("In geocode, Latitude,Longitude,Radius should be " +
                         "a double value : " + e.getMessage());

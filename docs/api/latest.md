@@ -73,7 +73,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">mode</td>
-        <td style="vertical-align: top; word-wrap: break-word">There are two possible values for mode. <br>1. Streaming - Retrieves real time tweets, <br>2. Polling - Retrieves historical tweets within one week.</td>
+        <td style="vertical-align: top; word-wrap: break-word">There are two possible values for mode. <br>1. Streaming - Retrieves real time tweets, <br>2. TwitterPoller - Retrieves historical tweets within one week.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
