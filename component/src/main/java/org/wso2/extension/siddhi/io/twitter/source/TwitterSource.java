@@ -448,7 +448,6 @@ public class TwitterSource extends Source {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> currentState = new HashMap<>();
-        currentState.put(TwitterConstants.PREVIOUS_QUERY, this.query.toString());
         currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, tweetId);
         return currentState;
     }
@@ -462,11 +461,8 @@ public class TwitterSource extends Source {
      */
     @Override
     public void restoreState(Map<String, Object> map) {
-        String previousQuery = map.get(TwitterConstants.PREVIOUS_QUERY).toString();
         long id = Long.parseLong(map.get (TwitterConstants.POLLING_SEARCH_SINCEID).toString());
-        if (previousQuery.equals(this.query.toString())) {
-            query.setSinceId(id);
-        }
+        query.setSinceId(id);
     }
 
     /**

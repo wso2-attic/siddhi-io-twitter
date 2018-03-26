@@ -215,8 +215,8 @@ public enum TwitterConsumer {
         public void run() {
             int i = 0;
             Query query1 = query;
-            boolean flag = true;
             while (true) {
+                boolean flag = true;
                 do {
                     try {
                         result = twitter.search(query);
@@ -229,13 +229,7 @@ public enum TwitterConsumer {
                             log.info(++i + "\n" + "---------------------------------------------");
                             sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                         }
-                        if (result.nextQuery() == null) {
-                            query = query1;
-                            query.setSinceId(tweetId);
-                            query.setMaxId(-1L);
-                        } else {
-                            query = result.nextQuery();
-                        }
+                        query = result.nextQuery();
                         checkRateLimit(result);
                     } catch (TwitterException te) {
                         log.error("Failed to search tweets: " + te.getMessage());
@@ -243,6 +237,8 @@ public enum TwitterConsumer {
                 } while (result.hasNext());
                 try {
                     Thread.sleep(pollingInterval);
+                    query = query1;
+                    query.setSinceId(tweetId);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.error("Thread was interrupted during sleep or wait : " + e);
