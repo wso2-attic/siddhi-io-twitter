@@ -287,7 +287,6 @@ public class TwitterSource extends Source {
     private double longitude;
     private double radius;
     private String unitName;
-    private long tweetId;
     private Query query;
     private FilterQuery filterQuery;
     private Set<String> staticOptionsKeys;
@@ -347,7 +346,6 @@ public class TwitterSource extends Source {
                 "mixed");
         this.pollingInterval = Long.parseLong(optionHolder.validateAndGetStaticValue
                 (TwitterConstants.POLLING_INTERVAL, "1200000"));
-        this.tweetId = -1;
         this.query = null;
         this.filterQuery = null;
         this.staticOptionsKeys = optionHolder.getStaticOptionsKeys();
@@ -391,8 +389,7 @@ public class TwitterSource extends Source {
                 twitter = (new TwitterFactory(configurationBuilder.build())).getInstance();
                 query = QueryBuilder.createQuery(queryParam, count, searchLang, sinceId, maxId, until, since,
                         resultType, geocode, latitude, longitude, radius, unitName);
-                twitterConsumer.consume(twitter, query, sourceEventListener, siddhiAppContext, pollingInterval,
-                        tweetId);
+                twitterConsumer.consume(twitter, query, sourceEventListener, siddhiAppContext, pollingInterval);
             }
         } catch (Exception e) {
             throw new ConnectionUnavailableException(
@@ -451,7 +448,7 @@ public class TwitterSource extends Source {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> currentState = new HashMap<>();
-        currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, tweetId);
+        currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, twitterConsumer.tweetId);
         return currentState;
     }
 
@@ -464,10 +461,8 @@ public class TwitterSource extends Source {
      */
     @Override
     public void restoreState(Map<String, Object> map) {
-        if (TwitterConstants.POLLING_SEARCH_SINCEID == "-1") {
             long id = Long.parseLong(map.get(TwitterConstants.POLLING_SEARCH_SINCEID).toString());
             query.setSinceId(id);
-        }
     }
 
     /**

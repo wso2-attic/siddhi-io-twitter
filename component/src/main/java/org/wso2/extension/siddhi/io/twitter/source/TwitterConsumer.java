@@ -46,9 +46,14 @@ public enum TwitterConsumer {
     private static final Logger log = Logger.getLogger(TwitterConsumer.class);
     private boolean isPaused;
     private int sleepTime = 10000;
+    long tweetId = -1;
 
     /**
      * This method handles consuming livestream tweets.
+     * @param twitterStream - Twitter Stream instance
+     * @param sourceEventListener - listens to events
+     * @param filterQuery - Specifies query for filter
+     * @param paramSize - No of parameters given for the query
      */
 
     public void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener, FilterQuery filterQuery,
@@ -63,15 +68,17 @@ public enum TwitterConsumer {
 
     /**
      * This method handles consuming historical tweets within a week.
-     *
-     * @param twitter             - For Twitter TwitterPoller
-     * @param sourceEventListener - Listen Events
+     * @param twitter - Twitter instance
+     * @param query - Specifies query
+     * @param sourceEventListener - listens to events
+     * @param siddhiAppContext - Holder object for context information of siddhiapp
+     * @param pollingInterval - Specifies the interval to poll
      */
 
     public void consume(Twitter twitter, Query query, SourceEventListener sourceEventListener, SiddhiAppContext
-            siddhiAppContext, long pollingInterval, long tweetId) {
+            siddhiAppContext, long pollingInterval) {
         ExecutorService executorService = siddhiAppContext.getExecutorService();
-        executorService.execute(new TwitterPoller(twitter, query, sourceEventListener, pollingInterval, tweetId));
+        executorService.execute(new TwitterPoller(twitter, query, sourceEventListener, pollingInterval));
     }
 
     /**
@@ -84,29 +91,25 @@ public enum TwitterConsumer {
         QueryResult result;
         SourceEventListener sourceEventListener;
         long pollingInterval;
-        long tweetId;
 
 
         /**
          * Handles polling in a different thread.
-         * @param twitter - twitter instance
-         * @param query - specifies a query
+         *
+         * @param twitter             - twitter instance
+         * @param query               - specifies a query
          * @param sourceEventListener - listens events
-         * @param pollingInterval - specifies the interval to poll periodically
-         * @param tweetId - update the latest tweet id
+         * @param pollingInterval     - specifies the interval to poll periodically
          */
-        TwitterPoller(Twitter twitter, Query query, SourceEventListener sourceEventListener, long pollingInterval,
-                      long tweetId) {
+        TwitterPoller(Twitter twitter, Query query, SourceEventListener sourceEventListener, long pollingInterval) {
             this.twitter = twitter;
             this.query = query;
             this.sourceEventListener = sourceEventListener;
             this.pollingInterval = pollingInterval;
-            this.tweetId = tweetId;
         }
 
         @Override
         public void run() {
-            int i = 0;
             Query qry = query;
             while (true) {
                 boolean flag = true;
@@ -120,9 +123,13 @@ public enum TwitterConsumer {
                                 flag = false;
                             }
                             if (isPaused) {
-                                sleep(sleepTime);
+                                try {
+                                    Thread.sleep(sleepTime);
+                                } catch (InterruptedException ie) {
+                                    Thread.currentThread().interrupt();
+                                    log.error("Thread was interrupted during sleep : " + ie);
+                                }
                             }
-                            log.info(++i + "------------------------------------------");
                             sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                         }
                         query = result.nextQuery();
@@ -137,10 +144,16 @@ public enum TwitterConsumer {
                     query.setSinceId(tweetId);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    log.error("Thread was interrupted during sleep or wait : " + e);
+                    log.error("Thread was interrupted during sleep : " + e);
                 }
             }
         }
+
+        /**
+         * Checks the number of the remaining requests within window and wait
+         * wait until window will be reset.
+         * @param result - Results of the specified Query.
+         */
 
         private void checkRateLimit(QueryResult result) {
             if (result.getRateLimitStatus().getRemaining() <= 0) {
@@ -148,14 +161,14 @@ public enum TwitterConsumer {
                     Thread.sleep(result.getRateLimitStatus().getSecondsUntilReset());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    log.error("Thread was interrupted during sleep or wait : " + e);
+                    log.error("Thread was interrupted during wait : " + e);
                 }
             }
         }
     }
 
     /**
-     * listens to the public statuses.
+     * Listens to the public statuses.
      */
     public class TwitterStatusListener implements StatusListener {
         private SourceEventListener sourceEventListener;
@@ -167,7 +180,12 @@ public enum TwitterConsumer {
         @Override
         public void onStatus(Status status) {
             if (isPaused) {
-                sleep(sleepTime);
+                try {
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    log.error("Thread was interrupted during sleep : " + ie);
+                }
             }
             sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
         }
@@ -206,17 +224,6 @@ public enum TwitterConsumer {
 
     public void resume() {
         isPaused = false;
-    }
-
-    public void sleep (int sleepTime) {
-        try {
-            while (!isPaused) {
-                Thread.sleep(sleepTime);
-            }
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-            log.error("Thread was interrupted during sleep : " + ie);
-        }
     }
 }
 

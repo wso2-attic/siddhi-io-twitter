@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -460,22 +461,21 @@ public class TestCaseOfTwitterSource {
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         Assert.assertTrue(eventArrived);
 
-        eventArrived = false;
-        eventCount.set(0);
         //persisting
-        //Thread.sleep(500);
+        Thread.sleep(500);
         siddhiAppRuntime.persist();
 
-        LOG.info("Persisting finished");
 
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-
 
         //restarting siddhi app
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
 
-        /*siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+        eventArrived = false;
+        eventCount.set(0);
+
+        siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
         siddhiAppRuntime.addCallback("query1", queryCallback);
         siddhiAppRuntime.start();
@@ -492,8 +492,7 @@ public class TestCaseOfTwitterSource {
         Thread.sleep(500);
         siddhiAppRuntime.shutdown();
 
-        AssertJUnit.assertEquals(true, eventArrived); */
+        Assert.assertTrue(eventArrived);
     }
-
 }
 
