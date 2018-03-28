@@ -34,18 +34,21 @@ import twitter4j.TwitterObjectFactory;
 import twitter4j.TwitterStream;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class handles consuming tweets and passing to the stream.
+ * Since enums are inherently serializable and thread-safe, enum Singleton pattern is best way to
+ * create Singleton in Java
  */
 
 public enum TwitterConsumer {
     INSTANCE;
 
     private static final Logger log = Logger.getLogger(TwitterConsumer.class);
-    private boolean isPaused;
-    private int sleepTime = 10000;
+    private volatile boolean isPaused;
+    int sleepTime = 10000;
     long tweetId = -1;
 
     /**
@@ -58,8 +61,9 @@ public enum TwitterConsumer {
 
     public void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener, FilterQuery filterQuery,
                         int paramSize) {
+        int mandatoryParamSize = 6;
         twitterStream.addListener(new TwitterStatusListener(sourceEventListener));
-        if (paramSize == 6) {
+        if (paramSize == mandatoryParamSize) {
             twitterStream.sample();
         } else {
             twitterStream.filter(filterQuery);
@@ -72,14 +76,15 @@ public enum TwitterConsumer {
      * @param query - Specifies query
      * @param sourceEventListener - listens to events
      * @param siddhiAppContext - Holder object for context information of siddhiapp
-     * @param pollingInterval - Specifies the interval to poll
+     * @param pollingInterval - Specifies the interval to poll periodically
      */
 
     public void consume(Twitter twitter, Query query, SourceEventListener sourceEventListener, SiddhiAppContext
             siddhiAppContext, long pollingInterval) {
-        ExecutorService executorService = siddhiAppContext.getExecutorService();
-        executorService.execute(new TwitterPoller(twitter, query, sourceEventListener, pollingInterval));
-    }
+        ScheduledExecutorService scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
+        scheduledExecutorService.scheduleAtFixedRate(new TwitterPoller(twitter, query, sourceEventListener),
+                0, pollingInterval, TimeUnit.SECONDS);
+        }
 
     /**
      * This class is for polling tweets continuously.
@@ -90,7 +95,7 @@ public enum TwitterConsumer {
         Query query;
         QueryResult result;
         SourceEventListener sourceEventListener;
-        long pollingInterval;
+        int anInt = 0;
 
 
         /**
@@ -99,19 +104,15 @@ public enum TwitterConsumer {
          * @param twitter             - twitter instance
          * @param query               - specifies a query
          * @param sourceEventListener - listens events
-         * @param pollingInterval     - specifies the interval to poll periodically
          */
-        TwitterPoller(Twitter twitter, Query query, SourceEventListener sourceEventListener, long pollingInterval) {
+        TwitterPoller(Twitter twitter, Query query, SourceEventListener sourceEventListener) {
             this.twitter = twitter;
             this.query = query;
             this.sourceEventListener = sourceEventListener;
-            this.pollingInterval = pollingInterval;
         }
 
         @Override
         public void run() {
-            Query qry = query;
-            while (true) {
                 boolean flag = true;
                 do {
                     try {
@@ -124,7 +125,9 @@ public enum TwitterConsumer {
                             }
                             if (isPaused) {
                                 try {
-                                    Thread.sleep(sleepTime);
+                                    while (!isPaused) {
+                                        Thread.sleep(sleepTime);
+                                    }
                                 } catch (InterruptedException ie) {
                                     Thread.currentThread().interrupt();
                                     log.error("Thread was interrupted during sleep : " + ie);
@@ -132,26 +135,22 @@ public enum TwitterConsumer {
                             }
                             sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                         }
-                        query = result.nextQuery();
+                        if (result.nextQuery() != null) {
+                            query = result.nextQuery();
+                        } else {
+                            query.setSinceId(tweetId);
+                            query.setMaxId(-1);
+                        }
                         checkRateLimit(result);
                     } catch (TwitterException te) {
                         log.error("Failed to search tweets: " + te.getMessage());
                     }
-                } while (result.hasNext());
-                try {
-                    Thread.sleep(pollingInterval);
-                    query = qry;
-                    query.setSinceId(tweetId);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    log.error("Thread was interrupted during sleep : " + e);
-                }
-            }
+                } while (result.nextQuery() != null);
         }
 
         /**
          * Checks the number of the remaining requests within window and wait
-         * wait until window will be reset.
+         * until window will be reset.
          * @param result - Results of the specified Query.
          */
 
@@ -181,7 +180,9 @@ public enum TwitterConsumer {
         public void onStatus(Status status) {
             if (isPaused) {
                 try {
-                    Thread.sleep(sleepTime);
+                    while (!isPaused) {
+                        Thread.sleep(sleepTime);
+                    }
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     log.error("Thread was interrupted during sleep : " + ie);

@@ -28,7 +28,6 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -171,9 +170,9 @@ import java.util.Set;
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "polling.interval",
-                        description = "Specifies the period of time to poll tweets periodically",
+                        description = "Specifies the period of time (in seconds) to poll tweets periodically",
                         optional = true,
-                        defaultValue = "3600000",
+                        defaultValue = "3600",
                         type = {DataType.LONG}),
         },
         examples = {
@@ -303,52 +302,51 @@ public class TwitterSource extends Source {
      * @param siddhiAppContext    the context of the {@link org.wso2.siddhi.query.api.SiddhiApp} used to get Siddhi
      *                            related utility functions.
      */
-
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
-        this.twitterConsumer = TwitterConsumer.INSTANCE;
         this.siddhiAppContext = siddhiAppContext;
-        this.consumerKey = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_KEY);
-        this.consumerSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_SECRET);
-        this.accessToken = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_TOKEN);
-        this.accessSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_SECRET);
-        this.mode = optionHolder.validateAndGetStaticValue(TwitterConstants.MODE);
-        this.locationParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_LOCATIONS,
+        twitterConsumer = TwitterConsumer.INSTANCE;
+        consumerKey = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_KEY);
+        consumerSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_SECRET);
+        accessToken = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_TOKEN);
+        accessSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_SECRET);
+        mode = optionHolder.validateAndGetStaticValue(TwitterConstants.MODE);
+        locationParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_LOCATIONS,
                 TwitterConstants.EMPTY_STRING);
-        this.followParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_FOLLOW,
+        followParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_FOLLOW,
                 TwitterConstants.EMPTY_STRING);
-        this.languageParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_LANGUAGE,
+        languageParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_LANGUAGE,
                 TwitterConstants.EMPTY_STRING);
-        this.trackParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_TRACK,
+        trackParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_TRACK,
                 TwitterConstants.EMPTY_STRING);
-        this.filterLevel = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_FILTER_LEVEL,
+        filterLevel = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_FILTER_LEVEL,
                 "none");
-        this.queryParam = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_QUERY,
+        queryParam = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_QUERY,
                 TwitterConstants.EMPTY_STRING);
-        this.count = Integer.parseInt(optionHolder.validateAndGetStaticValue(
+        count = Integer.parseInt(optionHolder.validateAndGetStaticValue(
                 TwitterConstants.POLLING_SEARCH_COUNT, "-1"));
-        this.geocode = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_GEOCODE,
+        geocode = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_GEOCODE,
                 TwitterConstants.EMPTY_STRING);
-        this.maxId = Long.parseLong(optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_MAXID,
+        maxId = Long.parseLong(optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_MAXID,
                 "-1"));
-        this.sinceId = Long.parseLong(optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_SINCEID,
+        sinceId = Long.parseLong(optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_SINCEID,
                 "-1"));
-        this.searchLang = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_LANGUAGE,
+        searchLang = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_LANGUAGE,
                 TwitterConstants.EMPTY_STRING);
-        this.until = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_UNTIL,
+        until = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_UNTIL,
                 TwitterConstants.EMPTY_STRING);
-        this.since = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_SINCE,
+        since = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_SINCE,
                 TwitterConstants.EMPTY_STRING);
-        this.resultType = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
+        resultType = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_RESULT_TYPE,
                 "mixed");
-        this.pollingInterval = Long.parseLong(optionHolder.validateAndGetStaticValue
-                (TwitterConstants.POLLING_INTERVAL, "1200000"));
-        this.query = null;
-        this.filterQuery = null;
-        this.staticOptionsKeys = optionHolder.getStaticOptionsKeys();
+        pollingInterval = Long.parseLong(optionHolder.validateAndGetStaticValue
+                (TwitterConstants.POLLING_INTERVAL, "3600"));
+        query = null;
+        filterQuery = null;
+        staticOptionsKeys = optionHolder.getStaticOptionsKeys();
         validateParameter();
     }
 
@@ -461,8 +459,7 @@ public class TwitterSource extends Source {
      */
     @Override
     public void restoreState(Map<String, Object> map) {
-            long id = Long.parseLong(map.get(TwitterConstants.POLLING_SEARCH_SINCEID).toString());
-            query.setSinceId(id);
+        sinceId = Long.parseLong(map.get(TwitterConstants.POLLING_SEARCH_SINCEID).toString());
     }
 
     /**
@@ -474,23 +471,23 @@ public class TwitterSource extends Source {
         if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
             for (String s : staticOptionsKeys) {
                 if (!TwitterConstants.STREAMING_PARAM.contains(s) && !TwitterConstants.MANDATORY_PARAM.contains(s)) {
-                    throw new SiddhiAppCreationException(s + " is not valid for the " + mode + " " +
+                    throw new SiddhiAppValidationException(s + " is not valid for the " + mode + " " +
                             TwitterConstants.MODE);
                 }
             }
         } else if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
             if (queryParam.isEmpty()) {
-                throw new SiddhiAppCreationException("For polling mode, query should be given.");
+                throw new SiddhiAppValidationException("For polling mode, query should be given.");
             }
             for (String parameters : staticOptionsKeys) {
                 if (!TwitterConstants.POLLING_PARAM.contains(parameters) &&
                         !TwitterConstants.MANDATORY_PARAM.contains(parameters)) {
-                    throw new SiddhiAppCreationException(parameters + " is not valid for the " + mode + " " +
+                    throw new SiddhiAppValidationException(parameters + " is not valid for the " + mode + " " +
                             TwitterConstants.MODE);
                 }
             }
         } else {
-            throw new SiddhiAppCreationException("There are only two possible values for mode :" +
+            throw new SiddhiAppValidationException("There are only two possible values for mode :" +
                     " streaming or polling. But found '" + mode + "'.");
         }
         if (!followParam.isEmpty()) {
@@ -503,7 +500,7 @@ public class TwitterSource extends Source {
 
         if (!geocode.isEmpty()) {
             Query.Unit unit = null;
-            String[] parts = Util.extract(geocode);
+            String[] parts = geocode.split(TwitterConstants.COMMA);
             String radiusstr = parts[2].trim();
             try {
                 latitude = Double.parseDouble(parts[0]);
@@ -529,12 +526,12 @@ public class TwitterSource extends Source {
         }
 
         if (!TwitterConstants.FILTER_LEVELS.contains(filterLevel)) {
-            throw new SiddhiAppCreationException("There are only three possible values for filter.level :" +
+            throw new SiddhiAppValidationException("There are only three possible values for filter.level :" +
                     " low or medium or none. But found '" + filterLevel + "'.");
         }
 
         if (!TwitterConstants.RESULT_TYPES.contains(resultType1)) {
-            throw new SiddhiAppCreationException("There are only three possible values for result.type :" +
+            throw new SiddhiAppValidationException("There are only three possible values for result.type :" +
                     " mixed or popular or recent. But found '" + resultType + "'.");
         }
     }

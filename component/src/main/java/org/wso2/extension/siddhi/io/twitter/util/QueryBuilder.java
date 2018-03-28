@@ -60,18 +60,13 @@ public class QueryBuilder {
 
     public static FilterQuery createFilterQuery (String languageParam, String trackParam, long[] follow,
                                           String filterLevel, double[][] locations) {
-        FilterQuery filterQuery;
-        String[] tracks;
-        String[] filterLang;
-        filterQuery = new FilterQuery();
+        FilterQuery filterQuery = new FilterQuery();
         if (!trackParam.trim().isEmpty()) {
-            tracks = Util.extract(trackParam);
-            filterQuery.track(tracks);
+            filterQuery.track(trackParam.split(TwitterConstants.COMMA));
         }
 
         if (!languageParam.trim().isEmpty()) {
-            filterLang = Util.extract(languageParam);
-            filterQuery.language(filterLang);
+            filterQuery.language(languageParam.split(TwitterConstants.COMMA));
         }
 
         if (follow != null) {

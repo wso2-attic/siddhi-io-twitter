@@ -27,12 +27,14 @@ import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Collection;
 import java.util.List;
@@ -85,6 +87,8 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
+                    //Assert.assertTrue(event.toString().contains("Apple") || event.toString().contains("Google") ||
+                            //event.toString().contains("Amazon") );
                     eventArrived = true;
 
                 }
@@ -92,7 +96,7 @@ public class TestCaseOfTwitterSource {
         });
 
         siddhiAppRuntime.start();
-        SiddhiTestHelper.waitForEvents(waitTime, 3, eventCount, timeout);
+        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
@@ -223,7 +227,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         if (!eventArrived) {
-            LOG.info("No tweets tweeted by the given followers");
+            LOG.info("No tweets tweeted by the given followers within the waitTime");
         }
         //Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
@@ -241,8 +245,7 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'streaming',track = 'google,amazon,apple', " +
-                " @map(type='json', fail.on.missing.attribute='false' ," +
+                "mode= 'streaming', @map(type='json', fail.on.missing.attribute='false' ," +
                 "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
                 " coordinates='coordinates', user='user')))" +
                 "define stream inputStream(created_at String, id long, id_str String, text String, " +
@@ -272,6 +275,7 @@ public class TestCaseOfTwitterSource {
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         Assert.assertTrue(eventArrived);
         sources.forEach(e -> e.forEach(Source::pause));
+        Thread.sleep(500);
         eventArrived = false;
         eventCount.set(0);
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
@@ -281,6 +285,247 @@ public class TestCaseOfTwitterSource {
         Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
+
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void testStreaming6() {
+        LOG.info("------------------------------------------------------------------------------------------------");
+        LOG.info("TwitterStreaming TestCase 6 - Test for to check whether the parameters are valid for streaming" +
+                " mode.");
+        LOG.info("------------------------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterStreamingSample')" +
+                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
+                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
+                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
+                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "mode= 'streaming',track = 'google,amazon,apple' ,  until = '2018-04-8', " +
+                " @map(type='json', fail.on.missing.attribute='false' ," +
+                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
+                " coordinates='coordinates', user='user')))" +
+                "define stream inputStream(created_at String, id long, id_str String, text String, " +
+                "coordinates string, user string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(eventCount + " . " + event);
+                    eventArrived = true;
+                }
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+
+    }
+
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void testStreaming7() {
+        LOG.info("----------------------------------------------------------------------------------");
+        LOG.info("TwitterStreaming TestCase 7 - Test for filter.level Parameter validation");
+        LOG.info("----------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterStreamingSample')" +
+                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
+                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
+                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
+                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "mode= 'streaming',track = 'google,amazon,apple', filter.level = 'high' ," +
+                " @map(type='json', fail.on.missing.attribute='false' ," +
+                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
+                " coordinates='coordinates', user='user')))" +
+                "define stream inputStream(created_at String, id long, id_str String, text String, " +
+                "coordinates string, user string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(eventCount + " . " + event);
+                    eventArrived = true;
+                }
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+
+    }
+
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void testStreaming8() {
+        LOG.info("----------------------------------------------------------------------------------");
+        LOG.info("TwitterStreaming TestCase 8 - Test for Location Parameter validation");
+        LOG.info("----------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterStreamingSample')" +
+                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
+                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
+                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
+                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "mode= 'streaming',track = 'google,amazon,apple', location = '-122.75,36.8,-121.75'," +
+                " @map(type='json', fail.on.missing.attribute='false' ," +
+                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
+                " coordinates='coordinates', user='user')))" +
+                "define stream inputStream(created_at String, id long, id_str String, text String, " +
+                "coordinates string, user string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(eventCount + " . " + event);
+                    eventArrived = true;
+                }
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+    }
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void testStreaming9() {
+        LOG.info("----------------------------------------------------------------------------------");
+        LOG.info("TwitterStreaming TestCase 9 - Test for Follow Parameter validation");
+        LOG.info("----------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterStreamingSample')" +
+                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
+                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
+                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
+                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "mode= 'streaming',track = 'google,amazon,apple', follow = '1ab5670515' ," +
+                " @map(type='json', fail.on.missing.attribute='false' ," +
+                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
+                " coordinates='coordinates', user='user')))" +
+                "define stream inputStream(created_at String, id long, id_str String, text String, " +
+                "coordinates string, user string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(eventCount + " . " + event);
+                    eventArrived = true;
+                }
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void testForMandatoryParam() {
+        LOG.info("----------------------------------------------------------------------------------");
+        LOG.info("Twitter TestCase - Test for to check whether mandatory parameters are given or not.");
+        LOG.info("----------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterStreamingSample')" +
+                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
+                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
+                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
+                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                " @map(type='json', fail.on.missing.attribute='false' ," +
+                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
+                " coordinates='coordinates', user='user')))" +
+                "define stream inputStream(created_at String, id long, id_str String, text String, " +
+                "coordinates string, user string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(eventCount + " . " + event);
+                    eventArrived = true;
+                }
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void testForModeParam() {
+        LOG.info("----------------------------------------------------------------------------------");
+        LOG.info("Twitter TestCase - Test for mode parameter validation");
+        LOG.info("----------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterStreamingSample')" +
+                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
+                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
+                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
+                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', mode = 'Poll', " +
+                " @map(type='json', fail.on.missing.attribute='false' ," +
+                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
+                " coordinates='coordinates', user='user')))" +
+                "define stream inputStream(created_at String, id long, id_str String, text String, " +
+                "coordinates string, user string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(eventCount + " . " + event);
+                    eventArrived = true;
+                }
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+    }
+
 
     @Test
     public void testTwitterPolling1() throws InterruptedException {
@@ -419,7 +664,7 @@ public class TestCaseOfTwitterSource {
     @Test
     public void testPolling4() throws InterruptedException {
         LOG.info("----------------------------------------------------------------------------------");
-        LOG.info("TwitterPolling TestCase 4 - Test for pause and resume method.");
+        LOG.info("TwitterPolling TestCase 4 - Test for current state and restore method.");
         LOG.info("----------------------------------------------------------------------------------");
         PersistenceStore persistenceStore = new InMemoryPersistenceStore();
 
@@ -451,7 +696,7 @@ public class TestCaseOfTwitterSource {
                 eventArrived = true;
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
-                    LOG.info(event);
+                    LOG.info(eventCount + " . " + event);
                     eventArrived = true;
                 }
             }
@@ -461,6 +706,7 @@ public class TestCaseOfTwitterSource {
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         Assert.assertTrue(eventArrived);
 
+        eventArrived = false;
         //persisting
         Thread.sleep(500);
         siddhiAppRuntime.persist();
@@ -469,8 +715,9 @@ public class TestCaseOfTwitterSource {
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
 
         //restarting siddhi app
-        Thread.sleep(500);
         siddhiAppRuntime.shutdown();
+
+        Thread.sleep(60000);
 
         eventArrived = false;
         eventCount.set(0);
@@ -489,10 +736,170 @@ public class TestCaseOfTwitterSource {
 
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         //shutdown siddhi app
-        Thread.sleep(500);
         siddhiAppRuntime.shutdown();
 
         Assert.assertTrue(eventArrived);
+    }
+
+    @Test (expectedExceptions = SiddhiAppValidationException.class)
+    public void testTwitterPolling5() {
+        LOG.info("---------------------------------------------------------------");
+        LOG.info("TwitterSourcePolling TestCase 5 - Test for to check whether the given parameters are valid for" +
+                " polling mode");
+        LOG.info("----------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterPolling')" +
+                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
+                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
+                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
+                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "mode= 'polling', geocode = '43.913723261972855,-72.54272478125,150', follow ='15670515'," +
+                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
+                " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
+                "define stream inputStream(created_at String, id long, id_str String, text String, " +
+                "coordinates string,user string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(event);
+                    eventArrived = true;
+                }
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test (expectedExceptions = SiddhiAppValidationException.class)
+    public void testTwitterPolling6() {
+        LOG.info("---------------------------------------------------------------");
+        LOG.info("TwitterSourcePolling TestCase 6 - Test for Query for polling mode without query parameter");
+        LOG.info("----------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterPolling')" +
+                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
+                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
+                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
+                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "mode= 'polling', geocode = '43.913723261972855,-72.54272478125,150'," +
+                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
+                " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
+                "define stream inputStream(created_at String, id long, id_str String, text String, " +
+                "coordinates string,user string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(event);
+                    eventArrived = true;
+                }
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test (expectedExceptions = SiddhiAppValidationException.class)
+    public void testTwitterPolling7() {
+        LOG.info("---------------------------------------------------------------");
+        LOG.info("TwitterSourcePolling TestCase 7 - Test for the geocode parameter validation.");
+        LOG.info("----------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterPolling')" +
+                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
+                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
+                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
+                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "mode= 'polling', query = '#Amazon', geocode = '43.913723261972855,-72.54272478125,150'," +
+                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
+                " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
+                "define stream inputStream(created_at String, id long, id_str String, text String, " +
+                "coordinates string,user string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(event);
+                    eventArrived = true;
+                }
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test (expectedExceptions = SiddhiAppCreationException.class)
+    public void testTwitterPolling8() {
+        LOG.info("---------------------------------------------------------------");
+        LOG.info("TwitterSourcePolling TestCase 8 - Test for the result.type parameter validation.");
+        LOG.info("----------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterPolling')" +
+                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
+                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
+                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
+                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "mode= 'polling', query = '#Amazon', result.type = 'populaar'," +
+                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
+                " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
+                "define stream inputStream(created_at String, id long, id_str String, text String, " +
+                "coordinates string,user string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(event);
+                    eventArrived = true;
+                }
+            }
+        });
+
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
     }
 }
 

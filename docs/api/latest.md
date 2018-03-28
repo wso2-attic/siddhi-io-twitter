@@ -159,8 +159,8 @@
     </tr>
     <tr>
         <td style="vertical-align: top">polling.interval</td>
-        <td style="vertical-align: top; word-wrap: break-word">Specifies the period of time to poll tweets periodically</td>
-        <td style="vertical-align: top">3600000</td>
+        <td style="vertical-align: top; word-wrap: break-word">Specifies the period of time (in seconds) to poll tweets periodically</td>
+        <td style="vertical-align: top">3600</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
