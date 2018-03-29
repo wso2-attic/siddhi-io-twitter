@@ -32,7 +32,7 @@ public class Util {
 
 
     public static double[][] locationParam(String locationParam) {
-        String[] boundary = locationParam.split(",");
+        String[] boundary = locationParam.split(TwitterConstants.COMMA);
         length = boundary.length;
         if (length < 5) {
             throw new SiddhiAppValidationException ("For the location, the bounding box specified is invalid.");
@@ -58,7 +58,7 @@ public class Util {
         follow = new long[length];
         for (i = 0; i < length; i++) {
             try {
-                follow[i] = Long.parseLong(followParam.split(",")[i]);
+                follow[i] = Long.parseLong(followParam.split(TwitterConstants.COMMA)[i]);
             } catch (NumberFormatException e) {
                 throw new SiddhiAppValidationException("Follow should be a long value: " + e.getMessage() , e);
             }

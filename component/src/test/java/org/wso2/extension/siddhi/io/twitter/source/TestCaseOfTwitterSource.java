@@ -38,20 +38,21 @@ import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class TestCaseOfTwitterSource {
     private static final Logger LOG = Logger.getLogger(TestCaseOfTwitterSource.class);
     private AtomicInteger eventCount = new AtomicInteger(0);
-    private volatile boolean eventArrived;
+    private AtomicBoolean eventArrived = new AtomicBoolean(false);
     private int waitTime = 50;
     private int timeout = 10000;
 
     @BeforeMethod
     public void init() {
         eventCount.set(0);
-        eventArrived = false;
+        eventArrived.set(false);
     }
 
 
@@ -68,7 +69,7 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                "mode= 'streaming', track = 'Amazon,Google,Apple', language = 'en',filter.level = 'none' , " +
+                "mode= 'streaming', track = 'Amazon', language = 'en',filter.level = 'none' , " +
                 "@map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
                 "define stream inputStream(created_at String, id long, id_str String, text String, " +
@@ -87,9 +88,8 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    //Assert.assertTrue(event.toString().contains("Apple") || event.toString().contains("Google") ||
-                            //event.toString().contains("Amazon") );
-                    eventArrived = true;
+                    //Assert.assertTrue(event.toString().contains("amazon") || event.toString().contains("Amazon"));
+                    eventArrived.set(true);
 
                 }
             }
@@ -97,7 +97,7 @@ public class TestCaseOfTwitterSource {
 
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertTrue(eventArrived);
+        Assert.assertTrue(eventArrived.get());
         siddhiAppRuntime.shutdown();
     }
 
@@ -132,14 +132,14 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
 
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertTrue(eventArrived);
+        Assert.assertTrue(eventArrived.get());
         siddhiAppRuntime.shutdown();
     }
 
@@ -175,7 +175,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    eventArrived = true;
+                    eventArrived.set(true);
 
                 }
             }
@@ -183,7 +183,7 @@ public class TestCaseOfTwitterSource {
 
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertTrue(eventArrived);
+        Assert.assertTrue(eventArrived.get());
         siddhiAppRuntime.shutdown();
     }
 
@@ -218,15 +218,14 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    eventArrived = true;
-
+                    eventArrived.set(true);
                 }
             }
         });
 
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        if (!eventArrived) {
+        if (!eventArrived.get()) {
             LOG.info("No tweets tweeted by the given followers within the waitTime");
         }
         //Assert.assertTrue(eventArrived);
@@ -266,23 +265,26 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(eventCount + " . " + event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
 
         siddhiAppRuntime.start();
-        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertTrue(eventArrived);
+        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, 10000);
+        Assert.assertTrue(eventArrived.get());
         sources.forEach(e -> e.forEach(Source::pause));
-        Thread.sleep(500);
-        eventArrived = false;
+
+        LOG.info("Siddhi App paused.................................");
+        eventArrived.set(false);
         eventCount.set(0);
+
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertFalse(eventArrived);
+        Assert.assertFalse(eventArrived.get());
         sources.forEach(e -> e.forEach(Source::resume));
+        LOG.info("Siddhi App Resumed...............................");
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertTrue(eventArrived);
+        Assert.assertTrue(eventArrived.get());
         siddhiAppRuntime.shutdown();
     }
 
@@ -318,7 +320,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(eventCount + " . " + event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
@@ -359,7 +361,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(eventCount + " . " + event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
@@ -400,7 +402,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(eventCount + " . " + event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
@@ -439,7 +441,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(eventCount + " . " + event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
@@ -478,7 +480,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(eventCount + " . " + event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
@@ -517,7 +519,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(eventCount + " . " + event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
@@ -559,15 +561,15 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(eventCount + " . " + event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
 
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertTrue(eventArrived);
-        if (!eventArrived) {
+        //Assert.assertTrue(eventArrived.get());
+        if (!eventArrived.get()) {
             LOG.info("No tweets matched with the given query");
         }
         siddhiAppRuntime.shutdown();
@@ -605,14 +607,14 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
 
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        if (!eventArrived) {
+        if (!eventArrived.get()) {
             LOG.info("No tweets matched with the given query");
         }
         //Assert.assertTrue(eventArrived);
@@ -650,14 +652,14 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
 
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertTrue(eventArrived);
+        Assert.assertTrue(eventArrived.get());
         siddhiAppRuntime.shutdown();
     }
 
@@ -693,22 +695,19 @@ public class TestCaseOfTwitterSource {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
-                eventArrived = true;
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(eventCount + " . " + event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         };
         siddhiAppRuntime.addCallback("query1", queryCallback);
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        Assert.assertTrue(eventArrived);
+        Assert.assertTrue(eventArrived.get());
 
-        eventArrived = false;
         //persisting
-        Thread.sleep(500);
         siddhiAppRuntime.persist();
 
 
@@ -717,9 +716,7 @@ public class TestCaseOfTwitterSource {
         //restarting siddhi app
         siddhiAppRuntime.shutdown();
 
-        Thread.sleep(60000);
-
-        eventArrived = false;
+        eventArrived.set(false);
         eventCount.set(0);
 
         siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
@@ -738,7 +735,7 @@ public class TestCaseOfTwitterSource {
         //shutdown siddhi app
         siddhiAppRuntime.shutdown();
 
-        Assert.assertTrue(eventArrived);
+        Assert.assertTrue(eventArrived.get());
     }
 
     @Test (expectedExceptions = SiddhiAppValidationException.class)
@@ -773,7 +770,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
@@ -813,7 +810,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
@@ -853,7 +850,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });
@@ -893,7 +890,7 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    eventArrived = true;
+                    eventArrived.set(true);
                 }
             }
         });

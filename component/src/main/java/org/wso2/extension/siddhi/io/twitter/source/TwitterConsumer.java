@@ -36,6 +36,9 @@ import twitter4j.TwitterStream;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
 
 /**
  * This class handles consuming tweets and passing to the stream.
@@ -47,16 +50,18 @@ public enum TwitterConsumer {
     INSTANCE;
 
     private static final Logger log = Logger.getLogger(TwitterConsumer.class);
-    private volatile boolean isPaused;
-    int sleepTime = 10000;
+    private boolean paused;
+    private ReentrantLock lock = new ReentrantLock();
+    private Condition condition = lock.newCondition();
     long tweetId = -1;
 
     /**
      * This method handles consuming livestream tweets.
-     * @param twitterStream - Twitter Stream instance
+     *
+     * @param twitterStream       - Twitter Stream instance
      * @param sourceEventListener - listens to events
-     * @param filterQuery - Specifies query for filter
-     * @param paramSize - No of parameters given for the query
+     * @param filterQuery         - Specifies query for filter
+     * @param paramSize           - No of parameters given for the query
      */
 
     public void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener, FilterQuery filterQuery,
@@ -72,11 +77,12 @@ public enum TwitterConsumer {
 
     /**
      * This method handles consuming historical tweets within a week.
-     * @param twitter - Twitter instance
-     * @param query - Specifies query
+     *
+     * @param twitter             - Twitter instance
+     * @param query               - Specifies query
      * @param sourceEventListener - listens to events
-     * @param siddhiAppContext - Holder object for context information of siddhiapp
-     * @param pollingInterval - Specifies the interval to poll periodically
+     * @param siddhiAppContext    - Holder object for context information of siddhiapp
+     * @param pollingInterval     - Specifies the interval to poll periodically
      */
 
     public void consume(Twitter twitter, Query query, SourceEventListener sourceEventListener, SiddhiAppContext
@@ -84,7 +90,7 @@ public enum TwitterConsumer {
         ScheduledExecutorService scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
         scheduledExecutorService.scheduleAtFixedRate(new TwitterPoller(twitter, query, sourceEventListener),
                 0, pollingInterval, TimeUnit.SECONDS);
-        }
+    }
 
     /**
      * This class is for polling tweets continuously.
@@ -95,7 +101,6 @@ public enum TwitterConsumer {
         Query query;
         QueryResult result;
         SourceEventListener sourceEventListener;
-        int anInt = 0;
 
 
         /**
@@ -113,44 +118,47 @@ public enum TwitterConsumer {
 
         @Override
         public void run() {
-                boolean flag = true;
-                do {
-                    try {
-                        result = twitter.search(query);
-                        List<Status> tweets = result.getTweets();
-                        for (Status tweet : tweets) {
-                            if (flag) {
-                                tweetId = tweet.getId();
-                                flag = false;
-                            }
-                            if (isPaused) {
-                                try {
-                                    while (!isPaused) {
-                                        Thread.sleep(sleepTime);
-                                    }
-                                } catch (InterruptedException ie) {
-                                    Thread.currentThread().interrupt();
-                                    log.error("Thread was interrupted during sleep : " + ie);
+            boolean flag = true;
+            do {
+                try {
+                    result = twitter.search(query);
+                    List<Status> tweets = result.getTweets();
+                    for (Status tweet : tweets) {
+                        if (flag) {
+                            tweetId = tweet.getId();
+                            flag = false;
+                        }
+                        if (paused) { //spurious wakeup condition is deliberately traded off for performance
+                            lock.lock();
+                            try {
+                                while (paused) {
+                                    condition.await();
                                 }
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                            } finally {
+                                lock.unlock();
                             }
-                            sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                         }
-                        if (result.nextQuery() != null) {
-                            query = result.nextQuery();
-                        } else {
-                            query.setSinceId(tweetId);
-                            query.setMaxId(-1);
-                        }
-                        checkRateLimit(result);
-                    } catch (TwitterException te) {
-                        log.error("Failed to search tweets: " + te.getMessage());
+                        sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
                     }
-                } while (result.nextQuery() != null);
+                    if (result.nextQuery() != null) {
+                        query = result.nextQuery();
+                    } else {
+                        query.setSinceId(tweetId);
+                        query.setMaxId(-1);
+                    }
+                    checkRateLimit(result);
+                } catch (TwitterException te) {
+                    log.error("Failed to search tweets: " + te.getMessage());
+                }
+            } while (result.nextQuery() != null);
         }
 
         /**
          * Checks the number of the remaining requests within window and wait
          * until window will be reset.
+         *
          * @param result - Results of the specified Query.
          */
 
@@ -178,14 +186,16 @@ public enum TwitterConsumer {
 
         @Override
         public void onStatus(Status status) {
-            if (isPaused) {
+            if (paused) { //spurious wakeup condition is deliberately traded off for performance
+                lock.lock();
                 try {
-                    while (!isPaused) {
-                        Thread.sleep(sleepTime);
+                    while (paused) {
+                        condition.await();
                     }
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
-                    log.error("Thread was interrupted during sleep : " + ie);
+                } finally {
+                    lock.unlock();
                 }
             }
             sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
@@ -220,11 +230,17 @@ public enum TwitterConsumer {
     }
 
     public void pause() {
-        isPaused = true;
+        paused = true;
     }
 
     public void resume() {
-        isPaused = false;
+        paused = false;
+        try {
+            lock.lock();
+            condition.signalAll();
+        } finally {
+            lock.unlock();
+        }
     }
 }
 
