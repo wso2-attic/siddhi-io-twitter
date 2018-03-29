@@ -118,17 +118,12 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.extension.siddhi.io.twitter,
                             org.wso2.extension.siddhi.io.twitter.*
                         </Export-Package>
-                        <Import-Package>
-                            *;resolution:=optional
-                        </Import-Package>
                         <Private-Package>
-                            <!--todo remove package-->
-                            twitter4j.*
+                            twitter4j.*,
+                            org.wso2.extension.siddhi.io.twitter.util
                         </Private-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                         <Include-Resource>
                             META-INF=target/classes/META-INF
                         </Include-Resource>
