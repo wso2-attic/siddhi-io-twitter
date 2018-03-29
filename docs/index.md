@@ -1,9 +1,7 @@
 siddhi-io-twitter
 ======================================
 
-The **siddhi-io-twitter extension** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a>
-which is used to publish event data from Twitter API.
-It supports json format.
+The **siddhi-io-twitter extension** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a> which is used to publish event data from Twitter API. It supports json format.
 
 **Prerequisites</a>**
 ======================================
@@ -24,7 +22,6 @@ Find some useful links below:
 
 ## Latest API Docs 
 
-Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-io-twitter/api/1.0.6">1.0.6</a>.
 
 ## How to use 
 
@@ -32,8 +29,7 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
 
 * You can use this extension in the latest <a target="_blank" href="https://github.com/wso2/product-sp/releases">WSO2 Stream Processor</a> that is a part of <a target="_blank" href="http://wso2.com/analytics?utm_source=gitanalytics&utm_campaign=gitanalytics_Jul17">WSO2 Analytics</a> offering, with editor, debugger and simulation support. 
 
-* This extension is shipped by default with WSO2 Stream Processor, if you wish to use an alternative version of this 
-extension you can replace the component <a target="_blank" href="https://github
+* This extension is shipped by default with WSO2 Stream Processor, if you wish to use an alternative version of this extension you can replace the component <a target="_blank" href="https://github
 .com/wso2-extensions/siddhi-io-twitter/releases">jar</a> that can be found in the `<STREAM_PROCESSOR_HOME>/lib` directory.
 
 **Using the extension as a <a target="_blank" href="https://wso2.github.io/siddhi/documentation/running-as-a-java-library">java library</a>**
@@ -64,9 +60,7 @@ extension you can replace the component <a target="_blank" href="https://github
 
 ## How to Contribute
  
-  * Please report issues at <a target="_blank" href="https://github.com/wso2-extensions/siddhi-io-twitter/issues">GitHub
-  Issue
-   Tracker</a>.
+  * Please report issues at <a target="_blank" href="https://github.com/wso2-extensions/siddhi-io-twitter/issues">GitHub Issue Tracker</a>.
   
   * Send your contributions as pull requests to <a target="_blank" href="https://github
   .com/wso2-extensions/siddhi-io-twitter/tree/master">master branch</a>.
