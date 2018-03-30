@@ -469,9 +469,10 @@ public class TwitterSource extends Source {
     private void validateParameter() {
         Query.ResultType resultType1 = Query.ResultType.valueOf(this.resultType);
         if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
-            for (String s : staticOptionsKeys) {
-                if (!TwitterConstants.STREAMING_PARAM.contains(s) && !TwitterConstants.MANDATORY_PARAM.contains(s)) {
-                    throw new SiddhiAppValidationException(s + " is not valid for the " + mode + " " +
+            for (String staticOptionKey : staticOptionsKeys) {
+                if (!TwitterConstants.STREAMING_PARAM.contains(staticOptionKey) &&
+                        !TwitterConstants.MANDATORY_PARAM.contains(staticOptionKey)) {
+                    throw new SiddhiAppValidationException(staticOptionKey + " is not valid for the " + mode + " " +
                             TwitterConstants.MODE);
                 }
             }
@@ -500,7 +501,7 @@ public class TwitterSource extends Source {
 
         if (!geocode.isEmpty()) {
             Query.Unit unit = null;
-            String[] parts = geocode.split(TwitterConstants.COMMA);
+            String[] parts = geocode.split(TwitterConstants.DELIMITER);
             String radiusstr = parts[2].trim();
             try {
                 latitude = Double.parseDouble(parts[0]);

@@ -62,11 +62,11 @@ public class QueryBuilder {
                                           String filterLevel, double[][] locations) {
         FilterQuery filterQuery = new FilterQuery();
         if (!trackParam.trim().isEmpty()) {
-            filterQuery.track(trackParam.split(TwitterConstants.COMMA));
+            filterQuery.track(trackParam.split(TwitterConstants.DELIMITER));
         }
 
         if (!languageParam.trim().isEmpty()) {
-            filterQuery.language(languageParam.split(TwitterConstants.COMMA));
+            filterQuery.language(languageParam.split(TwitterConstants.DELIMITER));
         }
 
         if (follow != null) {

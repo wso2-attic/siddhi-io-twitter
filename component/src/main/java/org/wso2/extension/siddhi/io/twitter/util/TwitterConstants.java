@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -60,7 +60,7 @@ public class TwitterConstants {
     private static final String FILTER_LEVEL_MEDIUM = "medium";
     private static final String FILTER_LEVEL_LOW = "low";
     public static final String EMPTY_STRING = "";
-    public static final String COMMA = ",";
+    public static final String DELIMITER = ",";
 
 
     public static final List<String> MANDATORY_PARAM = Collections.unmodifiableList(Arrays.asList(
