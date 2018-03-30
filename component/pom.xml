@@ -121,8 +121,7 @@
                             org.wso2.extension.siddhi.io.twitter.*
                         </Export-Package>
                         <Private-Package>
-                            twitter4j.*,
-                            org.wso2.extension.siddhi.io.twitter.util
+                            twitter4j.*
                         </Private-Package>
                         <Include-Resource>
                             META-INF=target/classes/META-INF

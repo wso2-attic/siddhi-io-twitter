@@ -177,7 +177,7 @@ public enum TwitterConsumer {
     /**
      * Listens to the public statuses.
      */
-    public class TwitterStatusListener implements StatusListener {
+    class TwitterStatusListener implements StatusListener {
         private SourceEventListener sourceEventListener;
 
         TwitterStatusListener(SourceEventListener sourceEventListener) {

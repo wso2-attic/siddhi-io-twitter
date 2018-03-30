@@ -58,7 +58,7 @@
             <dependency>
                 <groupId>org.twitter4j</groupId>
                 <artifactId>twitter4j-stream</artifactId>
-                <version>4.0.6</version>
+                <version>{twitter4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.log4j.wso2</groupId>
@@ -80,7 +80,7 @@
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
-                <version>6.11</version>
+                <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -115,6 +115,8 @@
         <carbon.transport.version>4.4.15</carbon.transport.version>
         <siddhi.map.json.version>4.0.15</siddhi.map.json.version>
         <siddhi.map.xml.version>4.0.11</siddhi.map.xml.version>
+        <twitter4j.version>4.0.6</twitter4j.version>
+        <testng.version>6.11</testng.version>
         <jacoco.plugin.version>0.7.9</jacoco.plugin.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

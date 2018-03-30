@@ -286,8 +286,8 @@ public class TwitterSource extends Source {
     private double longitude;
     private double radius;
     private String unitName;
-    private Query query;
-    private FilterQuery filterQuery;
+    private Query query = null;
+    private FilterQuery filterQuery = null;
     private Set<String> staticOptionsKeys;
 
 
@@ -344,8 +344,6 @@ public class TwitterSource extends Source {
                 "mixed");
         pollingInterval = Long.parseLong(optionHolder.validateAndGetStaticValue
                 (TwitterConstants.POLLING_INTERVAL, "3600"));
-        query = null;
-        filterQuery = null;
         staticOptionsKeys = optionHolder.getStaticOptionsKeys();
         validateParameter();
     }

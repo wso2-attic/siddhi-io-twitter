@@ -32,8 +32,7 @@ public class QueryBuilder {
     public static Query createQuery (String q, int count, String language, long sinceId, long maxId, String until,
                               String since, String resultType, String geoCode, double latitude, double longitude,
                               double radius, String unitName) {
-        Query query;
-        query = new Query(q);
+        Query query = new Query(q);
         if (count > 0) {
             query.count(count);
         }
