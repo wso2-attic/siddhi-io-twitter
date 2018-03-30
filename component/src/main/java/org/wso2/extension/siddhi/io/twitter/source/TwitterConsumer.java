@@ -39,13 +39,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-
 /**
  * This class handles consuming tweets and passing to the stream.
  * Since enums are inherently serializable and thread-safe, enum Singleton pattern is best way to
  * create Singleton in Java
  */
-
 public enum TwitterConsumer {
     INSTANCE;
 
@@ -63,7 +61,6 @@ public enum TwitterConsumer {
      * @param filterQuery         - Specifies query for filter
      * @param paramSize           - No of parameters given for the query
      */
-
     public void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener, FilterQuery filterQuery,
                         int paramSize) {
         int mandatoryParamSize = 6;
@@ -84,7 +81,6 @@ public enum TwitterConsumer {
      * @param siddhiAppContext    - Holder object for context information of siddhiapp
      * @param pollingInterval     - Specifies the interval to poll periodically
      */
-
     public void consume(Twitter twitter, Query query, SourceEventListener sourceEventListener, SiddhiAppContext
             siddhiAppContext, long pollingInterval) {
         ScheduledExecutorService scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
@@ -95,7 +91,6 @@ public enum TwitterConsumer {
     /**
      * This class is for polling tweets continuously.
      */
-
     class TwitterPoller implements Runnable {
         Twitter twitter;
         Query query;
@@ -161,7 +156,6 @@ public enum TwitterConsumer {
          *
          * @param result - Results of the specified Query.
          */
-
         private void checkRateLimit(QueryResult result) {
             if (result.getRateLimitStatus().getRemaining() <= 0) {
                 try {

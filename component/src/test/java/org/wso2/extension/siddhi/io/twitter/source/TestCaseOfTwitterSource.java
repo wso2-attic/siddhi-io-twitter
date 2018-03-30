@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 public class TestCaseOfTwitterSource {
     private static final Logger LOG = Logger.getLogger(TestCaseOfTwitterSource.class);
     private AtomicInteger eventCount = new AtomicInteger(0);
@@ -54,7 +53,6 @@ public class TestCaseOfTwitterSource {
         eventCount.set(0);
         eventArrived.set(false);
     }
-
 
     @Test
     public void testTwitterStreaming1() throws InterruptedException {
@@ -88,7 +86,6 @@ public class TestCaseOfTwitterSource {
                 for (Event event : inEvents) {
                     eventCount.getAndIncrement();
                     LOG.info(event);
-                    //Assert.assertTrue(event.toString().contains("amazon") || event.toString().contains("Amazon"));
                     eventArrived.set(true);
 
                 }
@@ -228,7 +225,6 @@ public class TestCaseOfTwitterSource {
         if (!eventArrived.get()) {
             LOG.info("No tweets tweeted by the given followers within the waitTime");
         }
-        //Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -568,7 +564,6 @@ public class TestCaseOfTwitterSource {
 
         siddhiAppRuntime.start();
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
-        //Assert.assertTrue(eventArrived.get());
         if (!eventArrived.get()) {
             LOG.info("No tweets matched with the given query");
         }
@@ -617,7 +612,6 @@ public class TestCaseOfTwitterSource {
         if (!eventArrived.get()) {
             LOG.info("No tweets matched with the given query");
         }
-        //Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
     }
 
@@ -709,7 +703,6 @@ public class TestCaseOfTwitterSource {
 
         //persisting
         siddhiAppRuntime.persist();
-
 
         SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
 
