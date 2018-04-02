@@ -19,6 +19,7 @@
 package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
+import org.wso2.extension.siddhi.io.twitter.util.TwitterConstants;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import twitter4j.FilterQuery;
@@ -63,9 +64,8 @@ public enum TwitterConsumer {
      */
     public void consume(TwitterStream twitterStream, SourceEventListener sourceEventListener, FilterQuery filterQuery,
                         int paramSize) {
-        int mandatoryParamSize = 6;
         twitterStream.addListener(new TwitterStatusListener(sourceEventListener));
-        if (paramSize == mandatoryParamSize) {
+        if (paramSize == TwitterConstants.MANDATORY_PARAM_SIZE) {
             twitterStream.sample();
         } else {
             twitterStream.filter(filterQuery);
@@ -113,15 +113,15 @@ public enum TwitterConsumer {
 
         @Override
         public void run() {
-            boolean flag = true;
+            boolean isLatestId = true;
             do {
                 try {
                     result = twitter.search(query);
                     List<Status> tweets = result.getTweets();
                     for (Status tweet : tweets) {
-                        if (flag) {
+                        if (isLatestId) {
                             tweetId = tweet.getId();
-                            flag = false;
+                            isLatestId = false;
                         }
                         if (paused) { //spurious wakeup condition is deliberately traded off for performance
                             lock.lock();

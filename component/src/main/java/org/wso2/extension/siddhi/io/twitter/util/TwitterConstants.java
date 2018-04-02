@@ -62,6 +62,8 @@ public class TwitterConstants {
     public static final String EMPTY_STRING = "";
     public static final String DELIMITER = ",";
 
+    public static final int MANDATORY_PARAM_SIZE = 6;
+
 
     public static final List<String> MANDATORY_PARAM = Collections.unmodifiableList(Arrays.asList(
             TwitterConstants.CONSUMER_KEY,
