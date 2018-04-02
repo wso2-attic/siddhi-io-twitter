@@ -15,6 +15,7 @@ pages:
 - 1.0.0-M2-SNAPSHOT: api/1.0.0-M2-SNAPSHOT.md
 - License: about/license.md
 - API Docs:
+  - 1.0.1: api/1.0.1.md
   - 1.0.0: api/1.0.0.md
   - latest: api/latest.md
 theme: material

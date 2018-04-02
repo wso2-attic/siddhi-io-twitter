@@ -22,7 +22,7 @@ Find some useful links below:
 
 ## Latest API Docs
 
-Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-io-twitter/api/1.0.0">1.0.0</a>.
+Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-io-twitter/api/1.0.1">1.0.1</a>.
 
 ## How to use
 
@@ -57,7 +57,7 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
 
 ## Features
 
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-io-twitter/api/1.0.0/#twitter-source">twitter</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#source">(Source)</a>)*<br><div style="padding-left: 1em;"><p>The twitter source receives the events from an twitter API </p></div>
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-io-twitter/api/1.0.1/#twitter-source">twitter</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#source">(Source)</a>)*<br><div style="padding-left: 1em;"><p>The twitter source receives the events from an twitter API </p></div>
 
 ## How to Contribute
 
