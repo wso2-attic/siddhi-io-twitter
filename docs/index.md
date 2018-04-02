@@ -13,6 +13,7 @@ The **siddhi-io-twitter extension** is an extension to <a target="_blank" href="
   * Consumer Secret
   * Access Token
   * Access Token Secret
+* Update the parameter values for the extension with these values.
 
 Find some useful links below:
 
