@@ -1,6 +1,6 @@
 ﻿﻿siddhi-io-twitter
 ======================================
-The siddhi-io-twitter extension is an extension to Siddhi which is used to receive event data from Twitter API. It supports json format.
+The siddhi-io-twitter extension is an extension to Siddhi which is used to receive event data from Twitter App. It supports json format.
 
 **Prerequisites</a>**
 ======================================

@@ -27,19 +27,15 @@ public class Util {
     private Util() {
     }
 
-    private static int length;
-    private static int i;
-
 
     public static double[][] locationParam(String locationParam) {
         String[] boundary = locationParam.split(TwitterConstants.DELIMITER);
-        length = boundary.length;
-        if (length < 5) {
+        if (boundary.length < 5) {
             throw new SiddhiAppValidationException ("For the location, the bounding box specified is invalid.");
         }
-        double[][] locations = new double[length / 2][2];
+        double[][] locations = new double[boundary.length / 2][2];
         int k = 0;
-        for (i = 0; i < length / 2; i++) {
+        for (int i = 0; i < boundary.length / 2; i++) {
             for (int j = 0; j < 2; j++) {
                 try {
                     locations[i][j] = Double.parseDouble(boundary[k++]);
@@ -54,9 +50,8 @@ public class Util {
 
     public static long[] followParam(String followParam) {
         long[] follow;
-        length = followParam.split(",").length;
-        follow = new long[length];
-        for (i = 0; i < length; i++) {
+        follow = new long[followParam.split(TwitterConstants.DELIMITER).length];
+        for (int i = 0; i < followParam.split(TwitterConstants.DELIMITER).length; i++) {
             try {
                 follow[i] = Long.parseLong(followParam.split(TwitterConstants.DELIMITER)[i]);
             } catch (NumberFormatException e) {

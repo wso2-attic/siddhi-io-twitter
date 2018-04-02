@@ -98,7 +98,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testTwitterStreaming1")
     public void testTwitterStreaming2() throws InterruptedException {
         LOG.info("----------------------------------------------------------------------------------");
         LOG.info("TwitterSourceStreaming TestCase 2 - Filtering random sample of all public statuses.");
@@ -140,7 +140,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testTwitterStreaming2")
     public void testTwitterStreaming3() throws InterruptedException {
         LOG.info("---------------------------------------------------------------------------------------------");
         LOG.info("TwitterSourceStreaming TestCase 3 - Filtering tweets that include the given keywords" +
@@ -184,7 +184,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testTwitterStreaming3")
     public void testTwitterStreaming4() throws InterruptedException {
         LOG.info("-------------------------------------------------------------------------------");
         LOG.info("TwitterSourceStreaming TestCase 4 - Filtering tweets that tweeted by a specific followers");
@@ -228,8 +228,8 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
-    public void testStreaming5() throws InterruptedException {
+    @Test(dependsOnMethods = "testTwitterStreaming4")
+    public void testTwitterStreaming5() throws InterruptedException {
         LOG.info("----------------------------------------------------------------------------------");
         LOG.info("TwitterStreaming TestCase 5 - Test for pause and resume method.");
         LOG.info("----------------------------------------------------------------------------------");
@@ -284,8 +284,8 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
-    public void testStreaming6() {
+    @Test(expectedExceptions = SiddhiAppValidationException.class , dependsOnMethods = "testTwitterStreaming5")
+    public void testTwitterStreaming6() {
         LOG.info("------------------------------------------------------------------------------------------------");
         LOG.info("TwitterStreaming TestCase 6 - Test for to check whether the parameters are valid for streaming" +
                 " mode.");
@@ -326,8 +326,8 @@ public class TestCaseOfTwitterSource {
 
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
-    public void testStreaming7() {
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterStreaming6")
+    public void testTwitterStreaming7() {
         LOG.info("----------------------------------------------------------------------------------");
         LOG.info("TwitterStreaming TestCase 7 - Test for filter.level Parameter validation");
         LOG.info("----------------------------------------------------------------------------------");
@@ -367,8 +367,8 @@ public class TestCaseOfTwitterSource {
 
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
-    public void testStreaming8() {
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterStreaming7")
+    public void testTwitterStreaming8() {
         LOG.info("----------------------------------------------------------------------------------");
         LOG.info("TwitterStreaming TestCase 8 - Test for Location Parameter validation");
         LOG.info("----------------------------------------------------------------------------------");
@@ -406,8 +406,8 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.start();
         siddhiAppRuntime.shutdown();
     }
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
-    public void testStreaming9() {
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterStreaming8")
+    public void testTwitterStreaming9() {
         LOG.info("----------------------------------------------------------------------------------");
         LOG.info("TwitterStreaming TestCase 9 - Test for Follow Parameter validation");
         LOG.info("----------------------------------------------------------------------------------");
@@ -446,7 +446,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterStreaming9")
     public void testForMandatoryParam() {
         LOG.info("----------------------------------------------------------------------------------");
         LOG.info("Twitter TestCase - Test for to check whether mandatory parameters are given or not.");
@@ -485,7 +485,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testForMandatoryParam")
     public void testForModeParam() {
         LOG.info("----------------------------------------------------------------------------------");
         LOG.info("Twitter TestCase - Test for mode parameter validation");
@@ -525,7 +525,7 @@ public class TestCaseOfTwitterSource {
     }
 
 
-    @Test
+    @Test(dependsOnMethods = "testForModeParam")
     public void testTwitterPolling1() throws InterruptedException {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 1 - Retrieving tweets in English containing " +
@@ -570,7 +570,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testTwitterPolling1")
     public void testTwitterPolling2() throws InterruptedException {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 2 - Retrieving tweets containing #Amazon from a " +
@@ -615,7 +615,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testTwitterPolling2")
     public void testTwitterPolling3() throws InterruptedException {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 3 - Retrieving popular tweets, mentioning NASA");
@@ -657,8 +657,8 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
-    public void testPolling4() throws InterruptedException {
+    @Test(dependsOnMethods = "testTwitterPolling3")
+    public void testTwitterPolling4() throws InterruptedException {
         LOG.info("----------------------------------------------------------------------------------");
         LOG.info("TwitterPolling TestCase 4 - Test for current state and restore method.");
         LOG.info("----------------------------------------------------------------------------------");
@@ -731,7 +731,7 @@ public class TestCaseOfTwitterSource {
         Assert.assertTrue(eventArrived.get());
     }
 
-    @Test (expectedExceptions = SiddhiAppValidationException.class)
+    @Test (expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterPolling4")
     public void testTwitterPolling5() {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 5 - Test for to check whether the given parameters are valid for" +
@@ -772,7 +772,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test (expectedExceptions = SiddhiAppValidationException.class)
+    @Test (expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterPolling5")
     public void testTwitterPolling6() {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 6 - Test for Query for polling mode without query parameter");
@@ -812,7 +812,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test (expectedExceptions = SiddhiAppValidationException.class)
+    @Test (expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterPolling6")
     public void testTwitterPolling7() {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 7 - Test for the geocode parameter validation.");
@@ -852,7 +852,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test (expectedExceptions = SiddhiAppCreationException.class)
+    @Test (expectedExceptions = SiddhiAppCreationException.class, dependsOnMethods = "testTwitterPolling7")
     public void testTwitterPolling8() {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 8 - Test for the result.type parameter validation.");

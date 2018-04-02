@@ -32,7 +32,7 @@
     <groupId>org.wso2.extension.siddhi.io.twitter</groupId>
     <artifactId>siddhi-io-twitter-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>Siddhi I/O Twitter</name>
+    <name>Siddhi IO Twitter</name>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -85,13 +85,22 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <scm>
+        <connection>scm:git:https://github.com/wso2-extensions/siddhi-io-twitter.git</connection>
+        <url>https://github.com/wso2-extensions/siddhi-io-twitter.git</url>
+        <developerConnection>scm:git:https://github.com/wso2-extensions/siddhi-io-twitter.git
+        </developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-                    <preparationGoals>clean install</preparationGoals>
+                    <preparationGoals>clean install -Pdocumentation-deploy</preparationGoals>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
@@ -109,6 +118,7 @@
             </plugin>
         </plugins>
     </build>
+
     <properties>
         <siddhi.version>4.1.0</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>

@@ -1,7 +1,7 @@
 siddhi-io-twitter
 ======================================
 
-The **siddhi-io-twitter extension** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a> which is used to publish event data from Twitter API. It supports json format.
+The **siddhi-io-twitter extension** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a> which is used to publish event data from Twitter App. It supports json format.
 
 **Prerequisites</a>**
 ======================================
