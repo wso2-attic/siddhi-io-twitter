@@ -137,7 +137,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.extension.siddhi.io.twitter.*
+                            org.wso2.extension.siddhi.io.twitter.*;version=${project.version}
                         </Export-Package>
                         <Private-Package>
                             twitter4j.*

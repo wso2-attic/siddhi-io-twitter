@@ -63,10 +63,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreaming')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "@source(type='twitter' , consumer.key='4qeo5GROPuSjJwIjA59eMjMfu'," +
+                "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
+                "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
+                "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
                 "mode= 'streaming', track = 'Amazon', language = 'en',filter.level = 'none' , " +
                 "@map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
@@ -106,10 +106,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "@source(type='twitter' , consumer.key='4qeo5GROPuSjJwIjA59eMjMfu'," +
+                "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
+                "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
+                "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
                 "mode= 'streaming' ,@map(type='json', fail.on.missing.attribute='false' ," +
                 "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
                 " coordinates='coordinates', user='user')))" +
@@ -149,10 +149,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingByLocation')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "@source(type='twitter' , consumer.key='4qeo5GROPuSjJwIjA59eMjMfu'," +
+                "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
+                "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
+                "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
                 "mode= 'streaming', track = 'google,Amazon', location = '-122.75,36.8,-121.75,37.8,-74,40,-73,41'," +
                 " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
@@ -192,10 +192,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingByLocation')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
+                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
+                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
+                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
                 "mode= 'streaming', follow ='11348282,20536157,15670515,1719374,58561993,18139619'," +
                 " @map(type='json',fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
                 " id = 'id' ,id_str = 'id_str', text = 'text', coordinates='coordinates', user='user')))" +
@@ -236,10 +236,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
+                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
+                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
+                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
                 "mode= 'streaming', @map(type='json', fail.on.missing.attribute='false' ," +
                 "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
                 " coordinates='coordinates', user='user')))" +
@@ -293,10 +293,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
+                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
+                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
+                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
                 "mode= 'streaming',track = 'google,amazon,apple' ,  until = '2018-04-8', " +
                 " @map(type='json', fail.on.missing.attribute='false' ," +
                 "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
@@ -334,10 +334,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "@source(type='twitter' , consumer.key='GlVEi1E2gCfsTh7116KpVdVAs'," +
+                "consumer.secret='k8RBp866pOY4CNAEpnwfEhJq8hkcudkxc3fQu5p7BSVmtQBGur'," +
+                "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
+                "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
                 "mode= 'streaming',track = 'google,amazon,apple', filter.level = 'high' ," +
                 " @map(type='json', fail.on.missing.attribute='false' ," +
                 "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
@@ -375,10 +375,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "@source(type='twitter' , consumer.key='GlVEi1E2gCfsTh7116KpVdVAs'," +
+                "consumer.secret='k8RBp866pOY4CNAEpnwfEhJq8hkcudkxc3fQu5p7BSVmtQBGur'," +
+                "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
+                "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
                 "mode= 'streaming',track = 'google,amazon,apple', location = '-122.75,36.8,-121.75'," +
                 " @map(type='json', fail.on.missing.attribute='false' ," +
                 "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
@@ -414,10 +414,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "@source(type='twitter' , consumer.key='GlVEi1E2gCfsTh7116KpVdVAs'," +
+                "consumer.secret='fk8RBp866pOY4CNAEpnwfEhJq8hkcudkxc3fQu5p7BSVmtQBGur'," +
+                "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
+                "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
                 "mode= 'streaming',track = 'google,amazon,apple', follow = '1ab5670515' ," +
                 " @map(type='json', fail.on.missing.attribute='false' ," +
                 "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text'," +
