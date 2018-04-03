@@ -15,5 +15,5 @@ pages:
    - 1.0.0: api/1.0.0.md
    - 1.0.1-SNAPSHOT: api/1.0.1-SNAPSHOT.md
    - latest: api/latest.md
-- License:
+- License: license.md
 theme: material
