@@ -6,9 +6,9 @@ The **siddhi-io-twitter extension** is an extension to <a target="_blank" href="
 ## Prerequisites
 
 * Go to the https://apps.twitter.com/ and create new App
-* Select the app created in step 1 and go to “permission” tab and select “read&write” permission
-* Go to the “keys and access tokens” tab and generate new access token
-* Collect following value from “keys and access tokens tab"
+* Select the app created in step 1 and go to "permission" tab and select "read&write" permission.
+* Go to the "keys and access tokens" tab and generate new access token
+* Collect following value from "keys and access tokens tab"
   * Consumer key
   * Consumer Secret
   * Access Token
