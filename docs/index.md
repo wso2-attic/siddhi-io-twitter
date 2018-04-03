@@ -6,7 +6,7 @@ The **siddhi-io-twitter extension** is an extension to <a target="_blank" href="
 ## Prerequisites
 
 * Go to the https://apps.twitter.com/ and create new App
-* Select the app created in step 1 and go to "permission" tab and select "read&write" permission.
+* Select the app created in step 1 and go to"permission" tab and select "read&write" permission.
 * Go to the "keys and access tokens" tab and generate new access token
 * Collect following value from "keys and access tokens tab"
   * Consumer key
@@ -23,7 +23,7 @@ Find some useful links below:
 
 ## Latest API Docs
 
-Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-io-twitter/api/1.0.1">1.0.1</a>.
+Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-io-twitter/api/1.0.2">1.0.2</a>.
 
 ## How to use
 
@@ -58,7 +58,7 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
 
 ## Features
 
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-io-twitter/api/1.0.1/#twitter-source">twitter</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#source">(Source)</a>)*<br><div style="padding-left: 1em;"><p>The twitter source receives the events from an twitter API </p></div>
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-io-twitter/api/1.0.2/#twitter-source">twitter</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#source">(Source)</a>)*<br><div style="padding-left: 1em;"><p>The twitter source receives the events from a twitter App. </p></div>
 
 ## How to Contribute
 

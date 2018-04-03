@@ -12,8 +12,9 @@ extra:
 pages:
 - Welcome to WSO2 Siddhi IO Twitter: index.md
 - API Docs:
-   - 1.0.0: api/1.0.0.md
-   - 1.0.1-SNAPSHOT: api/1.0.1-SNAPSHOT.md
-   - latest: api/latest.md
+  - 1.0.2: api/1.0.2.md
+  - 1.0.1: api/1.0.1.md
+  - 1.0.0: api/1.0.0.md
+  - latest: api/latest.md
 - License: license.md
 theme: material
