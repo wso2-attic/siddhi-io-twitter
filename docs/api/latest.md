@@ -4,7 +4,7 @@
 
 ### twitter *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#source">(Source)</a>*
 
-<p style="word-wrap: break-word">The twitter source receives the events from an twitter API </p>
+<p style="word-wrap: break-word">The twitter source receives the events from a twitter App. </p>
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```

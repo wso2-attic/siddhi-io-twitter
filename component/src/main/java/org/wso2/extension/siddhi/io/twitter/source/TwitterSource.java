@@ -52,7 +52,7 @@ import java.util.Set;
 @Extension(
         name = "twitter",
         namespace = "source",
-        description = "The twitter source receives the events from an twitter API ",
+        description = "The twitter source receives the events from a twitter App. ",
         parameters = {
                 @Parameter(
                         name = "consumer.key",
