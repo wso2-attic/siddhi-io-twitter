@@ -62,6 +62,31 @@ public class TwitterConstants {
     public static final String EMPTY_STRING = "";
     public static final String DELIMITER = ",";
 
+    public static final String STATUS_CREATED_AT = "createdAt";
+    public static final String STATUS_TWEET_ID = "tweetId";
+    public static final String STATUS_TEXT = "text";
+    public static final String STATUS_USER_CREATEDAT = "user.createdAt";
+    public static final String STATUS_USER_SCREENNAME = "user.screenName";
+    public static final String STATUS_USER_NAME = "user.name";
+    public static final String STATUS_USER_MAIL = "user.mail";
+    public static final String STATUS_USER_ID = "user.id";
+    public static final String STATUS_USER_LOCATION = "user.location";
+    public static final String STATUS_HASHTAGS = "hashtags";
+    public static final String STATUS_USERMENTIONS = "userMentions";
+    public static final String STATUS_MEDIAURLS = "mediaUrls";
+    public static final String STATUS_PLACE_COUNTRY = "place.country";
+    public static final String STATUS_PLACE_COUNTRY_CODE = "place.country_code";
+    public static final String STATUS_PLACE_NAME = "place.name";
+    public static final String STATUS_PLACE_ID = "place.id";
+    public static final String STATUS_PLACE_FULLNAME = "place.fullName";
+    public static final String STATUS_LANGUAGE = "language";
+    public static final String STATUS_SOURCE = "source";
+    public static final String STATUS_ISRETWEET = "isretweet";
+    public static final String STATUS_RETWEET_COUNT = "retweetCount";
+    public static final String STATUS_GEOLOCATION = "geoLocation";
+    public static final String STATUS_FAVOURITE_COUNT = "FavouriteCount";
+    public static final String STATUS_QUOTED_STATUS_ID = "QuotedStatusId";
+
     public static final int MANDATORY_PARAM_SIZE = 6;
 
 

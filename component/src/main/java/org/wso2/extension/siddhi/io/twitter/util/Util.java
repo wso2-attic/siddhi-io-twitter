@@ -19,6 +19,10 @@
 package org.wso2.extension.siddhi.io.twitter.util;
 
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import twitter4j.Status;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class contains util methods for the extensions.
@@ -31,7 +35,7 @@ public class Util {
     public static double[][] locationParam(String locationParam) {
         String[] boundary = locationParam.split(TwitterConstants.DELIMITER);
         if (boundary.length < 5) {
-            throw new SiddhiAppValidationException ("For the location, the bounding box specified is invalid.");
+            throw new SiddhiAppValidationException("For the location, the bounding box specified is invalid.");
         }
         double[][] locations = new double[boundary.length / 2][2];
         int k = 0;
@@ -41,7 +45,7 @@ public class Util {
                     locations[i][j] = Double.parseDouble(boundary[k++]);
                 } catch (NumberFormatException e) {
                     throw new SiddhiAppValidationException("Latitude/Longitude should be a double value: "
-                            + e.getMessage() , e);
+                            + e.getMessage(), e);
                 }
             }
         }
@@ -55,10 +59,76 @@ public class Util {
             try {
                 follow[i] = Long.parseLong(followParam.split(TwitterConstants.DELIMITER)[i]);
             } catch (NumberFormatException e) {
-                throw new SiddhiAppValidationException("Follow should be a long value: " + e.getMessage() , e);
+                throw new SiddhiAppValidationException("Follow should be a long value: " + e.getMessage(), e);
             }
         }
         return follow;
+    }
+
+    public static Map<String, Object> createMap(Status tweet) {
+        Map<String, Object> status = new HashMap<>();
+        String geoLocation = (tweet.getGeoLocation() == null) ? "" : tweet.getGeoLocation().getLatitude() + "," +
+                (tweet.getGeoLocation() == null ? "" : tweet.getGeoLocation().getLongitude());
+        StringBuilder hashtag = new StringBuilder();
+        StringBuilder userMention = new StringBuilder();
+        StringBuilder mediaUrl = new StringBuilder();
+        String createdAt;
+        String hashtags;
+        String userMentions;
+        String mediaUrls;
+        int i;
+        for (i = 0; i < tweet.getHashtagEntities().length; i++) {
+            hashtag.append(tweet.getHashtagEntities()[i].getText() + ",");
+        }
+        hashtags = hashtag.toString();
+        hashtags = (hashtags.equals(TwitterConstants.EMPTY_STRING) ? "" : hashtags.substring(0, hashtags.length() - 1));
+
+        for (i = 0; i < tweet.getUserMentionEntities().length; i++) {
+            userMention.append(tweet.getUserMentionEntities()[i].getText() + ",");
+        }
+        userMentions = userMention.toString();
+        userMentions = (userMentions.equals(TwitterConstants.EMPTY_STRING) ? "" : userMentions.substring(0,
+                userMentions.length() - 1));
+
+        for (i = 0; i < tweet.getMediaEntities().length; i++) {
+            mediaUrl.append(tweet.getMediaEntities()[i].getMediaURL() + ",");
+        }
+        mediaUrls = mediaUrl.toString();
+        mediaUrls = (mediaUrls.equals(TwitterConstants.EMPTY_STRING) ? "" : mediaUrls.substring(0,
+                mediaUrls.length() - 1));
+        createdAt = tweet.getCreatedAt().toString();
+
+        status.put(TwitterConstants.STATUS_CREATED_AT, createdAt);
+        status.put(TwitterConstants.STATUS_TWEET_ID, tweet.getId());
+        status.put(TwitterConstants.STATUS_TEXT, tweet.getText());
+        status.put(TwitterConstants.STATUS_USER_CREATEDAT, tweet.getUser().getCreatedAt());
+        status.put(TwitterConstants.STATUS_USER_SCREENNAME, tweet.getUser().getScreenName());
+        status.put(TwitterConstants.STATUS_USER_NAME, tweet.getUser().getName());
+        status.put(TwitterConstants.STATUS_USER_MAIL, tweet.getUser().getEmail());
+        status.put(TwitterConstants.STATUS_USER_ID, tweet.getUser().getId());
+        status.put(TwitterConstants.STATUS_USER_LOCATION, tweet.getUser().getLocation());
+        status.put(TwitterConstants.STATUS_HASHTAGS, hashtags);
+        status.put(TwitterConstants.STATUS_USERMENTIONS, userMentions);
+        status.put(TwitterConstants.STATUS_MEDIAURLS, mediaUrls);
+        status.put(TwitterConstants.STATUS_PLACE_COUNTRY, (tweet.getPlace() == null) ? "" :
+                tweet.getPlace().getCountry());
+        status.put(TwitterConstants.STATUS_PLACE_COUNTRY_CODE, (tweet.getPlace() == null) ? "" :
+                tweet.getPlace().getCountryCode());
+        status.put(TwitterConstants.STATUS_PLACE_NAME, (tweet.getPlace() == null) ? "" :
+                tweet.getPlace().getName());
+        status.put(TwitterConstants.STATUS_PLACE_ID, (tweet.getPlace() == null) ? "" :
+                tweet.getPlace().getId());
+        status.put(TwitterConstants.STATUS_PLACE_FULLNAME, (tweet.getPlace() == null) ? "" :
+                tweet.getPlace().getFullName());
+        status.put(TwitterConstants.STATUS_LANGUAGE, tweet.getLang());
+        status.put(TwitterConstants.STATUS_SOURCE, tweet.getSource());
+        status.put(TwitterConstants.STATUS_ISRETWEET, tweet.isRetweet());
+        status.put(TwitterConstants.STATUS_RETWEET_COUNT, tweet.getRetweetCount());
+        status.put(TwitterConstants.STATUS_GEOLOCATION, geoLocation);
+        status.put(TwitterConstants.STATUS_FAVOURITE_COUNT, tweet.getFavoriteCount());
+        status.put(TwitterConstants.STATUS_QUOTED_STATUS_ID, tweet.getQuotedStatusId());
+
+        return status;
     }
 }
 

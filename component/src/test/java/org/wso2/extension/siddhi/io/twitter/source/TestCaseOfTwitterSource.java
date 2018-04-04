@@ -67,8 +67,10 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
                 "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
                 "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
-                "mode= 'streaming', track = 'Amazon', language = 'en', filter.level = 'none')" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "mode= 'streaming', track = 'Amazon', language = 'en', filter.level = 'none' ," +
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -107,9 +109,9 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
                 "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
                 "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
-                "mode= 'streaming' ,@map(type='json', fail.on.missing.attribute='false' ," +
-                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "mode= 'streaming' , @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId'," +
+                " text= 'text',hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -149,9 +151,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
                 "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
                 "mode= 'streaming', track = 'google,Amazon', location = '-122.75,36.8,-121.75,37.8,-74,40,-73,41'," +
-                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
-                " id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                " @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -191,9 +193,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
                 "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
                 "mode= 'streaming', follow ='11348282,20536157,15670515,1719374,58561993,18139619'," +
-                " @map(type='json',fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
-                " id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -233,9 +235,9 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
                 "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
                 "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
-                "mode= 'streaming', @map(type='json', fail.on.missing.attribute='false' ," +
-                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "mode= 'streaming', @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId'," +
+                " text= 'text',hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -289,9 +291,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
                 "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
                 "mode= 'streaming',track = 'google,amazon,apple' , until = '2018-04-8', " +
-                " @map(type='json', fail.on.missing.attribute='false' ," +
-                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -328,9 +330,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
                 "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
                 "mode= 'streaming',track = 'google,amazon,apple', filter.level = 'high' ," +
-                " @map(type='json', fail.on.missing.attribute='false' ," +
-                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -367,9 +369,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
                 "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
                 "mode= 'streaming',track = 'google,amazon,apple', location = '-122.75,36.8,-121.75'," +
-                " @map(type='json', fail.on.missing.attribute='false' ," +
-                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -404,9 +406,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
                 "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
                 "mode= 'streaming',track = 'google,amazon,apple', follow = '1ab5670515' ," +
-                " @map(type='json', fail.on.missing.attribute='false' ," +
-                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -441,9 +443,9 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
-                " @map(type='json', fail.on.missing.attribute='false' ," +
-                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -478,9 +480,9 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
                 "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
                 "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', mode = 'Poll', " +
-                " @map(type='json', fail.on.missing.attribute='false' ," +
-                "@attributes(created_at = 'created_at', id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -518,9 +520,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
                 "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
                 "mode= 'polling', query = 'happy hour', " +
-                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
-                " id = 'id',id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -562,9 +564,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
                 "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
                 "mode= 'polling', query = '#Amazon', geocode = '43.913723261972855,-72.54272478125,150km'," +
-                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
-                " id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -604,10 +606,9 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
                 "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
                 "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
-                "mode= 'polling', query = '@NASA' ,result.type = 'popular' ,@map(type='json'," +
-                " fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at', id = 'id' " +
-                ",id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "mode= 'polling', query = '@NASA' ,result.type = 'popular' ,@map(type='keyvalue', " +
+                "@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -649,10 +650,9 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
                 "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
                 "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
-                "mode= 'polling', query = '@NASA' ,@map(type='json'," +
-                " fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at', id = 'id' " +
-                ",id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "mode= 'polling', query = '@NASA', @map(type='keyvalue', @attributes(createdAt = 'createdAt'," +
+                " id = 'tweetId', text= 'text',hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -720,9 +720,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
                 "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
                 "mode= 'polling', geocode = '43.913723261972855,-72.54272478125,150', follow ='15670515'," +
-                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
-                " id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -759,9 +759,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
                 "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
                 "mode= 'polling', geocode = '43.913723261972855,-72.54272478125,150'," +
-                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
-                " id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -798,9 +798,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
                 "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
                 "mode= 'polling', query = '#Amazon', geocode = '43.913723261972855,-72.54272478125,150'," +
-                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
-                " id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -837,9 +837,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
                 "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
                 "mode= 'polling', query = '#Amazon', result.type = 'populaar'," +
-                " @map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
-                " id = 'id' ,id_str = 'id_str', text = 'text')))" +
-                "define stream inputStream(created_at String, id long, id_str String, text String);";
+                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                " hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
