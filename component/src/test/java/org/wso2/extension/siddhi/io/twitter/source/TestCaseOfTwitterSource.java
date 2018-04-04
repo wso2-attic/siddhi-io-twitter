@@ -67,9 +67,7 @@ public class TestCaseOfTwitterSource {
                 "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
                 "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
                 "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
-                "mode= 'streaming', track = 'Amazon', language = 'en',filter.level = 'none' , " +
-                "@map(type='json', fail.on.missing.attribute='false' ,@attributes(created_at = 'created_at'," +
-                " id = 'id' ,id_str = 'id_str', text = 'text')))" +
+                "mode= 'streaming', track = 'Amazon', language = 'en', filter.level = 'none')" +
                 "define stream inputStream(created_at String, id long, id_str String, text String);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
