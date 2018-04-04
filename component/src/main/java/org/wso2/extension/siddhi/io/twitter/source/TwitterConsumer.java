@@ -31,10 +31,12 @@ import twitter4j.StatusDeletionNotice;
 import twitter4j.StatusListener;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.TwitterObjectFactory;
+//import twitter4j.TwitterObjectFactory;
 import twitter4j.TwitterStream;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -52,6 +54,7 @@ public enum TwitterConsumer {
     private boolean paused;
     private ReentrantLock lock = new ReentrantLock();
     private Condition condition = lock.newCondition();
+    Map<String, Object> event = new HashMap<>();
     long tweetId = -1;
 
     /**
@@ -119,6 +122,7 @@ public enum TwitterConsumer {
                     result = twitter.search(query);
                     List<Status> tweets = result.getTweets();
                     for (Status tweet : tweets) {
+                        event = createMap(tweet);
                         if (isLatestId) {
                             tweetId = tweet.getId();
                             isLatestId = false;
@@ -135,7 +139,7 @@ public enum TwitterConsumer {
                                 lock.unlock();
                             }
                         }
-                        sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(tweet), null);
+                        sourceEventListener.onEvent(event, null);
                     }
                     if (result.nextQuery() != null) {
                         query = result.nextQuery();
@@ -192,7 +196,8 @@ public enum TwitterConsumer {
                     lock.unlock();
                 }
             }
-            sourceEventListener.onEvent(TwitterObjectFactory.getRawJSON(status), null);
+            event = createMap(status);
+            sourceEventListener.onEvent(event, null);
         }
 
         @Override
@@ -221,6 +226,58 @@ public enum TwitterConsumer {
         public void onException(Exception ex) {
             log.error("Twitter source threw an exception", ex);
         }
+    }
+
+    public Map<String, Object> createMap(Status tweet) {
+        Map<String, Object> status = new HashMap<>();
+        String geoLocation = tweet.getGeoLocation().getLatitude() + "," + tweet.getGeoLocation().getLongitude();
+        StringBuilder hashtag = new StringBuilder();
+        StringBuilder userMention = new StringBuilder();
+        StringBuilder mediaUrl = new StringBuilder();
+        String hashtags;
+        String userMentions;
+        String mediaUrls;
+        int i;
+        for (i = 0; i < tweet.getHashtagEntities().length; i++) {
+            hashtag.append(tweet.getHashtagEntities()[i].getText() + ",");
+        }
+        hashtags = hashtag.toString();
+
+        for (i = 0; i < tweet.getUserMentionEntities().length; i++) {
+            userMention.append(tweet.getUserMentionEntities()[i].getText() + ",");
+        }
+        userMentions = userMention.toString();
+
+        for (i = 0; i < tweet.getMediaEntities().length; i++) {
+            mediaUrl.append(tweet.getMediaEntities()[i].getMediaURL() + ",");
+        }
+        mediaUrls = mediaUrl.toString();
+
+        status.put("createdAt", tweet.getCreatedAt());
+        status.put("tweetId", tweet.getId());
+        status.put("text", tweet.getText());
+        status.put("user.createdAt", tweet.getUser().getCreatedAt());
+        status.put("user.screenName", tweet.getUser().getScreenName());
+        status.put("user.name", tweet.getUser().getName());
+        status.put("user.mail", tweet.getUser().getEmail());
+        status.put("user.id", tweet.getUser().getId());
+        status.put("user.location", tweet.getUser().getLocation());
+        status.put("hashtags", hashtags);
+        status.put("userMentions", userMentions);
+        status.put("mediaUrls", mediaUrls);
+        status.put("place.country", tweet.getPlace().getCountry());
+        status.put("place.countryCode", tweet.getPlace().getCountryCode());
+        status.put("place.name", tweet.getPlace().getName());
+        status.put("place.id", tweet.getPlace().getId());
+        status.put("language", tweet.getLang());
+        status.put("source", tweet.getSource());
+        status.put("isretweet", tweet.isRetweet());
+        status.put("retweetCount", tweet.getRetweetCount());
+        status.put("geoLocation", geoLocation);
+        status.put("FavouriteCount", tweet.getFavoriteCount());
+        status.put("QuotedStatusId", tweet.getQuotedStatusId());
+
+        return status;
     }
 
     public void pause() {
