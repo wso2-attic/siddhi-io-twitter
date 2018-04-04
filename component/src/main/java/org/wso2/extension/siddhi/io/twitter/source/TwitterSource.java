@@ -356,7 +356,7 @@ public class TwitterSource extends Source {
      */
     @Override
     public Class[] getOutputEventClasses() {
-        return new Class[]{String.class};
+        return new Class[]{Map.class};
     }
 
     /**
@@ -380,7 +380,7 @@ public class TwitterSource extends Source {
                 twitterStream = (new TwitterStreamFactory(configurationBuilder.build())).getInstance();
                 filterQuery = QueryBuilder.createFilterQuery(languageParam, trackParam, follow, filterLevel,
                         locations);
-                twitterConsumer.consume(twitterStream , sourceEventListener, filterQuery, staticOptionsKeys.size());
+                twitterConsumer.consume(twitterStream, sourceEventListener, filterQuery, staticOptionsKeys.size());
             } else {
                 twitter = (new TwitterFactory(configurationBuilder.build())).getInstance();
                 query = QueryBuilder.createQuery(queryParam, count, searchLang, sinceId, maxId, until, since,

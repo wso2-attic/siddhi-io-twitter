@@ -1,4 +1,4 @@
-# API Docs - v1.0.2
+# API Docs - v1.0.3-SNAPSHOT
 
 ## Source
 
@@ -63,7 +63,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">filter.level</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters tweets by the level of engagement based on the  filter.level. The highest level(medium) corresponds loosely to the ?top tweets? filter the service already offers in its on-site search function. Values will be one of either none, low, or medium.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Filters tweets by the level of engagement based on the  filter.level. The highest level(medium) corresponds loosely to the “top tweets” filter the service already offers in its on-site search function. Values will be one of either none, low, or medium.</td>
         <td style="vertical-align: top">none</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -119,7 +119,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">geocode</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns tweets by users located within a given radius of the given latitude/longitude. The location is preferentially taking from the Geotagging API, but will fall back to their Twitter profile. The parameter value is specified by latitude,longitude,radius, where radius units must be specified as either ? mi ? (miles) or ? km ? (kilometers).</td>
+        <td style="vertical-align: top; word-wrap: break-word">Returns tweets by users located within a given radius of the given latitude/longitude. The location is preferentially taking from the Geotagging API, but will fall back to their Twitter profile. The parameter value is specified by latitude,longitude,radius, where radius units must be specified as either ” mi ” (miles) or ” km ” (kilometers).</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
