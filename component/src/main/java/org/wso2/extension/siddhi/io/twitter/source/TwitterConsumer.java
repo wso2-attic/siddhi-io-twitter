@@ -42,8 +42,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-//import twitter4j.TwitterObjectFactory;
-
 /**
  * This class handles consuming tweets and passing to the stream.
  * Since enums are inherently serializable and thread-safe, enum Singleton pattern is best way to
@@ -101,7 +99,6 @@ public enum TwitterConsumer {
         Query query;
         QueryResult result;
         SourceEventListener sourceEventListener;
-
 
         /**
          * Handles polling in a different thread.
@@ -244,4 +241,3 @@ public enum TwitterConsumer {
         }
     }
 }
-

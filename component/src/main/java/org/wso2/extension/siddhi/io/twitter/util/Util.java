@@ -31,7 +31,6 @@ public class Util {
     private Util() {
     }
 
-
     public static double[][] locationParam(String locationParam) {
         String[] boundary = locationParam.split(TwitterConstants.DELIMITER);
         if (boundary.length < 5) {
@@ -67,35 +66,48 @@ public class Util {
 
     public static Map<String, Object> createMap(Status tweet) {
         Map<String, Object> status = new HashMap<>();
-        String geoLocation = (tweet.getGeoLocation() == null) ? "" : tweet.getGeoLocation().getLatitude() + "," +
-                (tweet.getGeoLocation() == null ? "" : tweet.getGeoLocation().getLongitude());
+        String geoLocation = (tweet.getGeoLocation() == null ?
+                TwitterConstants.NULL_STRING : (tweet.getGeoLocation().getLatitude()) + TwitterConstants.DELIMITER +
+                tweet.getGeoLocation().getLongitude());
         StringBuilder hashtag = new StringBuilder();
         StringBuilder userMention = new StringBuilder();
         StringBuilder mediaUrl = new StringBuilder();
+        StringBuilder url = new StringBuilder();
         String createdAt;
         String hashtags;
         String userMentions;
         String mediaUrls;
+        String urls;
         int i;
         for (i = 0; i < tweet.getHashtagEntities().length; i++) {
-            hashtag.append(tweet.getHashtagEntities()[i].getText() + ",");
+            hashtag.append(tweet.getHashtagEntities()[i].getText() + TwitterConstants.DELIMITER);
         }
         hashtags = hashtag.toString();
-        hashtags = (hashtags.equals(TwitterConstants.EMPTY_STRING) ? "" : hashtags.substring(0, hashtags.length() - 1));
+        hashtags = (hashtags.equals(TwitterConstants.EMPTY_STRING) ?
+                TwitterConstants.NULL_STRING : hashtags.substring(0, hashtags.length() - 1));
 
         for (i = 0; i < tweet.getUserMentionEntities().length; i++) {
-            userMention.append(tweet.getUserMentionEntities()[i].getText() + ",");
+            userMention.append(tweet.getUserMentionEntities()[i].getText() + TwitterConstants.DELIMITER);
         }
         userMentions = userMention.toString();
-        userMentions = (userMentions.equals(TwitterConstants.EMPTY_STRING) ? "" : userMentions.substring(0,
+        userMentions = (userMentions.equals(TwitterConstants.EMPTY_STRING) ?
+                TwitterConstants.NULL_STRING : userMentions.substring(0,
                 userMentions.length() - 1));
 
         for (i = 0; i < tweet.getMediaEntities().length; i++) {
-            mediaUrl.append(tweet.getMediaEntities()[i].getMediaURL() + ",");
+            mediaUrl.append(tweet.getMediaEntities()[i].getMediaURL() + TwitterConstants.DELIMITER);
         }
         mediaUrls = mediaUrl.toString();
-        mediaUrls = (mediaUrls.equals(TwitterConstants.EMPTY_STRING) ? "" : mediaUrls.substring(0,
+        mediaUrls = (mediaUrls.equals(TwitterConstants.EMPTY_STRING) ?
+                TwitterConstants.NULL_STRING : mediaUrls.substring(0,
                 mediaUrls.length() - 1));
+        for (i = 0; i < tweet.getURLEntities().length; i++) {
+            url.append(tweet.getURLEntities()[i].getURL() + TwitterConstants.DELIMITER);
+        }
+        urls = url.toString();
+        urls = (urls.equals(TwitterConstants.EMPTY_STRING) ?
+                TwitterConstants.NULL_STRING : urls.substring(0,
+                urls.length() - 1));
         createdAt = tweet.getCreatedAt().toString();
 
         status.put(TwitterConstants.STATUS_CREATED_AT, createdAt);
@@ -110,25 +122,26 @@ public class Util {
         status.put(TwitterConstants.STATUS_HASHTAGS, hashtags);
         status.put(TwitterConstants.STATUS_USERMENTIONS, userMentions);
         status.put(TwitterConstants.STATUS_MEDIAURLS, mediaUrls);
-        status.put(TwitterConstants.STATUS_PLACE_COUNTRY, (tweet.getPlace() == null) ? "" :
-                tweet.getPlace().getCountry());
-        status.put(TwitterConstants.STATUS_PLACE_COUNTRY_CODE, (tweet.getPlace() == null) ? "" :
-                tweet.getPlace().getCountryCode());
-        status.put(TwitterConstants.STATUS_PLACE_NAME, (tweet.getPlace() == null) ? "" :
-                tweet.getPlace().getName());
-        status.put(TwitterConstants.STATUS_PLACE_ID, (tweet.getPlace() == null) ? "" :
-                tweet.getPlace().getId());
-        status.put(TwitterConstants.STATUS_PLACE_FULLNAME, (tweet.getPlace() == null) ? "" :
-                tweet.getPlace().getFullName());
+        status.put(TwitterConstants.STATUS_URLS, urls);
         status.put(TwitterConstants.STATUS_LANGUAGE, tweet.getLang());
         status.put(TwitterConstants.STATUS_SOURCE, tweet.getSource());
-        status.put(TwitterConstants.STATUS_ISRETWEET, tweet.isRetweet());
+        status.put(TwitterConstants.STATUS_IS_RETWEET, tweet.isRetweet());
         status.put(TwitterConstants.STATUS_RETWEET_COUNT, tweet.getRetweetCount());
         status.put(TwitterConstants.STATUS_GEOLOCATION, geoLocation);
         status.put(TwitterConstants.STATUS_FAVOURITE_COUNT, tweet.getFavoriteCount());
         status.put(TwitterConstants.STATUS_QUOTED_STATUS_ID, tweet.getQuotedStatusId());
+        status.put(TwitterConstants.STATUS_IN_REPLY_TO_STATUS_ID, tweet.getInReplyToStatusId());
+        status.put(TwitterConstants.STATUS_PLACE_COUNTRY, (tweet.getPlace() == null) ?
+                TwitterConstants.NULL_STRING : tweet.getPlace().getCountry());
+        status.put(TwitterConstants.STATUS_PLACE_COUNTRY_CODE, (tweet.getPlace() == null) ?
+                TwitterConstants.NULL_STRING : tweet.getPlace().getCountryCode());
+        status.put(TwitterConstants.STATUS_PLACE_NAME, (tweet.getPlace() == null) ?
+                TwitterConstants.NULL_STRING : tweet.getPlace().getName());
+        status.put(TwitterConstants.STATUS_PLACE_ID, (tweet.getPlace() == null) ?
+                TwitterConstants.NULL_STRING : tweet.getPlace().getId());
+        status.put(TwitterConstants.STATUS_PLACE_FULLNAME, (tweet.getPlace() == null) ?
+                TwitterConstants.NULL_STRING : tweet.getPlace().getFullName());
 
         return status;
     }
 }
-

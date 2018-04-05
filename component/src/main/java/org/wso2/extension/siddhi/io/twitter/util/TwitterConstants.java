@@ -18,7 +18,6 @@
 
 package org.wso2.extension.siddhi.io.twitter.util;
 
-
 import twitter4j.Query;
 
 import java.util.Arrays;
@@ -61,6 +60,7 @@ public class TwitterConstants {
     private static final String FILTER_LEVEL_LOW = "low";
     public static final String EMPTY_STRING = "";
     public static final String DELIMITER = ",";
+    public static final String NULL_STRING = "null";
 
     public static final String STATUS_CREATED_AT = "createdAt";
     public static final String STATUS_TWEET_ID = "tweetId";
@@ -74,6 +74,7 @@ public class TwitterConstants {
     public static final String STATUS_HASHTAGS = "hashtags";
     public static final String STATUS_USERMENTIONS = "userMentions";
     public static final String STATUS_MEDIAURLS = "mediaUrls";
+    public static final String STATUS_URLS = "urls";
     public static final String STATUS_PLACE_COUNTRY = "place.country";
     public static final String STATUS_PLACE_COUNTRY_CODE = "place.country_code";
     public static final String STATUS_PLACE_NAME = "place.name";
@@ -81,14 +82,14 @@ public class TwitterConstants {
     public static final String STATUS_PLACE_FULLNAME = "place.fullName";
     public static final String STATUS_LANGUAGE = "language";
     public static final String STATUS_SOURCE = "source";
-    public static final String STATUS_ISRETWEET = "isretweet";
+    public static final String STATUS_IS_RETWEET = "isRetweet";
     public static final String STATUS_RETWEET_COUNT = "retweetCount";
     public static final String STATUS_GEOLOCATION = "geoLocation";
-    public static final String STATUS_FAVOURITE_COUNT = "FavouriteCount";
-    public static final String STATUS_QUOTED_STATUS_ID = "QuotedStatusId";
+    public static final String STATUS_FAVOURITE_COUNT = "favouriteCount";
+    public static final String STATUS_QUOTED_STATUS_ID = "quotedStatusId";
+    public static final String STATUS_IN_REPLY_TO_STATUS_ID = "in.reply.to.status.id";
 
     public static final int MANDATORY_PARAM_SIZE = 6;
-
 
     public static final List<String> MANDATORY_PARAM = Collections.unmodifiableList(Arrays.asList(
             TwitterConstants.CONSUMER_KEY,
