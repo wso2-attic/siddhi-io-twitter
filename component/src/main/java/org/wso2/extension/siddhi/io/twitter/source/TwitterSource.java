@@ -48,11 +48,42 @@ import java.util.Set;
 /**
  * Twitter Source Implementation
  */
-
 @Extension(
         name = "twitter",
         namespace = "source",
-        description = "The twitter source receives the events from a twitter App. ",
+        description = "The twitter source receives the events from a twitter App. The events will be received " +
+                "in a key-value map. \n\n" +
+                "Key values of the map of a tweet and their descriptions.\n\t" +
+                "1.  createdAt - UTC time when this Tweet was created.\n\t" +
+                "2.  tweetId - The integer representation of the unique identifier for this Tweet.\n\t" +
+                "3.  text - The actual UTF-8 text of the status update.\n\t" +
+                "4.  user.createdAt - The UTC datetime that the user account was created on Twitter.\n\t" +
+                "5.  user.id - The integer representation of the unique identifier for this User.\n\t" +
+                "6.  user.screenName - The screen name, that this user identifies themselves with.\n\t" +
+                "7.  user.name - The name of the user, as they’ve defined it.\n\t" +
+                "8.  user.mail - The mail.id of the user.\n\t" +
+                "9.  user.location - Nullable. The user-defined location for this account’s profile.\n\t" +
+                "10. hashtags - Represents hashtags which have been parsed out of the Tweet.\n\t" +
+                "11. userMentions - Represents other Twitter users mentioned in the text of the Tweet.\n\t" +
+                "12. mediaUrls - Represents media elements uploaded with the Tweet.\n\t" +
+                "13. urls - Represents URLs included in the text of a Tweet.\n\t" +
+                "14. language - The language inwhich tweep tweeted.\n\t" +
+                "15. source - Utility used to post the Tweet, as an HTML-formatted string\n\t" +
+                "16. isRetweet - Indicates whether this is a Retweeted Tweet.\n\t" +
+                "17. retweetCount - Number of times this Tweet has been retweeted.\n\t" +
+                "18. favouriteCount = Nullable. Indicates approximately how many times this Tweet has been liked" +
+                " by Twitter users.\n\t" +
+                "19. geoLocation - Nullable. Represents the geographic location of this Tweet as reported by the" +
+                " user or client application.\n\t" +
+                "20. quotedStatusId - This field only surfaces when the Tweet is a quote Tweet. This field contains " +
+                "the integer value Tweet ID of the quoted Tweet.\n\t" +
+                "21. in.reply.to.status.id - Nullable. If the represented Tweet is a reply, this field will contain" +
+                " the integer representation of the original Tweet’s ID.\n\t" +
+                "22. place.id - ID representing this place. This is represented as a string, not an integer.\n" +
+                "23. place.name - Short human-readable representation of the place’s name.\n\t" +
+                "24. place.fullName - Full human-readable representation of the place’s name.\n\t" +
+                "25. place.country_code - Name of the country containing this place.\n\t" +
+                "26. place.country - Name of the country containing this place.\n\t" ,
         parameters = {
                 @Parameter(
                         name = "consumer.key",
@@ -75,13 +106,13 @@ import java.util.Set;
                 @Parameter(
                         name = "mode",
                         description = "There are two possible values for mode. \n" +
-                                "1. Streaming - Retrieves real time tweets, \n2. TwitterPoller - Retrieves historical" +
+                                "1. streaming - Retrieves real time tweets, \n2. polling - Retrieves historical" +
                                 " tweets within one week.",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "filter.level",
                         description = "Filters tweets by the level of engagement based on the " +
-                                " filter.level. The highest level(medium) corresponds loosely to the “top tweets” " +
+                                " filter.level. The highest level(medium) corresponds loosely to the 'top tweets'" +
                                 "filter the service already offers in its on-site search function. Values will " +
                                 "be one of either none, low, or medium.",
                         optional = true,
@@ -132,14 +163,14 @@ import java.util.Set;
                                 "latitude/longitude. The location is preferentially taking from the Geotagging" +
                                 " API, but will fall back to their Twitter profile. The parameter value is specified" +
                                 " by latitude,longitude,radius, where radius units must be specified as " +
-                                "either ” mi ” (miles) or ” km ” (kilometers).",
+                                "either 'mi' (miles) or 'km' (kilometers).",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "result.type",
                         description = "Returns tweets based on what type of results you would prefer to receive." +
-                                " The current default is 'mixed'. Valid values include:\n" +
+                               "Valid values include:\n" +
                                 "* mixed : Include both popular and recent results in the response.\n" +
                                 "* recent : return only the most recent results in the response\n" +
                                 "* popular : return only the most popular results in the response.)",
@@ -180,10 +211,9 @@ import java.util.Set;
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
                                 "consumer.secret='consumerSecret', access.token='accessToken'," +
                                 "access.token.secret='accessTokenSecret', mode= 'streaming', " +
-                                "@map(type='json', fail.on.missing.attribute='false', attributes" +
-                                "(created_at = 'created_at', id = 'id' ,id_str = 'id_str', " +
-                                "text = 'text')))\n" +
-                                "define stream rcvEvents(created_at String, id long, id_str String, text String);",
+                                "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId'," +
+                                " text= 'text',hashtags = 'hashtags'))) \n" +
+                                "define stream inputStream(createdAt String, id long, text String, hashtags string);",
                         description = "Under this configuration, it starts listening on random " +
                                 "sample of public statuses and they are passed to the rcvEvents stream."
                 ),
@@ -191,10 +221,10 @@ import java.util.Set;
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
                                 "consumer.secret='consumerSecret', access.token='accessToken'," +
                                 "access.token.secret='accessTokenSecret', mode= 'streaming'" +
-                                ", track = 'Amazon,Google,Apple', language = 'en', @map(type='json', " +
-                                "fail.on.missing.attribute='false' , attributes(created_at = 'created_at'," +
-                                " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
-                                "define stream rcvEvents(created_at String, id long, id_str String, text String);",
+                                ", track = 'Amazon,Google,Apple', language = 'en', @map(type='keyvalue', " +
+                                "@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                                "hashtags = 'hashtags'))) \n" +
+                                "define stream inputStream(createdAt String, id long, text String, hashtags string);",
                         description = "Under this configuration, it starts listening tweets in English that " +
                                 "containing the keywords Amazon,google or apple and they are passed to the rcvEvents" +
                                 " stream."
@@ -203,12 +233,12 @@ import java.util.Set;
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
                                 "consumer.secret='consumerSecret', access.token='accessToken'," +
                                 "access.token.secret='accessTokenSecret', mode= 'streaming'" +
-                                ", track = 'Amazon,Google,Apple', language = 'en', follow = '11348282,20536157," +
-                                "15670515,17193794,58561993,18139619',filter.level = 'low', " +
-                                "location = '51.280430:-0.563160,51.683979:0.278970', @map(type='json', " +
-                                "fail.on.missing.attribute='false' , attributes(created_at = 'created_at'," +
-                                " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
-                                "define stream rcvEvents(created_at String, id long, id_str String, text String);",
+                                ", track = 'Amazon,Google,Apple', language = 'en', filter.level = 'low', " +
+                                "follow = '11348282,20536157,15670515,17193794,58561993,18139619'," +
+                                "location = '51.280430:-0.563160,51.683979:0.278970', @map(type='keyvalue', " +
+                                "@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                                "hashtags = 'hashtags'))) \n" +
+                                "define stream inputStream(createdAt String, id long, text String, hashtags string);",
                         description = "Under this configuration, it starts listening tweets in English that " +
                                 "containing the keywords Amazon,google,apple or tweeted by the given followers" +
                                 " or tweeted from the given location based on the filter.level. and they are passed" +
@@ -218,10 +248,9 @@ import java.util.Set;
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
                                 "consumer.secret='consumerSecret', access.token='accessToken'," +
                                 "access.token.secret='accessTokenSecret', mode= 'polling'" +
-                                ", query = 'happy hour', @map(type='json', " +
-                                "fail.on.missing.attribute='false' , attributes(created_at = 'created_at'," +
-                                " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
-                                "define stream rcvEvents(created_at String, id long, id_str String, text String);",
+                                ", query = 'happy hour', @map(type='keyvalue', @attributes(createdAt = 'createdAt'," +
+                                " id = 'tweetId', text= 'text', hashtags = 'hashtags'))) \n" +
+                                "define stream inputStream(createdAt String, id long, text String, hashtags string);",
                         description = "Under this configuration, it starts polling tweets containing the" +
                                 " exact phrase 'happy hour' and they are passed to the rcvEvents stream."
                 ),
@@ -229,10 +258,10 @@ import java.util.Set;
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
                                 "consumer.secret='consumerSecret', access.token='accessToken'," +
                                 "access.token.secret='accessTokenSecret', mode= 'polling'" +
-                                ", query = '#Amazon', since.id = '973439483906420736', @map(type='json', " +
-                                "fail.on.missing.attribute='false' , attributes(created_at = 'created_at'," +
-                                " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
-                                "define stream rcvEvents(created_at String, id long, id_str String, text String);",
+                                ", query = '#Amazon', since.id = '973439483906420736', @map(type='keyvalue', " +
+                                "@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
+                                "hashtags = 'hashtags'))) \n" +
+                                "define stream inputStream(createdAt String, id long, text String, hashtags string);",
                         description = "Under this configuration, it starts polling tweets, containing the hashtag" +
                                 " '#Amazon' and tweet Id is greater than since.id and they are passed to the " +
                                 "rcvEvents stream."
@@ -242,11 +271,11 @@ import java.util.Set;
                                 "consumer.secret='consumerSecret', access.token='accessToken'," +
                                 "access.token.secret='accessTokenSecret', mode= 'polling'" +
                                 ", query = '@NASA', language = 'en', result.type = 'recent'," +
-                                " geocode = '43.913723261972855,-72.54272478125,150km', since.id = 24012619984051000," +
-                                " max.id = 250126199840518145, until = 2018-03-10,  @map(type='json', " +
-                                "fail.on.missing.attribute='false' , attributes(created_at = 'created_at'," +
-                                " id = 'id' ,id_str = 'id_str', text = 'text')))\n" +
-                                "define stream rcvEvents(created_at String, id long, id_str String, text String);",
+                                " geocode = '43.913723261972855,-72.54272478125,150km', " +
+                                "since.id = 24012619984051000, max.id = 250126199840518145, until = 2018-03-10," +
+                                " @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', " +
+                                "text= 'text', hashtags = 'hashtags'))) \n" +
+                                "define stream inputStream(createdAt String, id long, text String, hashtags string);",
                         description = "Under this configuration, it starts polling recent tweets in english that is " +
                                 " having tweet id greater than since.id and less than max.id, mentioning NASA " +
                                 " and they are passed to the rcvEvents stream."
@@ -286,8 +315,6 @@ public class TwitterSource extends Source {
     private double longitude;
     private double radius;
     private String unitName;
-    private Query query = null;
-    private FilterQuery filterQuery = null;
     private Set<String> staticOptionsKeys;
 
 
@@ -368,6 +395,8 @@ public class TwitterSource extends Source {
      */
     @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
+        Query query;
+        FilterQuery filterQuery;
         Twitter twitter;
         try {
             ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
@@ -535,4 +564,3 @@ public class TwitterSource extends Source {
         }
     }
 }
-

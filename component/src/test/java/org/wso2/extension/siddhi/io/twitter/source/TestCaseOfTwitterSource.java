@@ -16,7 +16,6 @@
  * under the License.
  */
 
-
 package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
@@ -314,7 +313,6 @@ public class TestCaseOfTwitterSource {
 
         siddhiAppRuntime.start();
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterStreaming6")
@@ -393,6 +391,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.start();
         siddhiAppRuntime.shutdown();
     }
+
     @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterStreaming8")
     public void testTwitterStreaming9() {
         LOG.info("----------------------------------------------------------------------------------");

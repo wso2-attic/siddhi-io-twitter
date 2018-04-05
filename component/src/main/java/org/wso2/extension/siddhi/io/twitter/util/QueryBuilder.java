@@ -24,7 +24,6 @@ import twitter4j.Query;
 /**
  * It creates the query for polling or streaming mode.
  */
-
 public class QueryBuilder {
     private QueryBuilder() {
     }
@@ -81,5 +80,4 @@ public class QueryBuilder {
         }
         return filterQuery;
     }
-
 }
