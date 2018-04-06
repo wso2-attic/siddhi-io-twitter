@@ -60,9 +60,9 @@ import java.util.Set;
                 "4.  user.createdAt - The UTC datetime that the user account was created on Twitter.\n\t" +
                 "5.  user.id - The integer representation of the unique identifier for this User.\n\t" +
                 "6.  user.screenName - The screen name, that this user identifies themselves with.\n\t" +
-                "7.  user.name - The name of the user, as they’ve defined it.\n\t" +
+                "7.  user.name - The name of the user, as they've defined it.\n\t" +
                 "8.  user.mail - The mail.id of the user.\n\t" +
-                "9.  user.location - Nullable. The user-defined location for this account’s profile.\n\t" +
+                "9.  user.location - Nullable. The user-defined location for this account's profile.\n\t" +
                 "10. hashtags - Represents hashtags which have been parsed out of the Tweet.\n\t" +
                 "11. userMentions - Represents other Twitter users mentioned in the text of the Tweet.\n\t" +
                 "12. mediaUrls - Represents media elements uploaded with the Tweet.\n\t" +
@@ -78,11 +78,11 @@ import java.util.Set;
                 "20. quotedStatusId - This field only surfaces when the Tweet is a quote Tweet. This field contains " +
                 "the integer value Tweet ID of the quoted Tweet.\n\t" +
                 "21. in.reply.to.status.id - Nullable. If the represented Tweet is a reply, this field will contain" +
-                " the integer representation of the original Tweet’s ID.\n\t" +
-                "22. place.id - ID representing this place. This is represented as a string, not an integer.\n" +
-                "23. place.name - Short human-readable representation of the place’s name.\n\t" +
-                "24. place.fullName - Full human-readable representation of the place’s name.\n\t" +
-                "25. place.country_code - Name of the country containing this place.\n\t" +
+                " the integer representation of the original Tweet's ID.\n\t" +
+                "22. place.id - ID representing this place. This is represented as a string, not an integer.\n\t" +
+                "23. place.name - Short human-readable representation of the place's name.\n\t" +
+                "24. place.fullName - Full human-readable representation of the place's name.\n\t" +
+                "25. place.country_code - Shortened country code representing the country containing this place.\n\t" +
                 "26. place.country - Name of the country containing this place.\n\t" ,
         parameters = {
                 @Parameter(
