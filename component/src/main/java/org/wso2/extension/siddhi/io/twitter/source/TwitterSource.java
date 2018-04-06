@@ -79,10 +79,10 @@ import java.util.Set;
                 "the integer value Tweet ID of the quoted Tweet.\n\t" +
                 "21. in.reply.to.status.id - Nullable. If the represented Tweet is a reply, this field will contain" +
                 " the integer representation of the original Tweet’s ID.\n\t" +
-                "22. place.id - ID representing this place. This is represented as a string, not an integer.\n" +
+                "22. place.id - ID representing this place. This is represented as a string, not an integer.\n\t" +
                 "23. place.name - Short human-readable representation of the place’s name.\n\t" +
                 "24. place.fullName - Full human-readable representation of the place’s name.\n\t" +
-                "25. place.country_code - Name of the country containing this place.\n\t" +
+                "25. place.country_code - Shortened country code representing the country containing this place.\n\t" +
                 "26. place.country - Name of the country containing this place.\n\t" ,
         parameters = {
                 @Parameter(
