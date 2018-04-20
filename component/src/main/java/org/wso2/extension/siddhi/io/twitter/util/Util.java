@@ -31,6 +31,7 @@ public class Util {
     private Util() {
     }
 
+
     public static double[][] locationParam(String locationParam) {
         String[] boundary = locationParam.split(TwitterConstants.DELIMITER);
         if (boundary.length < 5) {
@@ -66,6 +67,10 @@ public class Util {
 
     public static Map<String, Object> createMap(Status tweet) {
         Map<String, Object> status = new HashMap<>();
+        String trackwords = (QueryBuilder.getTrackParam() != null && !QueryBuilder.getTrackParam().isEmpty()) ?
+                QueryBuilder.getTrackParam() : TwitterConstants.NULL_STRING;
+        String query = (QueryBuilder.getQueryParam() != null && !QueryBuilder.getQueryParam().isEmpty()) ?
+                QueryBuilder.getQueryParam() : TwitterConstants.NULL_STRING;
         String geoLocation = (tweet.getGeoLocation() == null ?
                 TwitterConstants.NULL_STRING : (tweet.getGeoLocation().getLatitude()) + TwitterConstants.DELIMITER +
                 tweet.getGeoLocation().getLongitude());
@@ -141,7 +146,8 @@ public class Util {
                 TwitterConstants.NULL_STRING : tweet.getPlace().getId());
         status.put(TwitterConstants.STATUS_PLACE_FULLNAME, (tweet.getPlace() == null) ?
                 TwitterConstants.NULL_STRING : tweet.getPlace().getFullName());
-
+        status.put(TwitterConstants.TRACK_WORDS, trackwords);
+        status.put(TwitterConstants.QUERY, query);
         return status;
     }
 }

@@ -68,8 +68,8 @@ public class TestCaseOfTwitterSource {
                 "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
                 "mode= 'streaming', track = 'Amazon', language = 'en', filter.level = 'none' ," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
-                " hashtags = 'hashtags')))" +
-                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
+                " hashtags = 'hashtags', keywords = 'track.words')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string, keywords string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -109,8 +109,8 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
                 "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
                 "mode= 'streaming' , @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId'," +
-                " text= 'text',hashtags = 'hashtags')))" +
-                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
+                " text= 'text',hashtags = 'hashtags', keywords = 'track.words')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string, keywords string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -606,8 +606,9 @@ public class TestCaseOfTwitterSource {
                 "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
                 "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
                 "mode= 'polling', query = '@NASA' ,result.type = 'popular' ,@map(type='keyvalue', " +
-                "@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',hashtags = 'hashtags')))" +
-                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
+                "@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',hashtags = 'hashtags', " +
+                "query = 'polling.query')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string, query string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
@@ -857,8 +858,61 @@ public class TestCaseOfTwitterSource {
                 }
             }
         });
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test(dependsOnMethods = "testTwitterPolling8")
+    public void testTwitterPolling9() throws InterruptedException {
+        LOG.info("----------------------------------------------------------------------------------");
+        LOG.info("TwitterPolling TestCase 9 - Test for pause and resume method.");
+        LOG.info("----------------------------------------------------------------------------------");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "" +
+                "@app:name('TwitterStreamingSample')" +
+                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
+                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
+                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
+                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
+                "mode= 'polling', query = '@NASA', @map(type='keyvalue', @attributes(createdAt = 'createdAt', " +
+                "id = 'tweetId', text= 'text',hashtags = 'hashtags')))" +
+                "define stream inputStream(createdAt String, id long, text String, hashtags string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select *  " +
+                "insert into outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
+                query);
+
+        Collection<List<Source>> sources = siddhiAppRuntime.getSources();
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event event : inEvents) {
+                    eventCount.getAndIncrement();
+                    LOG.info(eventCount + " . " + event);
+                    eventArrived.set(true);
+                }
+            }
+        });
 
         siddhiAppRuntime.start();
+        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, 10000);
+        Assert.assertTrue(eventArrived.get());
+        sources.forEach(e -> e.forEach(Source::pause));
+
+        LOG.info("Siddhi App paused.................................");
+        eventArrived.set(false);
+        eventCount.set(0);
+
+        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
+        Assert.assertFalse(eventArrived.get());
+        sources.forEach(e -> e.forEach(Source::resume));
+        LOG.info("Siddhi App Resumed...............................");
+        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
+        Assert.assertTrue(eventArrived.get());
         siddhiAppRuntime.shutdown();
     }
 }

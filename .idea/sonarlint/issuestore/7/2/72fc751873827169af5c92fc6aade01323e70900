@@ -1,0 +1,4 @@
+
+Usquid:S1068"4Remove this unused "siddhiAppContext" private field.(Ê£¦êøÿÿÿÿ8†ªŽ”®,
+nsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 31 to the 15 allowed.(Ï¤êØ8†ªŽ”®,
+€squid:S1450"_Remove the "siddhiAppContext" field and declare it as a local variable in the relevant methods.(Ê£¦êøÿÿÿÿ8†ªŽ”®,
