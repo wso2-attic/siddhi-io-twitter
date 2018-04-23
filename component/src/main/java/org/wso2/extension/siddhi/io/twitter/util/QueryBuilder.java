@@ -25,6 +25,8 @@ import twitter4j.Query;
  * It creates the query for polling or streaming mode.
  */
 public class QueryBuilder {
+    private static String keywords;
+    private static String queryParam;
     private QueryBuilder() {
     }
 
@@ -32,6 +34,7 @@ public class QueryBuilder {
                               String since, String resultType, String geoCode, double latitude, double longitude,
                               double radius, String unitName) {
         Query query = new Query(q);
+        queryParam = q;
         if (count > 0) {
             query.count(count);
         }
@@ -59,6 +62,7 @@ public class QueryBuilder {
     public static FilterQuery createFilterQuery (String languageParam, String trackParam, long[] follow,
                                           String filterLevel, double[][] locations) {
         FilterQuery filterQuery = new FilterQuery();
+        keywords = trackParam;
         if (!trackParam.trim().isEmpty()) {
             filterQuery.track(trackParam.split(TwitterConstants.DELIMITER));
         }
@@ -79,5 +83,13 @@ public class QueryBuilder {
             filterQuery.locations(locations);
         }
         return filterQuery;
+    }
+
+    public static String getTrackParam() {
+        return keywords;
+    }
+
+    public static String getQueryParam() {
+        return queryParam;
     }
 }

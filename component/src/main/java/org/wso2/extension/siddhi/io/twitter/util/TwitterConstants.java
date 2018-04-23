@@ -88,6 +88,8 @@ public class TwitterConstants {
     public static final String STATUS_FAVOURITE_COUNT = "favouriteCount";
     public static final String STATUS_QUOTED_STATUS_ID = "quotedStatusId";
     public static final String STATUS_IN_REPLY_TO_STATUS_ID = "in.reply.to.status.id";
+    public static final String TRACK_WORDS = "track.words";
+    public static final String QUERY = "polling.query";
 
     public static final int MANDATORY_PARAM_SIZE = 6;
 

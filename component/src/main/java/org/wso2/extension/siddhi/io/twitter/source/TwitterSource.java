@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.extension.siddhi.io.twitter.source;
 
 import org.apache.log4j.Logger;
@@ -44,6 +43,9 @@ import twitter4j.conf.ConfigurationBuilder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Twitter Source Implementation
@@ -83,7 +85,9 @@ import java.util.Set;
                 "23. place.name - Short human-readable representation of the place's name.\n\t" +
                 "24. place.fullName - Full human-readable representation of the place's name.\n\t" +
                 "25. place.country_code - Shortened country code representing the country containing this place.\n\t" +
-                "26. place.country - Name of the country containing this place.\n\t" ,
+                "26. place.country - Name of the country containing this place.\n\t" +
+                "27. track.words - Keywords given by the user to track.\n\t" +
+                "28. polling.query - Query given by the user.\n\t" ,
         parameters = {
                 @Parameter(
                         name = "consumer.key",
@@ -285,9 +289,9 @@ import java.util.Set;
 
 public class TwitterSource extends Source {
     private static final Logger log = Logger.getLogger(TwitterSource.class);
-    private TwitterConsumer twitterConsumer;
+    private TwitterPoller twitterPoller;
+    private TwitterStatusListener twitterStatusListener;
     private SourceEventListener sourceEventListener;
-    private SiddhiAppContext siddhiAppContext;
     private TwitterStream twitterStream;
     private String consumerKey;
     private String consumerSecret;
@@ -316,6 +320,8 @@ public class TwitterSource extends Source {
     private double radius;
     private String unitName;
     private Set<String> staticOptionsKeys;
+    private ScheduledExecutorService scheduledExecutorService;
+    private ScheduledFuture scheduledFuture;
 
 
     /**
@@ -334,8 +340,6 @@ public class TwitterSource extends Source {
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
-        this.siddhiAppContext = siddhiAppContext;
-        twitterConsumer = TwitterConsumer.INSTANCE;
         consumerKey = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_KEY);
         consumerSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_SECRET);
         accessToken = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_TOKEN);
@@ -372,6 +376,7 @@ public class TwitterSource extends Source {
         pollingInterval = Long.parseLong(optionHolder.validateAndGetStaticValue
                 (TwitterConstants.POLLING_INTERVAL, "3600"));
         staticOptionsKeys = optionHolder.getStaticOptionsKeys();
+        scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
         validateParameter();
     }
 
@@ -409,12 +414,21 @@ public class TwitterSource extends Source {
                 twitterStream = (new TwitterStreamFactory(configurationBuilder.build())).getInstance();
                 filterQuery = QueryBuilder.createFilterQuery(languageParam, trackParam, follow, filterLevel,
                         locations);
-                twitterConsumer.consume(twitterStream, sourceEventListener, filterQuery, staticOptionsKeys.size());
+                twitterStatusListener = new TwitterStatusListener(sourceEventListener);
+                twitterStream.addListener(twitterStatusListener);
+                if (staticOptionsKeys.size() == TwitterConstants.MANDATORY_PARAM_SIZE) {
+                    twitterStream.sample();
+                } else {
+                    twitterStream.filter(filterQuery);
+                }
             } else {
                 twitter = (new TwitterFactory(configurationBuilder.build())).getInstance();
                 query = QueryBuilder.createQuery(queryParam, count, searchLang, sinceId, maxId, until, since,
                         resultType, geocode, latitude, longitude, radius, unitName);
-                twitterConsumer.consume(twitter, query, sourceEventListener, siddhiAppContext, pollingInterval);
+                twitterPoller = new TwitterPoller(twitter, query, sourceEventListener);
+                scheduledFuture  = scheduledExecutorService.scheduleAtFixedRate(
+                       twitterPoller , 0, pollingInterval,
+                        TimeUnit.SECONDS);
             }
         } catch (Exception e) {
             throw new ConnectionUnavailableException(
@@ -428,7 +442,7 @@ public class TwitterSource extends Source {
     @Override
     public void disconnect() {
         if (twitterStream != null) {
-            twitterStream.shutdown();
+            twitterStream.clearListeners();
             if (log.isDebugEnabled()) {
                 log.debug("The status listener has been cleared!");
             }
@@ -441,10 +455,13 @@ public class TwitterSource extends Source {
     @Override
     public void destroy() {
         if (twitterStream != null) {
-            twitterStream.clearListeners();
+            twitterStream.shutdown();
             if (log.isDebugEnabled()) {
                 log.debug("The twitter stream has been shutdown !");
             }
+        }
+        if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
+            scheduledFuture.cancel(true);
         }
     }
 
@@ -453,7 +470,11 @@ public class TwitterSource extends Source {
      */
     @Override
     public void pause() {
-        twitterConsumer.pause();
+        if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
+            twitterStatusListener.pause();
+        } else {
+            twitterPoller.pause();
+        }
     }
 
     /**
@@ -461,7 +482,11 @@ public class TwitterSource extends Source {
      */
     @Override
     public void resume() {
-        twitterConsumer.resume();
+        if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {
+            twitterStatusListener.resume();
+        } else {
+            twitterPoller.resume();
+        }
     }
 
     /**
@@ -473,7 +498,7 @@ public class TwitterSource extends Source {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> currentState = new HashMap<>();
-        currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, twitterConsumer.tweetId);
+        currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, twitterPoller.tweetId);
         return currentState;
     }
 
@@ -507,10 +532,10 @@ public class TwitterSource extends Source {
             if (queryParam.isEmpty()) {
                 throw new SiddhiAppValidationException("For polling mode, query should be given.");
             }
-            for (String parameters : staticOptionsKeys) {
-                if (!TwitterConstants.POLLING_PARAM.contains(parameters) &&
-                        !TwitterConstants.MANDATORY_PARAM.contains(parameters)) {
-                    throw new SiddhiAppValidationException(parameters + " is not valid for the " + mode + " " +
+            for (String staticOptionkey : staticOptionsKeys) {
+                if (!TwitterConstants.POLLING_PARAM.contains(staticOptionkey) &&
+                        !TwitterConstants.MANDATORY_PARAM.contains(staticOptionkey)) {
+                    throw new SiddhiAppValidationException(staticOptionkey + " is not valid for the " + mode + " " +
                             TwitterConstants.MODE);
                 }
             }
