@@ -53,159 +53,166 @@ import java.util.concurrent.TimeUnit;
 @Extension(
         name = "twitter",
         namespace = "source",
-        description = "The twitter source receives the events from a twitter App. The events will be received " +
-                "in a key-value map. \n\n" +
-                "Key values of the map of a tweet and their descriptions.\n\t" +
-                "1.  createdAt - UTC time when this Tweet was created.\n\t" +
-                "2.  tweetId - The integer representation of the unique identifier for this Tweet.\n\t" +
-                "3.  text - The actual UTF-8 text of the status update.\n\t" +
-                "4.  user.createdAt - The UTC datetime that the user account was created on Twitter.\n\t" +
-                "5.  user.id - The integer representation of the unique identifier for this User.\n\t" +
-                "6.  user.screenName - The screen name, that this user identifies themselves with.\n\t" +
-                "7.  user.name - The name of the user, as they've defined it.\n\t" +
-                "8.  user.mail - The mail.id of the user.\n\t" +
-                "9.  user.location - Nullable. The user-defined location for this account's profile.\n\t" +
-                "10. hashtags - Represents hashtags which have been parsed out of the Tweet.\n\t" +
-                "11. userMentions - Represents other Twitter users mentioned in the text of the Tweet.\n\t" +
-                "12. mediaUrls - Represents media elements uploaded with the Tweet.\n\t" +
-                "13. urls - Represents URLs included in the text of a Tweet.\n\t" +
-                "14. language - The language inwhich tweep tweeted.\n\t" +
-                "15. source - Utility used to post the Tweet, as an HTML-formatted string\n\t" +
-                "16. isRetweet - Indicates whether this is a Retweeted Tweet.\n\t" +
-                "17. retweetCount - Number of times this Tweet has been retweeted.\n\t" +
-                "18. favouriteCount = Nullable. Indicates approximately how many times this Tweet has been liked" +
-                " by Twitter users.\n\t" +
-                "19. geoLocation - Nullable. Represents the geographic location of this Tweet as reported by the" +
-                " user or client application.\n\t" +
-                "20. quotedStatusId - This field only surfaces when the Tweet is a quote Tweet. This field contains " +
+        description = "The Twitter source receives events from a Twitter app. The events are received " +
+                "in the form of key-value mappings. \n\n" +
+                "The following are key values of the map of a tweet and their descriptions:\n\t" +
+                "1.  createdAt: The UTC time at which the Tweet was created.\n\t" +
+                "2.  tweetId: The integer representation for the unique identifier of the Tweet.\n\t" +
+                "3.  text: The actual UTF-8 text of the status update.\n\t" +
+                "4.  user.createdAt: The UTC date and time at which the user account was created on Twitter.\n\t" +
+                "5.  user.id: The integer representation for the unique identifier of the user who posted the " +
+                "Tweet.\n\t" +
+                "6.  user.screenName: The screen name with which the user identifies himself/herself.\n\t" +
+                "7.  user.name: The name of the user (as specified by the user).\n\t" +
+                "8.  user.mail: The `mail.id` of the user.\n\t" +
+                "9.  user.location: The location in which the current user account profile is saved. This " +
+                "parameter can have a null value.\n\t" +
+                "10. hashtags: The hashtags that have been parsed out of the Tweet.\n\t" +
+                "11. userMentions: The other Twitter users who are mentioned in the text of the Tweet.\n\t" +
+                "12. mediaUrls: The media elements uploaded with the Tweet.\n\t" +
+                "13. urls: The URLs included in the text of a Tweet.\n\t" +
+                "14. language: The language in which the Tweet is posted.\n\t" +
+                "15. source: the utility used to post the Tweet as an HTML-formatted string.\n\t" +
+                "16. isRetweet: This indicates whether the Tweet is a Retweet or not.\n\t" +
+                "17. retweetCount: The number of times the Tweet has been retweeted.\n\t" +
+                "18. favouriteCount: This indicates the number of times the Tweet has been liked by Twitter users." +
+                " The value for this field can be null.\n\t" +
+                "19. geoLocation: The geographic location from which the Tweet was posted by the user or client " +
+                "application. The value for this field can be null.\n\t" +
+                "20. quotedStatusId: This field appears only when the Tweet is a quote Tweet. It displays " +
                 "the integer value Tweet ID of the quoted Tweet.\n\t" +
-                "21. in.reply.to.status.id - Nullable. If the represented Tweet is a reply, this field will contain" +
-                " the integer representation of the original Tweet's ID.\n\t" +
-                "22. place.id - ID representing this place. This is represented as a string, not an integer.\n\t" +
-                "23. place.name - Short human-readable representation of the place's name.\n\t" +
-                "24. place.fullName - Full human-readable representation of the place's name.\n\t" +
-                "25. place.country_code - Shortened country code representing the country containing this place.\n\t" +
-                "26. place.country - Name of the country containing this place.\n\t" +
-                "27. track.words - Keywords given by the user to track.\n\t" +
-                "28. polling.query - Query given by the user.\n\t" ,
+                "21. in.reply.to.status.id: If the Tweet is a reply to another Tweet, this field displays the " +
+                "integer representation of the original Tweet's ID. The value for this field can be null.\n\t" +
+                "22. place.id: An ID representing the current location from which the Tweet is read. This is " +
+                "represented as a string and not an integer.\n\t" +
+                "23. place.name: A short, human-readable representation of the name of the place.\n\t" +
+                "24. place.fullName: A complete human-readable representation of the name of the place.\n\t" +
+                "25. place.country_code: A shortened country code representing the country in which the place " +
+                "is located.\n\t" +
+                "26. place.country: The name of the country in which the place is located.\n\t" +
+                "27. track.words: The keywords given by the user to track.\n\t" +
+                "28. polling.query: The query provided by the user.\n\t" ,
         parameters = {
                 @Parameter(
                         name = "consumer.key",
-                        description = "Consumer key is the API key to access created twitter app",
+                        description = "The API key to access the Twitter application created.",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "consumer.secret",
-                        description = "Consumer secret is the API secret to access created twitter app",
+                        description = "The API secret to access the Twitter application created.",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "access.token",
-                        description = "Access token is used to make API requests on behalf" +
-                                " of your account.",
+                        description = "The access token to be used to make API requests on behalf of your account.",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "access.token.secret",
-                        description = "Access token secret is used to make API requests on behalf" +
-                                " of your account.",
+                        description = "The access token secret to be used to make API requests on behalf of your" +
+                                " account.",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "mode",
-                        description = "There are two possible values for mode. \n" +
-                                "1. streaming - Retrieves real time tweets, \n2. polling - Retrieves historical" +
-                                " tweets within one week.",
+                        description = "The mode in which the Twitter application is run. Possible values are as " +
+                                "follows: \n" +
+                                "`streaming`: This retrieves real time tweets. \n2" +
+                                "`polling`: This retrieves historical tweets that were posted within one week.",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "filter.level",
-                        description = "Filters tweets by the level of engagement based on the " +
-                                " filter.level. The highest level(medium) corresponds loosely to the 'top tweets'" +
-                                "filter the service already offers in its on-site search function. Values will " +
-                                "be one of either none, low, or medium.",
+                        description = "This is assigned to Tweets based on the level of engagement. The filter " +
+                                "level can be `none`, `low`, or `medium`. The highest level (i.e., `medium`) " +
+                                "corresponds loosely with the `top tweets` filter that the service already offers " +
+                                "in its on-site search function.",
                         optional = true,
                         defaultValue = "none",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "track",
-                        description = "Filters the tweets that include the given keywords.",
+                        description = "This filters the Tweets that include the specified keywords.",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "follow",
-                        description = "Filters the tweets that is tweeted by the given user ids",
+                        description = "This filters the Tweets that are tweeted by the specified user IDs.",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.LONG}),
                 @Parameter(
                         name = "location",
-                        description = "Filters tweets based on the locations. Here, We have to specify " +
-                                "latitude and the longitude of the location. For Example : 51.683979:0.278970",
+                        description = "This filters Tweets based on the locations. Here, you need to specify the" +
+                                "latitude and the longitude of the location e.g., `51.683979:0.278970`.",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.DOUBLE}),
                 @Parameter(
                         name = "language",
-                        description = "Filters tweets in the given language, given by an ISO 639-1 code.",
+                        description = "This filters Tweets that are posted in the specified language, given by an" +
+                                " ISO 639-1 code.",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "query",
-                        description = "Filters tweets that matches the given Query, UTF-8, URL-encoded search" +
-                                " query of 500 characters maximum, including operators. \nFor example : " +
+                        description = "This filters Tweets that match the specified UTF-8, URL-encoded search" +
+                                " query with a maximum of 500 characters including operators. \n e.g., " +
                                 "'@NASA' - mentioning Twitter account 'NASA'.",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "count",
-                        description = "Returns specified number of tweets per page, up to a maximum of 100.",
+                        description = "This returns a specified number of Tweets per page up to a maximum of 100.",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "geocode",
-                        description = "Returns tweets by users located within a given radius of the given " +
-                                "latitude/longitude. The location is preferentially taking from the Geotagging" +
-                                " API, but will fall back to their Twitter profile. The parameter value is specified" +
-                                " by latitude,longitude,radius, where radius units must be specified as " +
-                                "either 'mi' (miles) or 'km' (kilometers).",
+                        description = "This returns Tweets by users who are located within a specified radius of " +
+                                "the given latitude/longitude. The location is preferentially taken from " +
+                                "the Geotagging API, but it falls back to their Twitter profile. The parameter value" +
+                                " is specified in the `latitude,longitude,radius` format where theradius units must" +
+                                " be specified as either `mi` (miles) or `km` (kilometers).",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "result.type",
-                        description = "Returns tweets based on what type of results you would prefer to receive." +
-                               "Valid values include:\n" +
-                                "* mixed : Include both popular and recent results in the response.\n" +
-                                "* recent : return only the most recent results in the response\n" +
-                                "* popular : return only the most popular results in the response.)",
+                        description = "This parameter allows to to specify the whether you want to receive only " +
+                                "popular Tweets, the most recent Tweets or a mix of both." +
+                               "The possible values are as follows:\n" +
+                                "* `mixed`: This includes both popular and recent results in the response.\n" +
+                                "* `recent`: This includes only the most recent results in the response.\n" +
+                                "* `popular`: This includes only the most popular results in the response.)",
                         optional = true,
                         defaultValue = "mixed",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "max.id",
-                        description = "Returns tweets with an tweet ID less than (that is, older than)" +
-                                " or equal to the specified ID",
+                        description = "This returns Tweets of which the Tweet ID is equal to or less than (i.e., " +
+                                "older than) the specified ID",
                         optional = true,
                         defaultValue = "-1",
                         type = {DataType.LONG}),
                 @Parameter(
                         name = "since.id",
-                        description = "Returns tweets with an tweet ID greater than (that is, more recent than)" +
-                                " the specified ID.",
+                        description = "This returns Tweets of which the Tweet ID is greater than (i.e., more " +
+                                "recent than) the specified ID.",
                         optional = true,
                         defaultValue = "-1",
                         type = {DataType.LONG}),
                 @Parameter(
                         name = "until",
-                        description = "Returns tweets created before the given date. Date should be" +
-                                " formatted as YYYY-MM-DD. Search index has a 7-day limit. So no tweets" +
-                                " will be found for a date older than one week.",
+                        description = "This returns Tweets that were created before the given date. Date needs to be" +
+                                " formatted as `YYYY-MM-DD`. The search index has a 7-day limit. Therefore, it is " +
+                                "not possible to return Tweets that were created more than a week before the current" +
+                                " date.",
                         optional = true,
                         defaultValue = "null",
                         type = {DataType.STRING}),
                 @Parameter(
                         name = "polling.interval",
-                        description = "Specifies the period of time (in seconds) to poll tweets periodically",
+                        description = "This specifies a time interval (in seconds) to poll the Tweets periodically.",
                         optional = true,
                         defaultValue = "3600",
                         type = {DataType.LONG}),
@@ -218,8 +225,8 @@ import java.util.concurrent.TimeUnit;
                                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId'," +
                                 " text= 'text',hashtags = 'hashtags'))) \n" +
                                 "define stream inputStream(createdAt String, id long, text String, hashtags string);",
-                        description = "Under this configuration, it starts listening on random " +
-                                "sample of public statuses and they are passed to the rcvEvents stream."
+                        description = "In this example, the twitter source starts listening to a random " +
+                                "sample of public statuses and passes the events to the `rcvEvents` stream."
                 ),
                 @Example(
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
@@ -229,9 +236,9 @@ import java.util.concurrent.TimeUnit;
                                 "@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                                 "hashtags = 'hashtags'))) \n" +
                                 "define stream inputStream(createdAt String, id long, text String, hashtags string);",
-                        description = "Under this configuration, it starts listening tweets in English that " +
-                                "containing the keywords Amazon,google or apple and they are passed to the rcvEvents" +
-                                " stream."
+                        description = "In this example, the twitter source starts listening to Tweets in English " +
+                                "that include the keywords `Amazon`, `google`, or `apple`. Then these Tweets are" +
+                                " passed to the `rcvEvents` stream."
                 ),
                 @Example(
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
@@ -243,10 +250,10 @@ import java.util.concurrent.TimeUnit;
                                 "@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                                 "hashtags = 'hashtags'))) \n" +
                                 "define stream inputStream(createdAt String, id long, text String, hashtags string);",
-                        description = "Under this configuration, it starts listening tweets in English that " +
-                                "containing the keywords Amazon,google,apple or tweeted by the given followers" +
-                                " or tweeted from the given location based on the filter.level. and they are passed" +
-                                " to the rcvEvents stream."
+                        description = "In this example, the twitter source starts listening to Tweets in English " +
+                                "that either include the keywords `Amazon`, `google`, `apple`, tweeted by the " +
+                                "specified followers, or tweeted from the given location based on the filter.level." +
+                                " Then these Tweets are passed to the `rcvEvents` stream."
                 ),
                 @Example(
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
@@ -255,8 +262,8 @@ import java.util.concurrent.TimeUnit;
                                 ", query = 'happy hour', @map(type='keyvalue', @attributes(createdAt = 'createdAt'," +
                                 " id = 'tweetId', text= 'text', hashtags = 'hashtags'))) \n" +
                                 "define stream inputStream(createdAt String, id long, text String, hashtags string);",
-                        description = "Under this configuration, it starts polling tweets containing the" +
-                                " exact phrase 'happy hour' and they are passed to the rcvEvents stream."
+                        description = "In this example, the twitter source starts polling Tweets that contain the" +
+                                " exact phrase `happy hour`. Then these Tweets are passed to the `rcvEvents` stream."
                 ),
                 @Example(
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
@@ -266,9 +273,9 @@ import java.util.concurrent.TimeUnit;
                                 "@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                                 "hashtags = 'hashtags'))) \n" +
                                 "define stream inputStream(createdAt String, id long, text String, hashtags string);",
-                        description = "Under this configuration, it starts polling tweets, containing the hashtag" +
-                                " '#Amazon' and tweet Id is greater than since.id and they are passed to the " +
-                                "rcvEvents stream."
+                        description = "In this example, the twitter source starts polling tweets that contain the" +
+                                " `#Amazon` hashtag and have a Tweet Id that is greater than `since.id`. Then these" +
+                                " Tweets are passed to the `rcvEvents` stream."
                 ),
                 @Example(
                         syntax = "@source(type='twitter', consumer.key='consumer.key'," +
@@ -280,9 +287,10 @@ import java.util.concurrent.TimeUnit;
                                 " @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', " +
                                 "text= 'text', hashtags = 'hashtags'))) \n" +
                                 "define stream inputStream(createdAt String, id long, text String, hashtags string);",
-                        description = "Under this configuration, it starts polling recent tweets in english that is " +
-                                " having tweet id greater than since.id and less than max.id, mentioning NASA " +
-                                " and they are passed to the rcvEvents stream."
+                        description = "In this example, the twitter source starts polling the recent Tweets in " +
+                                "English that mention `NASA`, and have Tweet IDs that are greater than the " +
+                                "`since.id` and less than the `max.id`. Then these events are passed to the " +
+                                "`rcvEvents` stream."
                 )
         }
 )
