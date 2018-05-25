@@ -1,10 +1,10 @@
-# API Docs - v1.0.6
+# API Docs - v1.0.7-SNAPSHOT
 
 ## Source
 
 ### twitter *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#source">(Source)</a>*
 
-<p style="word-wrap: break-word">The twitter source receives the events from a twitter App. The events will be received in a key-value map. <br><br>Key values of the map of a tweet and their descriptions.<br>&nbsp;&nbsp;&nbsp;&nbsp;1.  createdAt - UTC time when this Tweet was created.<br>&nbsp;&nbsp;&nbsp;&nbsp;2.  tweetId - The integer representation of the unique identifier for this Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;3.  text - The actual UTF-8 text of the status update.<br>&nbsp;&nbsp;&nbsp;&nbsp;4.  user.createdAt - The UTC datetime that the user account was created on Twitter.<br>&nbsp;&nbsp;&nbsp;&nbsp;5.  user.id - The integer representation of the unique identifier for this User.<br>&nbsp;&nbsp;&nbsp;&nbsp;6.  user.screenName - The screen name, that this user identifies themselves with.<br>&nbsp;&nbsp;&nbsp;&nbsp;7.  user.name - The name of the user, as they've defined it.<br>&nbsp;&nbsp;&nbsp;&nbsp;8.  user.mail - The mail.id of the user.<br>&nbsp;&nbsp;&nbsp;&nbsp;9.  user.location - Nullable. The user-defined location for this account's profile.<br>&nbsp;&nbsp;&nbsp;&nbsp;10. hashtags - Represents hashtags which have been parsed out of the Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;11. userMentions - Represents other Twitter users mentioned in the text of the Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;12. mediaUrls - Represents media elements uploaded with the Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;13. urls - Represents URLs included in the text of a Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;14. language - The language inwhich tweep tweeted.<br>&nbsp;&nbsp;&nbsp;&nbsp;15. source - Utility used to post the Tweet, as an HTML-formatted string<br>&nbsp;&nbsp;&nbsp;&nbsp;16. isRetweet - Indicates whether this is a Retweeted Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;17. retweetCount - Number of times this Tweet has been retweeted.<br>&nbsp;&nbsp;&nbsp;&nbsp;18. favouriteCount = Nullable. Indicates approximately how many times this Tweet has been liked by Twitter users.<br>&nbsp;&nbsp;&nbsp;&nbsp;19. geoLocation - Nullable. Represents the geographic location of this Tweet as reported by the user or client application.<br>&nbsp;&nbsp;&nbsp;&nbsp;20. quotedStatusId - This field only surfaces when the Tweet is a quote Tweet. This field contains the integer value Tweet ID of the quoted Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;21. in.reply.to.status.id - Nullable. If the represented Tweet is a reply, this field will contain the integer representation of the original Tweet's ID.<br>&nbsp;&nbsp;&nbsp;&nbsp;22. place.id - ID representing this place. This is represented as a string, not an integer.<br>&nbsp;&nbsp;&nbsp;&nbsp;23. place.name - Short human-readable representation of the place's name.<br>&nbsp;&nbsp;&nbsp;&nbsp;24. place.fullName - Full human-readable representation of the place's name.<br>&nbsp;&nbsp;&nbsp;&nbsp;25. place.country_code - Shortened country code representing the country containing this place.<br>&nbsp;&nbsp;&nbsp;&nbsp;26. place.country - Name of the country containing this place.<br>&nbsp;&nbsp;&nbsp;&nbsp;27. track.words - Keywords given by the user to track.<br>&nbsp;&nbsp;&nbsp;&nbsp;28. polling.query - Query given by the user.<br>&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p style="word-wrap: break-word">The Twitter source receives events from a Twitter app. The events are received in the form of key-value mappings. <br><br>The following are key values of the map of a tweet and their descriptions:<br>&nbsp;&nbsp;&nbsp;&nbsp;1.  createdAt: The UTC time at which the Tweet was created.<br>&nbsp;&nbsp;&nbsp;&nbsp;2.  tweetId: The integer representation for the unique identifier of the Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;3.  text: The actual UTF-8 text of the status update.<br>&nbsp;&nbsp;&nbsp;&nbsp;4.  user.createdAt: The UTC date and time at which the user account was created on Twitter.<br>&nbsp;&nbsp;&nbsp;&nbsp;5.  user.id: The integer representation for the unique identifier of the user who posted the Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;6.  user.screenName: The screen name with which the user identifies himself/herself.<br>&nbsp;&nbsp;&nbsp;&nbsp;7.  user.name: The name of the user (as specified by the user).<br>&nbsp;&nbsp;&nbsp;&nbsp;8.  user.mail: The <code>mail.id</code> of the user.<br>&nbsp;&nbsp;&nbsp;&nbsp;9.  user.location: The location in which the current user account profile is saved. This parameter can have a null value.<br>&nbsp;&nbsp;&nbsp;&nbsp;10. hashtags: The hashtags that have been parsed out of the Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;11. userMentions: The other Twitter users who are mentioned in the text of the Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;12. mediaUrls: The media elements uploaded with the Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;13. urls: The URLs included in the text of a Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;14. language: The language in which the Tweet is posted.<br>&nbsp;&nbsp;&nbsp;&nbsp;15. source: the utility used to post the Tweet as an HTML-formatted string.<br>&nbsp;&nbsp;&nbsp;&nbsp;16. isRetweet: This indicates whether the Tweet is a Retweet or not.<br>&nbsp;&nbsp;&nbsp;&nbsp;17. retweetCount: The number of times the Tweet has been retweeted.<br>&nbsp;&nbsp;&nbsp;&nbsp;18. favouriteCount: This indicates the number of times the Tweet has been liked by Twitter users. The value for this field can be null.<br>&nbsp;&nbsp;&nbsp;&nbsp;19. geoLocation: The geographic location from which the Tweet was posted by the user or client application. The value for this field can be null.<br>&nbsp;&nbsp;&nbsp;&nbsp;20. quotedStatusId: This field appears only when the Tweet is a quote Tweet. It displays the integer value Tweet ID of the quoted Tweet.<br>&nbsp;&nbsp;&nbsp;&nbsp;21. in.reply.to.status.id: If the Tweet is a reply to another Tweet, this field displays the integer representation of the original Tweet's ID. The value for this field can be null.<br>&nbsp;&nbsp;&nbsp;&nbsp;22. place.id: An ID representing the current location from which the Tweet is read. This is represented as a string and not an integer.<br>&nbsp;&nbsp;&nbsp;&nbsp;23. place.name: A short, human-readable representation of the name of the place.<br>&nbsp;&nbsp;&nbsp;&nbsp;24. place.fullName: A complete human-readable representation of the name of the place.<br>&nbsp;&nbsp;&nbsp;&nbsp;25. place.country_code: A shortened country code representing the country in which the place is located.<br>&nbsp;&nbsp;&nbsp;&nbsp;26. place.country: The name of the country in which the place is located.<br>&nbsp;&nbsp;&nbsp;&nbsp;27. track.words: The keywords given by the user to track.<br>&nbsp;&nbsp;&nbsp;&nbsp;28. polling.query: The query provided by the user.<br>&nbsp;&nbsp;&nbsp;&nbsp;</p>
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
@@ -23,7 +23,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">consumer.key</td>
-        <td style="vertical-align: top; word-wrap: break-word">Consumer key is the API key to access created twitter app</td>
+        <td style="vertical-align: top; word-wrap: break-word">The API key to access the Twitter application created.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -31,7 +31,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">consumer.secret</td>
-        <td style="vertical-align: top; word-wrap: break-word">Consumer secret is the API secret to access created twitter app</td>
+        <td style="vertical-align: top; word-wrap: break-word">The API secret to access the Twitter application created.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -39,7 +39,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">access.token</td>
-        <td style="vertical-align: top; word-wrap: break-word">Access token is used to make API requests on behalf of your account.</td>
+        <td style="vertical-align: top; word-wrap: break-word">The access token to be used to make API requests on behalf of your account.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -47,7 +47,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">access.token.secret</td>
-        <td style="vertical-align: top; word-wrap: break-word">Access token secret is used to make API requests on behalf of your account.</td>
+        <td style="vertical-align: top; word-wrap: break-word">The access token secret to be used to make API requests on behalf of your account.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -55,7 +55,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">mode</td>
-        <td style="vertical-align: top; word-wrap: break-word">There are two possible values for mode. <br>1. streaming - Retrieves real time tweets, <br>2. polling - Retrieves historical tweets within one week.</td>
+        <td style="vertical-align: top; word-wrap: break-word">The mode in which the Twitter application is run. Possible values are as follows: <br><code>streaming</code>: This retrieves real time tweets. <br>2<code>polling</code>: This retrieves historical tweets that were posted within one week.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -63,7 +63,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">filter.level</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters tweets by the level of engagement based on the  filter.level. The highest level(medium) corresponds loosely to the 'top tweets'filter the service already offers in its on-site search function. Values will be one of either none, low, or medium.</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is assigned to Tweets based on the level of engagement. The filter level can be <code>none</code>, <code>low</code>, or <code>medium</code>. The highest level (i.e., <code>medium</code>) corresponds loosely with the <code>top tweets</code> filter that the service already offers in its on-site search function.</td>
         <td style="vertical-align: top">none</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -71,7 +71,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">track</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters the tweets that include the given keywords.</td>
+        <td style="vertical-align: top; word-wrap: break-word">This filters the Tweets that include the specified keywords.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -79,7 +79,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">follow</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters the tweets that is tweeted by the given user ids</td>
+        <td style="vertical-align: top; word-wrap: break-word">This filters the Tweets that are tweeted by the specified user IDs.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
@@ -87,7 +87,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">location</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters tweets based on the locations. Here, We have to specify latitude and the longitude of the location. For Example : 51.683979:0.278970</td>
+        <td style="vertical-align: top; word-wrap: break-word">This filters Tweets based on the locations. Here, you need to specify thelatitude and the longitude of the location e.g., <code>51.683979:0.278970</code>.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">DOUBLE</td>
         <td style="vertical-align: top">Yes</td>
@@ -95,7 +95,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">language</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters tweets in the given language, given by an ISO 639-1 code.</td>
+        <td style="vertical-align: top; word-wrap: break-word">This filters Tweets that are posted in the specified language, given by an ISO 639-1 code.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -103,7 +103,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">query</td>
-        <td style="vertical-align: top; word-wrap: break-word">Filters tweets that matches the given Query, UTF-8, URL-encoded search query of 500 characters maximum, including operators. <br>For example : '@NASA' - mentioning Twitter account 'NASA'.</td>
+        <td style="vertical-align: top; word-wrap: break-word">This filters Tweets that match the specified UTF-8, URL-encoded search query with a maximum of 500 characters including operators. <br>&nbsp;e.g., '@NASA' - mentioning Twitter account 'NASA'.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -111,7 +111,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">count</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns specified number of tweets per page, up to a maximum of 100.</td>
+        <td style="vertical-align: top; word-wrap: break-word">This returns a specified number of Tweets per page up to a maximum of 100.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -119,7 +119,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">geocode</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns tweets by users located within a given radius of the given latitude/longitude. The location is preferentially taking from the Geotagging API, but will fall back to their Twitter profile. The parameter value is specified by latitude,longitude,radius, where radius units must be specified as either 'mi' (miles) or 'km' (kilometers).</td>
+        <td style="vertical-align: top; word-wrap: break-word">This returns Tweets by users who are located within a specified radius of the given latitude/longitude. The location is preferentially taken from the Geotagging API, but it falls back to their Twitter profile. The parameter value is specified in the <code>latitude,longitude,radius</code> format where theradius units must be specified as either <code>mi</code> (miles) or <code>km</code> (kilometers).</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -127,7 +127,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">result.type</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns tweets based on what type of results you would prefer to receive.Valid values include:<br>* mixed : Include both popular and recent results in the response.<br>* recent : return only the most recent results in the response<br>* popular : return only the most popular results in the response.)</td>
+        <td style="vertical-align: top; word-wrap: break-word">This parameter allows to to specify the whether you want to receive only popular Tweets, the most recent Tweets or a mix of both.The possible values are as follows:<br>* <code>mixed</code>: This includes both popular and recent results in the response.<br>* <code>recent</code>: This includes only the most recent results in the response.<br>* <code>popular</code>: This includes only the most popular results in the response.)</td>
         <td style="vertical-align: top">mixed</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -135,7 +135,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">max.id</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns tweets with an tweet ID less than (that is, older than) or equal to the specified ID</td>
+        <td style="vertical-align: top; word-wrap: break-word">This returns Tweets of which the Tweet ID is equal to or less than (i.e., older than) the specified ID</td>
         <td style="vertical-align: top">-1</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
@@ -143,7 +143,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">since.id</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns tweets with an tweet ID greater than (that is, more recent than) the specified ID.</td>
+        <td style="vertical-align: top; word-wrap: break-word">This returns Tweets of which the Tweet ID is greater than (i.e., more recent than) the specified ID.</td>
         <td style="vertical-align: top">-1</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
@@ -151,7 +151,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">until</td>
-        <td style="vertical-align: top; word-wrap: break-word">Returns tweets created before the given date. Date should be formatted as YYYY-MM-DD. Search index has a 7-day limit. So no tweets will be found for a date older than one week.</td>
+        <td style="vertical-align: top; word-wrap: break-word">This returns Tweets that were created before the given date. Date needs to be formatted as <code>YYYY-MM-DD</code>. The search index has a 7-day limit. Therefore, it is not possible to return Tweets that were created more than a week before the current date.</td>
         <td style="vertical-align: top">null</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -159,7 +159,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">polling.interval</td>
-        <td style="vertical-align: top; word-wrap: break-word">Specifies the period of time (in seconds) to poll tweets periodically</td>
+        <td style="vertical-align: top; word-wrap: break-word">This specifies a time interval (in seconds) to poll the Tweets periodically.</td>
         <td style="vertical-align: top">3600</td>
         <td style="vertical-align: top">LONG</td>
         <td style="vertical-align: top">Yes</td>
@@ -173,40 +173,40 @@
 @source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'streaming', @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',hashtags = 'hashtags'))) 
 define stream inputStream(createdAt String, id long, text String, hashtags string);
 ```
-<p style="word-wrap: break-word">Under this configuration, it starts listening on random sample of public statuses and they are passed to the rcvEvents stream.</p>
+<p style="word-wrap: break-word">In this example, the twitter source starts listening to a random sample of public statuses and passes the events to the <code>rcvEvents</code> stream.</p>
 
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
 @source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'streaming', track = 'Amazon,Google,Apple', language = 'en', @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',hashtags = 'hashtags'))) 
 define stream inputStream(createdAt String, id long, text String, hashtags string);
 ```
-<p style="word-wrap: break-word">Under this configuration, it starts listening tweets in English that containing the keywords Amazon,google or apple and they are passed to the rcvEvents stream.</p>
+<p style="word-wrap: break-word">In this example, the twitter source starts listening to Tweets in English that include the keywords <code>Amazon</code>, <code>google</code>, or <code>apple</code>. Then these Tweets are passed to the <code>rcvEvents</code> stream.</p>
 
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
 @source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'streaming', track = 'Amazon,Google,Apple', language = 'en', filter.level = 'low', follow = '11348282,20536157,15670515,17193794,58561993,18139619',location = '51.280430:-0.563160,51.683979:0.278970', @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',hashtags = 'hashtags'))) 
 define stream inputStream(createdAt String, id long, text String, hashtags string);
 ```
-<p style="word-wrap: break-word">Under this configuration, it starts listening tweets in English that containing the keywords Amazon,google,apple or tweeted by the given followers or tweeted from the given location based on the filter.level. and they are passed to the rcvEvents stream.</p>
+<p style="word-wrap: break-word">In this example, the twitter source starts listening to Tweets in English that either include the keywords <code>Amazon</code>, <code>google</code>, <code>apple</code>, tweeted by the specified followers, or tweeted from the given location based on the filter.level. Then these Tweets are passed to the <code>rcvEvents</code> stream.</p>
 
 <span id="example-4" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 4</span>
 ```
 @source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'polling', query = 'happy hour', @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text', hashtags = 'hashtags'))) 
 define stream inputStream(createdAt String, id long, text String, hashtags string);
 ```
-<p style="word-wrap: break-word">Under this configuration, it starts polling tweets containing the exact phrase 'happy hour' and they are passed to the rcvEvents stream.</p>
+<p style="word-wrap: break-word">In this example, the twitter source starts polling Tweets that contain the exact phrase <code>happy hour</code>. Then these Tweets are passed to the <code>rcvEvents</code> stream.</p>
 
 <span id="example-5" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 5</span>
 ```
 @source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'polling', query = '#Amazon', since.id = '973439483906420736', @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',hashtags = 'hashtags'))) 
 define stream inputStream(createdAt String, id long, text String, hashtags string);
 ```
-<p style="word-wrap: break-word">Under this configuration, it starts polling tweets, containing the hashtag '#Amazon' and tweet Id is greater than since.id and they are passed to the rcvEvents stream.</p>
+<p style="word-wrap: break-word">In this example, the twitter source starts polling tweets that contain the <code>#Amazon</code> hashtag and have a Tweet Id that is greater than <code>since.id</code>. Then these Tweets are passed to the <code>rcvEvents</code> stream.</p>
 
 <span id="example-6" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 6</span>
 ```
 @source(type='twitter', consumer.key='consumer.key',consumer.secret='consumerSecret', access.token='accessToken',access.token.secret='accessTokenSecret', mode= 'polling', query = '@NASA', language = 'en', result.type = 'recent', geocode = '43.913723261972855,-72.54272478125,150km', since.id = 24012619984051000, max.id = 250126199840518145, until = 2018-03-10, @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text', hashtags = 'hashtags'))) 
 define stream inputStream(createdAt String, id long, text String, hashtags string);
 ```
-<p style="word-wrap: break-word">Under this configuration, it starts polling recent tweets in english that is  having tweet id greater than since.id and less than max.id, mentioning NASA  and they are passed to the rcvEvents stream.</p>
+<p style="word-wrap: break-word">In this example, the twitter source starts polling the recent Tweets in English that mention <code>NASA</code>, and have Tweet IDs that are greater than the <code>since.id</code> and less than the <code>max.id</code>. Then these events are passed to the <code>rcvEvents</code> stream.</p>
 
