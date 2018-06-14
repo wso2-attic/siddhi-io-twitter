@@ -29,7 +29,7 @@
     </modules>
     <groupId>org.wso2.extension.siddhi.io.twitter</groupId>
     <artifactId>siddhi-io-twitter-parent</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.7</version>
     <name>Siddhi IO Twitter</name>
     <dependencyManagement>
         <dependencies>
@@ -95,7 +95,7 @@
         <url>https://github.com/wso2-extensions/siddhi-io-twitter.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/siddhi-io-twitter.git
         </developerConnection>
-        <tag>HEAD</tag>
+        <tag>v1.0.7</tag>
     </scm>
 
     <build>
