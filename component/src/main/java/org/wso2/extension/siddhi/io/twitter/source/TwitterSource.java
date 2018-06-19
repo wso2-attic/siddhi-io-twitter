@@ -91,7 +91,7 @@ import java.util.concurrent.TimeUnit;
                 "is located.\n\t" +
                 "26. place.country: The name of the country in which the place is located.\n\t" +
                 "27. track.words: The keywords given by the user to track.\n\t" +
-                "28. polling.query: The query provided by the user.\n\t" ,
+                "28. polling.query: The query provided by the user.\n\t",
         parameters = {
                 @Parameter(
                         name = "consumer.key",
@@ -180,7 +180,7 @@ import java.util.concurrent.TimeUnit;
                         name = "result.type",
                         description = "This parameter allows to to specify the whether you want to receive only " +
                                 "popular Tweets, the most recent Tweets or a mix of both." +
-                               "The possible values are as follows:\n" +
+                                "The possible values are as follows:\n" +
                                 "* `mixed`: This includes both popular and recent results in the response.\n" +
                                 "* `recent`: This includes only the most recent results in the response.\n" +
                                 "* `popular`: This includes only the most popular results in the response.)",
@@ -429,13 +429,13 @@ public class TwitterSource extends Source {
                 } else {
                     twitterStream.filter(filterQuery);
                 }
-            } else {
+            } else if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
                 twitter = (new TwitterFactory(configurationBuilder.build())).getInstance();
                 query = QueryBuilder.createQuery(queryParam, count, searchLang, sinceId, maxId, until, since,
                         resultType, geocode, latitude, longitude, radius, unitName);
                 twitterPoller = new TwitterPoller(twitter, query, sourceEventListener);
-                scheduledFuture  = scheduledExecutorService.scheduleAtFixedRate(
-                       twitterPoller , 0, pollingInterval,
+                scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(
+                        twitterPoller, 0, pollingInterval,
                         TimeUnit.SECONDS);
             }
         } catch (Exception e) {
@@ -470,6 +470,7 @@ public class TwitterSource extends Source {
         }
         if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {
             scheduledFuture.cancel(true);
+            twitterPoller.kill();
         }
     }
 
