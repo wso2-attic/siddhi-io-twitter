@@ -66,7 +66,7 @@ public class TwitterPoller implements Runnable {
         do {
             try {
                 if (isKilled) {
-                    return;
+                    Thread.currentThread().interrupt();
                 }
                 result = twitter.search(query);
                 List<Status> tweets = result.getTweets();
