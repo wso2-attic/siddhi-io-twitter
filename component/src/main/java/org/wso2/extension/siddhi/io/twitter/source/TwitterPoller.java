@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class TwitterPoller implements Runnable {
     private static final Logger log = Logger.getLogger(TwitterPoller.class);
     private boolean paused;
+    private boolean isKilled = false;
     private ReentrantLock lock = new ReentrantLock();
     private Condition condition = lock.newCondition();
     private Twitter twitter;
@@ -64,6 +65,9 @@ public class TwitterPoller implements Runnable {
         boolean isLatestId = true;
         do {
             try {
+                if (isKilled) {
+                    return;
+                }
                 result = twitter.search(query);
                 List<Status> tweets = result.getTweets();
                 for (Status tweet : tweets) {
@@ -118,6 +122,10 @@ public class TwitterPoller implements Runnable {
 
     public void pause() {
         paused = true;
+    }
+
+    public void kill() {
+        isKilled = true;
     }
 
     public void resume() {

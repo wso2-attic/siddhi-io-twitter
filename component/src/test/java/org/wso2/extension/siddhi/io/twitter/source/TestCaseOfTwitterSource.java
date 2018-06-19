@@ -46,6 +46,10 @@ public class TestCaseOfTwitterSource {
     private AtomicBoolean eventArrived = new AtomicBoolean(false);
     private int waitTime = 50;
     private int timeout = 10000;
+    private String consumerKey = "4qeo5GROPuSjJwIjA59eMjMfu";
+    private String consumerSecret = "5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd";
+    private String accessToken = "948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm";
+    private String accessTokenSecret = "Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0";
 
     @BeforeMethod
     public void init() {
@@ -62,10 +66,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreaming')" +
-                "@source(type='twitter' , consumer.key='4qeo5GROPuSjJwIjA59eMjMfu'," +
-                "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
-                "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
-                "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'streaming', track = 'Amazon', language = 'en', filter.level = 'none' ," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags', keywords = 'track.words')))" +
@@ -104,10 +108,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='4qeo5GROPuSjJwIjA59eMjMfu'," +
-                "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
-                "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
-                "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'streaming' , @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId'," +
                 " text= 'text',hashtags = 'hashtags', keywords = 'track.words')))" +
                 "define stream inputStream(createdAt String, id long, text String, hashtags string, keywords string);";
@@ -145,10 +149,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingByLocation')" +
-                "@source(type='twitter' , consumer.key='4qeo5GROPuSjJwIjA59eMjMfu'," +
-                "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
-                "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
-                "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'streaming', track = 'google,Amazon', location = '-122.75,36.8,-121.75,37.8,-74,40,-73,41'," +
                 " @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -187,10 +191,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingByLocation')" +
-                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
-                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
-                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
-                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'streaming', follow ='11348282,20536157,15670515,1719374,58561993,18139619'," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -230,10 +234,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
-                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
-                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
-                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'streaming', @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId'," +
                 " text= 'text',hashtags = 'hashtags')))" +
                 "define stream inputStream(createdAt String, id long, text String, hashtags string);";
@@ -285,10 +289,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
-                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
-                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
-                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'streaming',track = 'google,amazon,apple' , until = '2018-04-8', " +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -323,10 +327,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='GlVEi1E2gCfsTh7116KpVdVAs'," +
-                "consumer.secret='k8RBp866pOY4CNAEpnwfEhJq8hkcudkxc3fQu5p7BSVmtQBGur'," +
-                "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
-                "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'streaming',track = 'google,amazon,apple', filter.level = 'high' ," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -362,10 +366,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='GlVEi1E2gCfsTh7116KpVdVAs'," +
-                "consumer.secret='k8RBp866pOY4CNAEpnwfEhJq8hkcudkxc3fQu5p7BSVmtQBGur'," +
-                "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
-                "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'streaming',track = 'google,amazon,apple', location = '-122.75,36.8,-121.75'," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -400,10 +404,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='GlVEi1E2gCfsTh7116KpVdVAs'," +
-                "consumer.secret='fk8RBp866pOY4CNAEpnwfEhJq8hkcudkxc3fQu5p7BSVmtQBGur'," +
-                "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
-                "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'streaming',track = 'google,amazon,apple', follow = '1ab5670515' ," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -438,10 +442,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
                 "define stream inputStream(createdAt String, id long, text String, hashtags string);";
@@ -475,10 +479,11 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='YPjsD5JYHYXJRsK4utYT1SN1b'," +
-                "consumer.secret='fLn8uD6ECHE6ypXX70AgjuMRIzpRdcj6W6rS78cVVe1AF2GnnU'," +
-                "access.token ='948469744398733312-uYqNO12cDxO27OIQeAlYxbL9e2kdjSp'," +
-                "access.token.secret='t1DTGn2QAZG8SNgYwXur7ZojXh1TK10l6iVwrok68B7yW', mode = 'Poll', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
+                "mode = 'Poll', " +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
                 "define stream inputStream(createdAt String, id long, text String, hashtags string);";
@@ -514,10 +519,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterPolling')" +
-                "@source(type='twitter' , consumer.key='4qeo5GROPuSjJwIjA59eMjMfu'," +
-                "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
-                "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
-                "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'polling', query = 'happy hour', " +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -558,10 +563,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterPolling')" +
-                "@source(type='twitter' , consumer.key='4qeo5GROPuSjJwIjA59eMjMfu'," +
-                "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
-                "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
-                "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'polling', query = '#Amazon', geocode = '43.913723261972855,-72.54272478125,150km'," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -601,10 +606,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterPolling')" +
-                "@source(type='twitter' , consumer.key='4qeo5GROPuSjJwIjA59eMjMfu'," +
-                "consumer.secret='5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd'," +
-                "access.token ='948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm'," +
-                "access.token.secret='Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'polling', query = '@NASA' ,result.type = 'popular' ,@map(type='keyvalue', " +
                 "@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',hashtags = 'hashtags', " +
                 "query = 'polling.query')))" +
@@ -646,10 +651,10 @@ public class TestCaseOfTwitterSource {
 
         String inStreamDefinition = "" +
                 "@app:name('TwitterPolling')" +
-                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
-                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
-                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
-                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'polling', query = '@NASA', @map(type='keyvalue', @attributes(createdAt = 'createdAt'," +
                 " id = 'tweetId', text= 'text',hashtags = 'hashtags')))" +
                 "define stream inputStream(createdAt String, id long, text String, hashtags string);";
@@ -715,10 +720,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterPolling')" +
-                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
-                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
-                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
-                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'polling', geocode = '43.913723261972855,-72.54272478125,150', follow ='15670515'," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -754,10 +759,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterPolling')" +
-                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
-                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
-                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
-                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'polling', geocode = '43.913723261972855,-72.54272478125,150'," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -793,10 +798,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterPolling')" +
-                "@source(type='twitter' , consumer.key='GlVEi1E2gCfsTh7116KpVdVAs'," +
-                "consumer.secret='k8RBp866pOY4CNAEpnwfEhJq8hkcudkxc3fQu5p7BSVmtQBGur'," +
-                "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
-                "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'polling', query = '#Amazon', geocode = '43.913723261972855,-72.54272478125,150'," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -832,10 +837,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterPolling')" +
-                "@source(type='twitter' , consumer.key='GlVEi1E2gCfsTh7116KpVdVAs'," +
-                "consumer.secret='k8RBp866pOY4CNAEpnwfEhJq8hkcudkxc3fQu5p7BSVmtQBGur'," +
-                "access.token ='948469744398733312-zF385xI72xJWRy0wZdXLE2Ggf0ekdaC'," +
-                "access.token.secret='f8hZyUARfMQkSBPn6dZurn4PZ8otkdyxUkfQ6sHp13e2D', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'polling', query = '#Amazon', result.type = 'populaar'," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -870,10 +875,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='MVmGo4fel9PgOKINlzYxnepeX'," +
-                "consumer.secret='INf8h1sllxv7rRACW8fBmP2WGDnxgEmONVkI25WCgv9OiUy85N'," +
-                "access.token ='948469744398733312-zK4s7Ui8949ujgcQaLpbZLtqzSE9IM9'," +
-                "access.token.secret='EKHLMGVMgK3w4Jz9RPK1xusjDFAiHALXKDDGehS1emFpB', " +
+                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
+                "consumer.secret='" + consumerSecret + "'," +
+                "access.token ='" + accessToken + "'," +
+                "access.token.secret='" + accessTokenSecret + "', " +
                 "mode= 'polling', query = '@NASA', @map(type='keyvalue', @attributes(createdAt = 'createdAt', " +
                 "id = 'tweetId', text= 'text',hashtags = 'hashtags')))" +
                 "define stream inputStream(createdAt String, id long, text String, hashtags string);";
