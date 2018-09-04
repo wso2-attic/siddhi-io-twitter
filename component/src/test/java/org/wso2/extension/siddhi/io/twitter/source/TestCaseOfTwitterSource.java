@@ -46,10 +46,14 @@ public class TestCaseOfTwitterSource {
     private AtomicBoolean eventArrived = new AtomicBoolean(false);
     private int waitTime = 50;
     private int timeout = 10000;
-    private String consumerKey = "4qeo5GROPuSjJwIjA59eMjMfu";
-    private String consumerSecret = "5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd";
-    private String accessToken = "948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm";
-    private String accessTokenSecret = "Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0";
+    private String streamingConsumerKey = "4qeo5GROPuSjJwIjA59eMjMfu";
+    private String streamingConsumerSecret = "5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd";
+    private String streamingAccessToken = "948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm";
+    private String streamingAccessTokenSecret = "Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0";
+    private String consumerKey = "5dU1zRlWDbRRl5BAeiBMcjg9L";
+    private String consumerSecret = "ZcoN9inlymuIeVklAtFT8oY68BNd8PmHZaItZOKs7F4xxcys9O";
+    private String accessToken = "345216227-bZDqBywsRupsc7iZZo82eO01EHbZJp8C5BSbKSl7";
+    private String accessTokenSecret = "jYovH0mm3vLehpkYFdYoIwRdRiZin5dtgqDyHENRn8ZEm";
 
     @BeforeMethod
     public void init() {
@@ -66,10 +70,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreaming')" +
-                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
-                "consumer.secret='" + consumerSecret + "'," +
-                "access.token ='" + accessToken + "'," +
-                "access.token.secret='" + accessTokenSecret + "', " +
+                "@source(type='twitter' , consumer.key='" + streamingConsumerKey + "'," +
+                "consumer.secret='" + streamingConsumerSecret + "'," +
+                "access.token ='" + streamingAccessToken + "'," +
+                "access.token.secret='" + streamingAccessTokenSecret + "', " +
                 "mode= 'streaming', track = 'Amazon', language = 'en', filter.level = 'none' ," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags', keywords = 'track.words')))" +
@@ -108,10 +112,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
-                "consumer.secret='" + consumerSecret + "'," +
-                "access.token ='" + accessToken + "'," +
-                "access.token.secret='" + accessTokenSecret + "', " +
+                "@source(type='twitter' , consumer.key='" + streamingConsumerKey + "'," +
+                "consumer.secret='" + streamingConsumerSecret + "'," +
+                "access.token ='" + streamingAccessToken + "'," +
+                "access.token.secret='" + streamingAccessTokenSecret + "', " +
                 "mode= 'streaming' , @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId'," +
                 " text= 'text',hashtags = 'hashtags', keywords = 'track.words')))" +
                 "define stream inputStream(createdAt String, id long, text String, hashtags string, keywords string);";
@@ -149,10 +153,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingByLocation')" +
-                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
-                "consumer.secret='" + consumerSecret + "'," +
-                "access.token ='" + accessToken + "'," +
-                "access.token.secret='" + accessTokenSecret + "', " +
+                "@source(type='twitter' , consumer.key='" + streamingConsumerKey + "'," +
+                "consumer.secret='" + streamingConsumerSecret + "'," +
+                "access.token ='" + streamingAccessToken + "'," +
+                "access.token.secret='" + streamingAccessTokenSecret + "', " +
                 "mode= 'streaming', track = 'google,Amazon', location = '-122.75,36.8,-121.75,37.8,-74,40,-73,41'," +
                 " @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -191,10 +195,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingByLocation')" +
-                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
-                "consumer.secret='" + consumerSecret + "'," +
-                "access.token ='" + accessToken + "'," +
-                "access.token.secret='" + accessTokenSecret + "', " +
+                "@source(type='twitter' , consumer.key='" + streamingConsumerKey + "'," +
+                "consumer.secret='" + streamingConsumerSecret + "'," +
+                "access.token ='" + streamingAccessToken + "'," +
+                "access.token.secret='" + streamingAccessTokenSecret + "', " +
                 "mode= 'streaming', follow ='11348282,20536157,15670515,1719374,58561993,18139619'," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -234,10 +238,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
-                "consumer.secret='" + consumerSecret + "'," +
-                "access.token ='" + accessToken + "'," +
-                "access.token.secret='" + accessTokenSecret + "', " +
+                "@source(type='twitter' , consumer.key='" + streamingConsumerKey + "'," +
+                "consumer.secret='" + streamingConsumerSecret + "'," +
+                "access.token ='" + streamingAccessToken + "'," +
+                "access.token.secret='" + streamingAccessTokenSecret + "', " +
                 "mode= 'streaming', @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId'," +
                 " text= 'text',hashtags = 'hashtags')))" +
                 "define stream inputStream(createdAt String, id long, text String, hashtags string);";
@@ -280,7 +284,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class , dependsOnMethods = "testTwitterStreaming5")
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterStreaming5")
     public void testTwitterStreaming6() {
         LOG.info("------------------------------------------------------------------------------------------------");
         LOG.info("TwitterStreaming TestCase 6 - Test for to check whether the parameters are valid for streaming" +
@@ -289,10 +293,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
-                "consumer.secret='" + consumerSecret + "'," +
-                "access.token ='" + accessToken + "'," +
-                "access.token.secret='" + accessTokenSecret + "', " +
+                "@source(type='twitter' , consumer.key='" + streamingConsumerKey + "'," +
+                "consumer.secret='" + streamingConsumerSecret + "'," +
+                "access.token ='" + streamingAccessToken + "'," +
+                "access.token.secret='" + streamingAccessTokenSecret + "', " +
                 "mode= 'streaming',track = 'google,amazon,apple' , until = '2018-04-8', " +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -327,10 +331,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
-                "consumer.secret='" + consumerSecret + "'," +
-                "access.token ='" + accessToken + "'," +
-                "access.token.secret='" + accessTokenSecret + "', " +
+                "@source(type='twitter' , consumer.key='" + streamingConsumerKey + "'," +
+                "consumer.secret='" + streamingConsumerSecret + "'," +
+                "access.token ='" + streamingAccessToken + "'," +
+                "access.token.secret='" + streamingAccessTokenSecret + "', " +
                 "mode= 'streaming',track = 'google,amazon,apple', filter.level = 'high' ," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -366,10 +370,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
-                "consumer.secret='" + consumerSecret + "'," +
-                "access.token ='" + accessToken + "'," +
-                "access.token.secret='" + accessTokenSecret + "', " +
+                "@source(type='twitter' , consumer.key='" + streamingConsumerKey + "'," +
+                "consumer.secret='" + streamingConsumerSecret + "'," +
+                "access.token ='" + streamingAccessToken + "'," +
+                "access.token.secret='" + streamingAccessTokenSecret + "', " +
                 "mode= 'streaming',track = 'google,amazon,apple', location = '-122.75,36.8,-121.75'," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -404,10 +408,10 @@ public class TestCaseOfTwitterSource {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@app:name('TwitterStreamingSample')" +
-                "@source(type='twitter' , consumer.key='" + consumerKey + "'," +
-                "consumer.secret='" + consumerSecret + "'," +
-                "access.token ='" + accessToken + "'," +
-                "access.token.secret='" + accessTokenSecret + "', " +
+                "@source(type='twitter' , consumer.key='" + streamingConsumerKey + "'," +
+                "consumer.secret='" + streamingConsumerSecret + "'," +
+                "access.token ='" + streamingAccessToken + "'," +
+                "access.token.secret='" + streamingAccessTokenSecret + "', " +
                 "mode= 'streaming',track = 'google,amazon,apple', follow = '1ab5670515' ," +
                 "@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text'," +
                 " hashtags = 'hashtags')))" +
@@ -711,7 +715,7 @@ public class TestCaseOfTwitterSource {
         Assert.assertTrue(eventArrived.get());
     }
 
-    @Test (expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterPolling4")
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterPolling4")
     public void testTwitterPolling5() {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 5 - Test for to check whether the given parameters are valid for" +
@@ -751,7 +755,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test (expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterPolling5")
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterPolling5")
     public void testTwitterPolling6() {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 6 - Test for Query for polling mode without query parameter");
@@ -790,7 +794,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test (expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterPolling6")
+    @Test(expectedExceptions = SiddhiAppValidationException.class, dependsOnMethods = "testTwitterPolling6")
     public void testTwitterPolling7() {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 7 - Test for the geocode parameter validation.");
@@ -829,7 +833,7 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test (expectedExceptions = SiddhiAppCreationException.class, dependsOnMethods = "testTwitterPolling7")
+    @Test(expectedExceptions = SiddhiAppCreationException.class, dependsOnMethods = "testTwitterPolling7")
     public void testTwitterPolling8() {
         LOG.info("---------------------------------------------------------------");
         LOG.info("TwitterSourcePolling TestCase 8 - Test for the result.type parameter validation.");
