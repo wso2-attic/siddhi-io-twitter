@@ -144,6 +144,12 @@
                         <Export-Package>
                             org.wso2.extension.siddhi.io.twitter.*;version="${project.version}"
                         </Export-Package>
+                        <Import-Package>
+                            org.wso2.siddhi.core.*;version="${siddhi.version.range}",
+                            org.wso2.siddhi.annotation.*;version="${siddhi.version.range}",
+                            org.wso2.siddhi.query.api.*;version="${siddhi.version.range}",
+                            org.wso2.siddhi.query.compiler.*;version="${siddhi.version.range}",
+                        </Import-Package>
                         <Private-Package>
                             twitter4j.*
                         </Private-Package>
