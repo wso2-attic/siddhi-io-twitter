@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Util.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Siddhi IO Twitter extension</a> &gt; <a href="index.source.html" class="el_package">org.wso2.extension.siddhi.io.twitter.util</a> &gt; <span class="el_source">Util.java</span></div><h1>Util.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.wso2.extension.siddhi.io.twitter.util;
+
+import io.siddhi.query.api.exception.SiddhiAppValidationException;
+import twitter4j.Status;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * This class contains util methods for the extensions.
+ */
+public class Util {
+<span class="nc" id="L31">    private Util() {</span>
+<span class="nc" id="L32">    }</span>
+
+
+    public static double[][] locationParam(String locationParam) {
+<span class="nc" id="L36">        String[] boundary = locationParam.split(TwitterConstants.DELIMITER);</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (boundary.length &lt; 5) {</span>
+<span class="nc" id="L38">            throw new SiddhiAppValidationException(&quot;For the location, the bounding box specified is invalid.&quot;);</span>
+        }
+<span class="nc" id="L40">        double[][] locations = new double[boundary.length / 2][2];</span>
+<span class="nc" id="L41">        int k = 0;</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        for (int i = 0; i &lt; boundary.length / 2; i++) {</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            for (int j = 0; j &lt; 2; j++) {</span>
+                try {
+<span class="nc" id="L45">                    locations[i][j] = Double.parseDouble(boundary[k++]);</span>
+<span class="nc" id="L46">                } catch (NumberFormatException e) {</span>
+<span class="nc" id="L47">                    throw new SiddhiAppValidationException(&quot;Latitude/Longitude should be a double value: &quot;</span>
+<span class="nc" id="L48">                            + e.getMessage(), e);</span>
+<span class="nc" id="L49">                }</span>
+            }
+        }
+<span class="nc" id="L52">        return locations;</span>
+    }
+
+    public static long[] followParam(String followParam) {
+        long[] follow;
+<span class="nc" id="L57">        follow = new long[followParam.split(TwitterConstants.DELIMITER).length];</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        for (int i = 0; i &lt; followParam.split(TwitterConstants.DELIMITER).length; i++) {</span>
+            try {
+<span class="nc" id="L60">                follow[i] = Long.parseLong(followParam.split(TwitterConstants.DELIMITER)[i]);</span>
+<span class="nc" id="L61">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L62">                throw new SiddhiAppValidationException(&quot;Follow should be a long value: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L63">            }</span>
+        }
+<span class="nc" id="L65">        return follow;</span>
+    }
+
+    public static Map&lt;String, Object&gt; createMap(Status tweet) {
+<span class="nc" id="L69">        Map&lt;String, Object&gt; status = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">        String trackwords = (QueryBuilder.getTrackParam() != null &amp;&amp; !QueryBuilder.getTrackParam().isEmpty()) ?</span>
+<span class="nc" id="L71">                QueryBuilder.getTrackParam() : TwitterConstants.NULL_STRING;</span>
+<span class="nc bnc" id="L72" title="All 4 branches missed.">        String query = (QueryBuilder.getQueryParam() != null &amp;&amp; !QueryBuilder.getQueryParam().isEmpty()) ?</span>
+<span class="nc" id="L73">                QueryBuilder.getQueryParam() : TwitterConstants.NULL_STRING;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        String geoLocation = (tweet.getGeoLocation() == null ?</span>
+<span class="nc" id="L75">                TwitterConstants.NULL_STRING : (tweet.getGeoLocation().getLatitude()) + TwitterConstants.DELIMITER +</span>
+<span class="nc" id="L76">                tweet.getGeoLocation().getLongitude());</span>
+<span class="nc" id="L77">        StringBuilder hashtag = new StringBuilder();</span>
+<span class="nc" id="L78">        StringBuilder userMention = new StringBuilder();</span>
+<span class="nc" id="L79">        StringBuilder mediaUrl = new StringBuilder();</span>
+<span class="nc" id="L80">        StringBuilder url = new StringBuilder();</span>
+        String createdAt;
+        String hashtags;
+        String userMentions;
+        String mediaUrls;
+        String urls;
+        int i;
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        for (i = 0; i &lt; tweet.getHashtagEntities().length; i++) {</span>
+<span class="nc" id="L88">            hashtag.append(tweet.getHashtagEntities()[i].getText() + TwitterConstants.DELIMITER);</span>
+        }
+<span class="nc" id="L90">        hashtags = hashtag.toString();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        hashtags = (hashtags.equals(TwitterConstants.EMPTY_STRING) ?</span>
+<span class="nc" id="L92">                TwitterConstants.NULL_STRING : hashtags.substring(0, hashtags.length() - 1));</span>
+
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        for (i = 0; i &lt; tweet.getUserMentionEntities().length; i++) {</span>
+<span class="nc" id="L95">            userMention.append(tweet.getUserMentionEntities()[i].getText() + TwitterConstants.DELIMITER);</span>
+        }
+<span class="nc" id="L97">        userMentions = userMention.toString();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        userMentions = (userMentions.equals(TwitterConstants.EMPTY_STRING) ?</span>
+<span class="nc" id="L99">                TwitterConstants.NULL_STRING : userMentions.substring(0,</span>
+<span class="nc" id="L100">                userMentions.length() - 1));</span>
+
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        for (i = 0; i &lt; tweet.getMediaEntities().length; i++) {</span>
+<span class="nc" id="L103">            mediaUrl.append(tweet.getMediaEntities()[i].getMediaURL() + TwitterConstants.DELIMITER);</span>
+        }
+<span class="nc" id="L105">        mediaUrls = mediaUrl.toString();</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        mediaUrls = (mediaUrls.equals(TwitterConstants.EMPTY_STRING) ?</span>
+<span class="nc" id="L107">                TwitterConstants.NULL_STRING : mediaUrls.substring(0,</span>
+<span class="nc" id="L108">                mediaUrls.length() - 1));</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        for (i = 0; i &lt; tweet.getURLEntities().length; i++) {</span>
+<span class="nc" id="L110">            url.append(tweet.getURLEntities()[i].getURL() + TwitterConstants.DELIMITER);</span>
+        }
+<span class="nc" id="L112">        urls = url.toString();</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        urls = (urls.equals(TwitterConstants.EMPTY_STRING) ?</span>
+<span class="nc" id="L114">                TwitterConstants.NULL_STRING : urls.substring(0,</span>
+<span class="nc" id="L115">                urls.length() - 1));</span>
+<span class="nc" id="L116">        createdAt = tweet.getCreatedAt().toString();</span>
+
+<span class="nc" id="L118">        status.put(TwitterConstants.STATUS_CREATED_AT, createdAt);</span>
+<span class="nc" id="L119">        status.put(TwitterConstants.STATUS_TWEET_ID, tweet.getId());</span>
+<span class="nc" id="L120">        status.put(TwitterConstants.STATUS_TEXT, tweet.getText());</span>
+<span class="nc" id="L121">        status.put(TwitterConstants.STATUS_USER_CREATEDAT, tweet.getUser().getCreatedAt());</span>
+<span class="nc" id="L122">        status.put(TwitterConstants.STATUS_USER_SCREENNAME, tweet.getUser().getScreenName());</span>
+<span class="nc" id="L123">        status.put(TwitterConstants.STATUS_USER_NAME, tweet.getUser().getName());</span>
+<span class="nc" id="L124">        status.put(TwitterConstants.STATUS_USER_MAIL, tweet.getUser().getEmail());</span>
+<span class="nc" id="L125">        status.put(TwitterConstants.STATUS_USER_ID, tweet.getUser().getId());</span>
+<span class="nc" id="L126">        status.put(TwitterConstants.STATUS_USER_LOCATION, tweet.getUser().getLocation());</span>
+<span class="nc" id="L127">        status.put(TwitterConstants.STATUS_HASHTAGS, hashtags);</span>
+<span class="nc" id="L128">        status.put(TwitterConstants.STATUS_USERMENTIONS, userMentions);</span>
+<span class="nc" id="L129">        status.put(TwitterConstants.STATUS_MEDIAURLS, mediaUrls);</span>
+<span class="nc" id="L130">        status.put(TwitterConstants.STATUS_URLS, urls);</span>
+<span class="nc" id="L131">        status.put(TwitterConstants.STATUS_LANGUAGE, tweet.getLang());</span>
+<span class="nc" id="L132">        status.put(TwitterConstants.STATUS_SOURCE, tweet.getSource());</span>
+<span class="nc" id="L133">        status.put(TwitterConstants.STATUS_IS_RETWEET, tweet.isRetweet());</span>
+<span class="nc" id="L134">        status.put(TwitterConstants.STATUS_RETWEET_COUNT, tweet.getRetweetCount());</span>
+<span class="nc" id="L135">        status.put(TwitterConstants.STATUS_GEOLOCATION, geoLocation);</span>
+<span class="nc" id="L136">        status.put(TwitterConstants.STATUS_FAVOURITE_COUNT, tweet.getFavoriteCount());</span>
+<span class="nc" id="L137">        status.put(TwitterConstants.STATUS_QUOTED_STATUS_ID, tweet.getQuotedStatusId());</span>
+<span class="nc" id="L138">        status.put(TwitterConstants.STATUS_IN_REPLY_TO_STATUS_ID, tweet.getInReplyToStatusId());</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        status.put(TwitterConstants.STATUS_PLACE_COUNTRY, (tweet.getPlace() == null) ?</span>
+<span class="nc" id="L140">                TwitterConstants.NULL_STRING : tweet.getPlace().getCountry());</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        status.put(TwitterConstants.STATUS_PLACE_COUNTRY_CODE, (tweet.getPlace() == null) ?</span>
+<span class="nc" id="L142">                TwitterConstants.NULL_STRING : tweet.getPlace().getCountryCode());</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        status.put(TwitterConstants.STATUS_PLACE_NAME, (tweet.getPlace() == null) ?</span>
+<span class="nc" id="L144">                TwitterConstants.NULL_STRING : tweet.getPlace().getName());</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        status.put(TwitterConstants.STATUS_PLACE_ID, (tweet.getPlace() == null) ?</span>
+<span class="nc" id="L146">                TwitterConstants.NULL_STRING : tweet.getPlace().getId());</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        status.put(TwitterConstants.STATUS_PLACE_FULLNAME, (tweet.getPlace() == null) ?</span>
+<span class="nc" id="L148">                TwitterConstants.NULL_STRING : tweet.getPlace().getFullName());</span>
+<span class="nc" id="L149">        status.put(TwitterConstants.TRACK_WORDS, trackwords);</span>
+<span class="nc" id="L150">        status.put(TwitterConstants.QUERY, query);</span>
+<span class="nc" id="L151">        return status;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

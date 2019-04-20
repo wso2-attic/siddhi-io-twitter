@@ -17,9 +17,9 @@
  */
 package org.wso2.extension.siddhi.io.twitter.source;
 
+import io.siddhi.core.stream.input.source.SourceEventListener;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.io.twitter.util.Util;
-import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;

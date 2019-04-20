@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TwitterSource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Siddhi IO Twitter extension</a> &gt; <a href="index.source.html" class="el_package">org.wso2.extension.siddhi.io.twitter.source</a> &gt; <span class="el_source">TwitterSource.java</span></div><h1>TwitterSource.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.wso2.extension.siddhi.io.twitter.source;
+
+import io.siddhi.annotation.Example;
+import io.siddhi.annotation.Extension;
+import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiAppContext;
+import io.siddhi.core.exception.ConnectionUnavailableException;
+import io.siddhi.core.stream.ServiceDeploymentInfo;
+import io.siddhi.core.stream.input.source.Source;
+import io.siddhi.core.stream.input.source.SourceEventListener;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.core.util.transport.OptionHolder;
+import io.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.apache.log4j.Logger;
+import org.wso2.extension.siddhi.io.twitter.util.QueryBuilder;
+import org.wso2.extension.siddhi.io.twitter.util.TwitterConstants;
+import org.wso2.extension.siddhi.io.twitter.util.Util;
+import twitter4j.FilterQuery;
+import twitter4j.Query;
+import twitter4j.Twitter;
+import twitter4j.TwitterFactory;
+import twitter4j.TwitterStream;
+import twitter4j.TwitterStreamFactory;
+import twitter4j.conf.ConfigurationBuilder;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Twitter Source Implementation
+ */
+@Extension(
+        name = &quot;twitter&quot;,
+        namespace = &quot;source&quot;,
+        description = &quot;The Twitter source receives events from a Twitter app. The events are received &quot; +
+                &quot;in the form of key-value mappings. \n\n&quot; +
+                &quot;The following are key values of the map of a tweet and their descriptions:\n\t&quot; +
+                &quot;1.  createdAt: The UTC time at which the Tweet was created.\n\t&quot; +
+                &quot;2.  tweetId: The integer representation for the unique identifier of the Tweet.\n\t&quot; +
+                &quot;3.  text: The actual UTF-8 text of the status update.\n\t&quot; +
+                &quot;4.  user.createdAt: The UTC date and time at which the user account was created on Twitter.\n\t&quot; +
+                &quot;5.  user.id: The integer representation for the unique identifier of the user who posted the &quot; +
+                &quot;Tweet.\n\t&quot; +
+                &quot;6.  user.screenName: The screen name with which the user identifies himself/herself.\n\t&quot; +
+                &quot;7.  user.name: The name of the user (as specified by the user).\n\t&quot; +
+                &quot;8.  user.mail: The `mail.id` of the user.\n\t&quot; +
+                &quot;9.  user.location: The location in which the current user account profile is saved. This &quot; +
+                &quot;parameter can have a null value.\n\t&quot; +
+                &quot;10. hashtags: The hashtags that have been parsed out of the Tweet.\n\t&quot; +
+                &quot;11. userMentions: The other Twitter users who are mentioned in the text of the Tweet.\n\t&quot; +
+                &quot;12. mediaUrls: The media elements uploaded with the Tweet.\n\t&quot; +
+                &quot;13. urls: The URLs included in the text of a Tweet.\n\t&quot; +
+                &quot;14. language: The language in which the Tweet is posted.\n\t&quot; +
+                &quot;15. source: the utility used to post the Tweet as an HTML-formatted string.\n\t&quot; +
+                &quot;16. isRetweet: This indicates whether the Tweet is a Retweet or not.\n\t&quot; +
+                &quot;17. retweetCount: The number of times the Tweet has been retweeted.\n\t&quot; +
+                &quot;18. favouriteCount: This indicates the number of times the Tweet has been liked by Twitter users.&quot; +
+                &quot; The value for this field can be null.\n\t&quot; +
+                &quot;19. geoLocation: The geographic location from which the Tweet was posted by the user or client &quot; +
+                &quot;application. The value for this field can be null.\n\t&quot; +
+                &quot;20. quotedStatusId: This field appears only when the Tweet is a quote Tweet. It displays &quot; +
+                &quot;the integer value Tweet ID of the quoted Tweet.\n\t&quot; +
+                &quot;21. in.reply.to.status.id: If the Tweet is a reply to another Tweet, this field displays the &quot; +
+                &quot;integer representation of the original Tweet's ID. The value for this field can be null.\n\t&quot; +
+                &quot;22. place.id: An ID representing the current location from which the Tweet is read. This is &quot; +
+                &quot;represented as a string and not an integer.\n\t&quot; +
+                &quot;23. place.name: A short, human-readable representation of the name of the place.\n\t&quot; +
+                &quot;24. place.fullName: A complete human-readable representation of the name of the place.\n\t&quot; +
+                &quot;25. place.country_code: A shortened country code representing the country in which the place &quot; +
+                &quot;is located.\n\t&quot; +
+                &quot;26. place.country: The name of the country in which the place is located.\n\t&quot; +
+                &quot;27. track.words: The keywords given by the user to track.\n\t&quot; +
+                &quot;28. polling.query: The query provided by the user.\n\t&quot;,
+        parameters = {
+                @Parameter(
+                        name = &quot;consumer.key&quot;,
+                        description = &quot;The API key to access the Twitter application created.&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;consumer.secret&quot;,
+                        description = &quot;The API secret to access the Twitter application created.&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;access.token&quot;,
+                        description = &quot;The access token to be used to make API requests on behalf of your account.&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;access.token.secret&quot;,
+                        description = &quot;The access token secret to be used to make API requests on behalf of your&quot; +
+                                &quot; account.&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;mode&quot;,
+                        description = &quot;The mode in which the Twitter application is run. Possible values are as &quot; +
+                                &quot;follows: \n&quot; +
+                                &quot;`streaming`: This retrieves real time tweets. \n2&quot; +
+                                &quot;`polling`: This retrieves historical tweets that were posted within one week.&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;filter.level&quot;,
+                        description = &quot;This is assigned to Tweets based on the level of engagement. The filter &quot; +
+                                &quot;level can be `none`, `low`, or `medium`. The highest level (i.e., `medium`) &quot; +
+                                &quot;corresponds loosely with the `top tweets` filter that the service already offers &quot; +
+                                &quot;in its on-site search function.&quot;,
+                        optional = true,
+                        defaultValue = &quot;none&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;track&quot;,
+                        description = &quot;This filters the Tweets that include the specified keywords.&quot;,
+                        optional = true,
+                        defaultValue = &quot;null&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;follow&quot;,
+                        description = &quot;This filters the Tweets that are tweeted by the specified user IDs.&quot;,
+                        optional = true,
+                        defaultValue = &quot;null&quot;,
+                        type = {DataType.LONG}),
+                @Parameter(
+                        name = &quot;location&quot;,
+                        description = &quot;This filters Tweets based on the locations. Here, you need to specify the&quot; +
+                                &quot;latitude and the longitude of the location e.g., `51.683979:0.278970`.&quot;,
+                        optional = true,
+                        defaultValue = &quot;null&quot;,
+                        type = {DataType.DOUBLE}),
+                @Parameter(
+                        name = &quot;language&quot;,
+                        description = &quot;This filters Tweets that are posted in the specified language, given by an&quot; +
+                                &quot; ISO 639-1 code.&quot;,
+                        optional = true,
+                        defaultValue = &quot;null&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;query&quot;,
+                        description = &quot;This filters Tweets that match the specified UTF-8, URL-encoded search&quot; +
+                                &quot; query with a maximum of 500 characters including operators. \n e.g., &quot; +
+                                &quot;'@NASA' - mentioning Twitter account 'NASA'.&quot;,
+                        optional = true,
+                        defaultValue = &quot;null&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;count&quot;,
+                        description = &quot;This returns a specified number of Tweets per page up to a maximum of 100.&quot;,
+                        optional = true,
+                        defaultValue = &quot;null&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;geocode&quot;,
+                        description = &quot;This returns Tweets by users who are located within a specified radius of &quot; +
+                                &quot;the given latitude/longitude. The location is preferentially taken from &quot; +
+                                &quot;the Geotagging API, but it falls back to their Twitter profile. The parameter value&quot; +
+                                &quot; is specified in the `latitude,longitude,radius` format where theradius units must&quot; +
+                                &quot; be specified as either `mi` (miles) or `km` (kilometers).&quot;,
+                        optional = true,
+                        defaultValue = &quot;null&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;result.type&quot;,
+                        description = &quot;This parameter allows to to specify the whether you want to receive only &quot; +
+                                &quot;popular Tweets, the most recent Tweets or a mix of both.&quot; +
+                                &quot;The possible values are as follows:\n&quot; +
+                                &quot;* `mixed`: This includes both popular and recent results in the response.\n&quot; +
+                                &quot;* `recent`: This includes only the most recent results in the response.\n&quot; +
+                                &quot;* `popular`: This includes only the most popular results in the response.)&quot;,
+                        optional = true,
+                        defaultValue = &quot;mixed&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;max.id&quot;,
+                        description = &quot;This returns Tweets of which the Tweet ID is equal to or less than (i.e., &quot; +
+                                &quot;older than) the specified ID&quot;,
+                        optional = true,
+                        defaultValue = &quot;-1&quot;,
+                        type = {DataType.LONG}),
+                @Parameter(
+                        name = &quot;since.id&quot;,
+                        description = &quot;This returns Tweets of which the Tweet ID is greater than (i.e., more &quot; +
+                                &quot;recent than) the specified ID.&quot;,
+                        optional = true,
+                        defaultValue = &quot;-1&quot;,
+                        type = {DataType.LONG}),
+                @Parameter(
+                        name = &quot;until&quot;,
+                        description = &quot;This returns Tweets that were created before the given date. Date needs to be&quot; +
+                                &quot; formatted as `YYYY-MM-DD`. The search index has a 7-day limit. Therefore, it is &quot; +
+                                &quot;not possible to return Tweets that were created more than a week before the current&quot; +
+                                &quot; date.&quot;,
+                        optional = true,
+                        defaultValue = &quot;null&quot;,
+                        type = {DataType.STRING}),
+                @Parameter(
+                        name = &quot;polling.interval&quot;,
+                        description = &quot;This specifies a time interval (in seconds) to poll the Tweets periodically.&quot;,
+                        optional = true,
+                        defaultValue = &quot;3600&quot;,
+                        type = {DataType.LONG}),
+        },
+        examples = {
+                @Example(
+                        syntax = &quot;@source(type='twitter', consumer.key='consumer.key',&quot; +
+                                &quot;consumer.secret='consumerSecret', access.token='accessToken',&quot; +
+                                &quot;access.token.secret='accessTokenSecret', mode= 'streaming', &quot; +
+                                &quot;@map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId',&quot; +
+                                &quot; text= 'text',hashtags = 'hashtags'))) \n&quot; +
+                                &quot;define stream inputStream(createdAt String, id long, text String, hashtags string);&quot;,
+                        description = &quot;In this example, the twitter source starts listening to a random &quot; +
+                                &quot;sample of public statuses and passes the events to the `rcvEvents` stream.&quot;
+                ),
+                @Example(
+                        syntax = &quot;@source(type='twitter', consumer.key='consumer.key',&quot; +
+                                &quot;consumer.secret='consumerSecret', access.token='accessToken',&quot; +
+                                &quot;access.token.secret='accessTokenSecret', mode= 'streaming'&quot; +
+                                &quot;, track = 'Amazon,Google,Apple', language = 'en', @map(type='keyvalue', &quot; +
+                                &quot;@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',&quot; +
+                                &quot;hashtags = 'hashtags'))) \n&quot; +
+                                &quot;define stream inputStream(createdAt String, id long, text String, hashtags string);&quot;,
+                        description = &quot;In this example, the twitter source starts listening to Tweets in English &quot; +
+                                &quot;that include the keywords `Amazon`, `google`, or `apple`. Then these Tweets are&quot; +
+                                &quot; passed to the `rcvEvents` stream.&quot;
+                ),
+                @Example(
+                        syntax = &quot;@source(type='twitter', consumer.key='consumer.key',&quot; +
+                                &quot;consumer.secret='consumerSecret', access.token='accessToken',&quot; +
+                                &quot;access.token.secret='accessTokenSecret', mode= 'streaming'&quot; +
+                                &quot;, track = 'Amazon,Google,Apple', language = 'en', filter.level = 'low', &quot; +
+                                &quot;follow = '11348282,20536157,15670515,17193794,58561993,18139619',&quot; +
+                                &quot;location = '51.280430:-0.563160,51.683979:0.278970', @map(type='keyvalue', &quot; +
+                                &quot;@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',&quot; +
+                                &quot;hashtags = 'hashtags'))) \n&quot; +
+                                &quot;define stream inputStream(createdAt String, id long, text String, hashtags string);&quot;,
+                        description = &quot;In this example, the twitter source starts listening to Tweets in English &quot; +
+                                &quot;that either include the keywords `Amazon`, `google`, `apple`, tweeted by the &quot; +
+                                &quot;specified followers, or tweeted from the given location based on the filter.level.&quot; +
+                                &quot; Then these Tweets are passed to the `rcvEvents` stream.&quot;
+                ),
+                @Example(
+                        syntax = &quot;@source(type='twitter', consumer.key='consumer.key',&quot; +
+                                &quot;consumer.secret='consumerSecret', access.token='accessToken',&quot; +
+                                &quot;access.token.secret='accessTokenSecret', mode= 'polling'&quot; +
+                                &quot;, query = 'happy hour', @map(type='keyvalue', @attributes(createdAt = 'createdAt',&quot; +
+                                &quot; id = 'tweetId', text= 'text', hashtags = 'hashtags'))) \n&quot; +
+                                &quot;define stream inputStream(createdAt String, id long, text String, hashtags string);&quot;,
+                        description = &quot;In this example, the twitter source starts polling Tweets that contain the&quot; +
+                                &quot; exact phrase `happy hour`. Then these Tweets are passed to the `rcvEvents` stream.&quot;
+                ),
+                @Example(
+                        syntax = &quot;@source(type='twitter', consumer.key='consumer.key',&quot; +
+                                &quot;consumer.secret='consumerSecret', access.token='accessToken',&quot; +
+                                &quot;access.token.secret='accessTokenSecret', mode= 'polling'&quot; +
+                                &quot;, query = '#Amazon', since.id = '973439483906420736', @map(type='keyvalue', &quot; +
+                                &quot;@attributes(createdAt = 'createdAt', id = 'tweetId', text= 'text',&quot; +
+                                &quot;hashtags = 'hashtags'))) \n&quot; +
+                                &quot;define stream inputStream(createdAt String, id long, text String, hashtags string);&quot;,
+                        description = &quot;In this example, the twitter source starts polling tweets that contain the&quot; +
+                                &quot; `#Amazon` hashtag and have a Tweet Id that is greater than `since.id`. Then these&quot; +
+                                &quot; Tweets are passed to the `rcvEvents` stream.&quot;
+                ),
+                @Example(
+                        syntax = &quot;@source(type='twitter', consumer.key='consumer.key',&quot; +
+                                &quot;consumer.secret='consumerSecret', access.token='accessToken',&quot; +
+                                &quot;access.token.secret='accessTokenSecret', mode= 'polling'&quot; +
+                                &quot;, query = '@NASA', language = 'en', result.type = 'recent',&quot; +
+                                &quot; geocode = '43.913723261972855,-72.54272478125,150km', &quot; +
+                                &quot;since.id = 24012619984051000, max.id = 250126199840518145, until = 2018-03-10,&quot; +
+                                &quot; @map(type='keyvalue', @attributes(createdAt = 'createdAt', id = 'tweetId', &quot; +
+                                &quot;text= 'text', hashtags = 'hashtags'))) \n&quot; +
+                                &quot;define stream inputStream(createdAt String, id long, text String, hashtags string);&quot;,
+                        description = &quot;In this example, the twitter source starts polling the recent Tweets in &quot; +
+                                &quot;English that mention `NASA`, and have Tweet IDs that are greater than the &quot; +
+                                &quot;`since.id` and less than the `max.id`. Then these events are passed to the &quot; +
+                                &quot;`rcvEvents` stream.&quot;
+                )
+        }
+)
+
+<span class="nc" id="L301">public class TwitterSource extends Source&lt;TwitterSource.TwitterSourceExtensionState&gt; {</span>
+<span class="nc" id="L302">    private static final Logger log = Logger.getLogger(TwitterSource.class);</span>
+    private TwitterPoller twitterPoller;
+    private TwitterStatusListener twitterStatusListener;
+    private SourceEventListener sourceEventListener;
+    private TwitterStream twitterStream;
+    private String consumerKey;
+    private String consumerSecret;
+    private String accessToken;
+    private String accessSecret;
+    private String mode;
+    private String followParam;
+    private String locationParam;
+    private String trackParam;
+    private String languageParam;
+    private String filterLevel;
+    private String queryParam;
+    private int count;
+    private String geocode;
+    private long maxId;
+    private Long sinceId;
+    private String searchLang;
+    private String until;
+    private String since;
+    private String resultType;
+    private long pollingInterval;
+    private long[] follow;
+    private double[][] locations;
+    private double latitude;
+    private double longitude;
+    private double radius;
+    private String unitName;
+    private Set&lt;String&gt; staticOptionsKeys;
+    private ScheduledExecutorService scheduledExecutorService;
+    private ScheduledFuture scheduledFuture;
+
+
+    @Override
+    protected ServiceDeploymentInfo exposeServiceDeploymentInfo() {
+<span class="nc" id="L340">        return null;</span>
+    }
+
+    /**
+     * The initialization method for {@link Source}, will be called before other methods. It used to validate
+     * all configurations and to get initial values.
+     *
+     * @param sourceEventListener After receiving events, the source should trigger onEvent() of this listener.
+     *                            Listener will then pass on the events to the appropriate mappers for processing .
+     * @param optionHolder        Option holder containing static configuration related to the {@link Source}
+     * @param configReader        ConfigReader is used to read the {@link Source} related system configuration.
+     * @param siddhiAppContext    the context of the {@link io.siddhi.query.api.SiddhiApp} used to get Siddhi
+     *                            related utility functions.
+     */
+    @Override
+    public StateFactory&lt;TwitterSourceExtensionState&gt; init(SourceEventListener sourceEventListener,
+                                                          OptionHolder optionHolder,
+                                                          String[] requestedTransportPropertyNames,
+                                                          ConfigReader configReader,
+                                                          SiddhiAppContext siddhiAppContext) {
+<span class="nc" id="L360">        this.sourceEventListener = sourceEventListener;</span>
+<span class="nc" id="L361">        consumerKey = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_KEY);</span>
+<span class="nc" id="L362">        consumerSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_SECRET);</span>
+<span class="nc" id="L363">        accessToken = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_TOKEN);</span>
+<span class="nc" id="L364">        accessSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.ACCESS_SECRET);</span>
+<span class="nc" id="L365">        mode = optionHolder.validateAndGetStaticValue(TwitterConstants.MODE);</span>
+<span class="nc" id="L366">        locationParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_LOCATIONS,</span>
+                TwitterConstants.EMPTY_STRING);
+<span class="nc" id="L368">        followParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_FOLLOW,</span>
+                TwitterConstants.EMPTY_STRING);
+<span class="nc" id="L370">        languageParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_LANGUAGE,</span>
+                TwitterConstants.EMPTY_STRING);
+<span class="nc" id="L372">        trackParam = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_TRACK,</span>
+                TwitterConstants.EMPTY_STRING);
+<span class="nc" id="L374">        filterLevel = optionHolder.validateAndGetStaticValue(TwitterConstants.STREAMING_FILTER_FILTER_LEVEL,</span>
+                &quot;none&quot;);
+<span class="nc" id="L376">        queryParam = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_QUERY,</span>
+                TwitterConstants.EMPTY_STRING);
+<span class="nc" id="L378">        count = Integer.parseInt(optionHolder.validateAndGetStaticValue(</span>
+                TwitterConstants.POLLING_SEARCH_COUNT, &quot;-1&quot;));
+<span class="nc" id="L380">        geocode = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_GEOCODE,</span>
+                TwitterConstants.EMPTY_STRING);
+<span class="nc" id="L382">        maxId = Long.parseLong(optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_MAXID,</span>
+                &quot;-1&quot;));
+<span class="nc" id="L384">        sinceId = Long.parseLong(optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_SINCEID,</span>
+                &quot;-1&quot;));
+<span class="nc" id="L386">        searchLang = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_LANGUAGE,</span>
+                TwitterConstants.EMPTY_STRING);
+<span class="nc" id="L388">        until = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_UNTIL,</span>
+                TwitterConstants.EMPTY_STRING);
+<span class="nc" id="L390">        since = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_SINCE,</span>
+                TwitterConstants.EMPTY_STRING);
+<span class="nc" id="L392">        resultType = optionHolder.validateAndGetStaticValue(TwitterConstants.POLLING_SEARCH_RESULT_TYPE,</span>
+                &quot;mixed&quot;);
+<span class="nc" id="L394">        pollingInterval = Long.parseLong(optionHolder.validateAndGetStaticValue</span>
+<span class="nc" id="L395">                (TwitterConstants.POLLING_INTERVAL, &quot;3600&quot;));</span>
+<span class="nc" id="L396">        staticOptionsKeys = optionHolder.getStaticOptionsKeys();</span>
+<span class="nc" id="L397">        scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();</span>
+<span class="nc" id="L398">        validateParameter();</span>
+<span class="nc" id="L399">        return () -&gt; new TwitterSourceExtensionState();</span>
+    }
+
+    /**
+     * Returns the list of classes which this source can output.
+     *
+     * @return Array of classes that will be output by the source.
+     * Null or empty array if it can produce any type of class.
+     */
+    @Override
+    public Class[] getOutputEventClasses() {
+<span class="nc" id="L410">        return new Class[]{Map.class};</span>
+    }
+
+    /**
+     * Initially Called to connect to the end point for start retrieving the messages asynchronously .
+     *
+     * @param connectionCallback Callback to pass the ConnectionUnavailableException in case of connection failure after
+     *                           initial successful connection. (can be used when events are receiving asynchronously)
+     * @throws ConnectionUnavailableException if it cannot connect to the source backend immediately.
+     */
+    @Override
+    public void connect(ConnectionCallback connectionCallback, TwitterSourceExtensionState twitterSourceExtensionState)
+            throws ConnectionUnavailableException {
+        Query query;
+        FilterQuery filterQuery;
+        Twitter twitter;
+        try {
+<span class="nc" id="L427">            ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();</span>
+<span class="nc" id="L428">            configurationBuilder.setOAuthConsumerKey(consumerKey)</span>
+<span class="nc" id="L429">                    .setOAuthConsumerSecret(consumerSecret)</span>
+<span class="nc" id="L430">                    .setOAuthAccessToken(accessToken)</span>
+<span class="nc" id="L431">                    .setOAuthAccessTokenSecret(accessSecret)</span>
+<span class="nc" id="L432">                    .setJSONStoreEnabled(true);</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">            if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {</span>
+<span class="nc" id="L434">                twitterStream = (new TwitterStreamFactory(configurationBuilder.build())).getInstance();</span>
+<span class="nc" id="L435">                filterQuery = QueryBuilder.createFilterQuery(languageParam, trackParam, follow, filterLevel,</span>
+                        locations);
+<span class="nc" id="L437">                twitterStatusListener = new TwitterStatusListener(sourceEventListener);</span>
+<span class="nc" id="L438">                twitterStream.addListener(twitterStatusListener);</span>
+<span class="nc bnc" id="L439" title="All 2 branches missed.">                if (staticOptionsKeys.size() == TwitterConstants.MANDATORY_PARAM_SIZE) {</span>
+<span class="nc" id="L440">                    twitterStream.sample();</span>
+                } else {
+<span class="nc" id="L442">                    twitterStream.filter(filterQuery);</span>
+                }
+<span class="nc bnc" id="L444" title="All 2 branches missed.">            } else if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {</span>
+<span class="nc" id="L445">                twitter = (new TwitterFactory(configurationBuilder.build())).getInstance();</span>
+<span class="nc" id="L446">                query = QueryBuilder.createQuery(queryParam, count, searchLang, sinceId, maxId, until, since,</span>
+                        resultType, geocode, latitude, longitude, radius, unitName);
+<span class="nc" id="L448">                twitterPoller = new TwitterPoller(twitter, query, sourceEventListener);</span>
+<span class="nc" id="L449">                scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(</span>
+                        twitterPoller, 0, pollingInterval,
+                        TimeUnit.SECONDS);
+            }
+<span class="nc" id="L453">        } catch (Exception e) {</span>
+<span class="nc" id="L454">            throw new ConnectionUnavailableException(</span>
+<span class="nc" id="L455">                    &quot;Error in connecting with the Twitter API : &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L456">        }</span>
+<span class="nc" id="L457">    }</span>
+
+    /**
+     * This method can be called when it is needed to disconnect from the end point.
+     */
+    @Override
+    public void disconnect() {
+<span class="nc bnc" id="L464" title="All 2 branches missed.">        if (twitterStream != null) {</span>
+<span class="nc" id="L465">            twitterStream.clearListeners();</span>
+<span class="nc bnc" id="L466" title="All 2 branches missed.">            if (log.isDebugEnabled()) {</span>
+<span class="nc" id="L467">                log.debug(&quot;The status listener has been cleared!&quot;);</span>
+            }
+        }
+<span class="nc" id="L470">    }</span>
+
+    /**
+     * Called at the end to clean all the resources consumed by the {@link Source}
+     */
+    @Override
+    public void destroy() {
+<span class="nc bnc" id="L477" title="All 2 branches missed.">        if (twitterStream != null) {</span>
+<span class="nc" id="L478">            twitterStream.shutdown();</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">            if (log.isDebugEnabled()) {</span>
+<span class="nc" id="L480">                log.debug(&quot;The twitter stream has been shutdown !&quot;);</span>
+            }
+        }
+<span class="nc bnc" id="L483" title="All 2 branches missed.">        if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {</span>
+<span class="nc" id="L484">            scheduledFuture.cancel(true);</span>
+<span class="nc" id="L485">            twitterPoller.kill();</span>
+        }
+<span class="nc" id="L487">    }</span>
+
+    /**
+     * Called to pause event consumption
+     */
+    @Override
+    public void pause() {
+<span class="nc bnc" id="L494" title="All 2 branches missed.">        if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {</span>
+<span class="nc" id="L495">            twitterStatusListener.pause();</span>
+        } else {
+<span class="nc" id="L497">            twitterPoller.pause();</span>
+        }
+<span class="nc" id="L499">    }</span>
+
+    /**
+     * Called to resume event consumption
+     */
+    @Override
+    public void resume() {
+<span class="nc bnc" id="L506" title="All 2 branches missed.">        if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {</span>
+<span class="nc" id="L507">            twitterStatusListener.resume();</span>
+        } else {
+<span class="nc" id="L509">            twitterPoller.resume();</span>
+        }
+<span class="nc" id="L511">    }</span>
+
+<span class="nc" id="L513">    class TwitterSourceExtensionState extends State {</span>
+
+        @Override
+        public boolean canDestroy() {
+<span class="nc" id="L517">            return false;</span>
+        }
+
+        /**
+         * Used to collect the serializable state of the processing element, that need to be
+         * persisted for the reconstructing the element to the same state on a different point of time
+         *
+         * @return stateful objects of the processing element as a map
+         */
+        @Override
+        public Map&lt;String, Object&gt; snapshot() {
+<span class="nc" id="L528">            Map&lt;String, Object&gt; currentState = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L529">            currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, twitterPoller.tweetId);</span>
+<span class="nc" id="L530">            return currentState;</span>
+        }
+
+        /**
+         * Used to restore serialized state of the processing element, for reconstructing
+         * the element to the same state as if was on a previous point of time.
+         *
+         * @param map the stateful objects of the processing element as a map.
+         *            This map will have the  same keys that is created upon calling currentState() method.
+         */
+        @Override
+        public void restore(Map&lt;String, Object&gt; map) {
+<span class="nc" id="L542">            sinceId = Long.parseLong(map.get(TwitterConstants.POLLING_SEARCH_SINCEID).toString());</span>
+<span class="nc" id="L543">        }</span>
+    }
+
+    /**
+     * Used to validate the parameters.
+     */
+
+    private void validateParameter() {
+<span class="nc" id="L551">        Query.ResultType resultType1 = Query.ResultType.valueOf(this.resultType);</span>
+<span class="nc bnc" id="L552" title="All 2 branches missed.">        if (mode.equalsIgnoreCase(TwitterConstants.MODE_STREAMING)) {</span>
+<span class="nc bnc" id="L553" title="All 2 branches missed.">            for (String staticOptionKey : staticOptionsKeys) {</span>
+<span class="nc bnc" id="L554" title="All 2 branches missed.">                if (!TwitterConstants.STREAMING_PARAM.contains(staticOptionKey) &amp;&amp;</span>
+<span class="nc bnc" id="L555" title="All 2 branches missed.">                        !TwitterConstants.MANDATORY_PARAM.contains(staticOptionKey)) {</span>
+<span class="nc" id="L556">                    throw new SiddhiAppValidationException(staticOptionKey + &quot; is not valid for the &quot; + mode + &quot; &quot; +</span>
+                            TwitterConstants.MODE);
+                }
+<span class="nc" id="L559">            }</span>
+<span class="nc bnc" id="L560" title="All 2 branches missed.">        } else if (mode.equalsIgnoreCase(TwitterConstants.MODE_POLLING)) {</span>
+<span class="nc bnc" id="L561" title="All 2 branches missed.">            if (queryParam.isEmpty()) {</span>
+<span class="nc" id="L562">                throw new SiddhiAppValidationException(&quot;For polling mode, query should be given.&quot;);</span>
+            }
+<span class="nc bnc" id="L564" title="All 2 branches missed.">            for (String staticOptionkey : staticOptionsKeys) {</span>
+<span class="nc bnc" id="L565" title="All 2 branches missed.">                if (!TwitterConstants.POLLING_PARAM.contains(staticOptionkey) &amp;&amp;</span>
+<span class="nc bnc" id="L566" title="All 2 branches missed.">                        !TwitterConstants.MANDATORY_PARAM.contains(staticOptionkey)) {</span>
+<span class="nc" id="L567">                    throw new SiddhiAppValidationException(staticOptionkey + &quot; is not valid for the &quot; + mode + &quot; &quot; +</span>
+                            TwitterConstants.MODE);
+                }
+<span class="nc" id="L570">            }</span>
+        } else {
+<span class="nc" id="L572">            throw new SiddhiAppValidationException(&quot;There are only two possible values for mode :&quot; +</span>
+                    &quot; streaming or polling. But found '&quot; + mode + &quot;'.&quot;);
+        }
+<span class="nc bnc" id="L575" title="All 2 branches missed.">        if (!followParam.isEmpty()) {</span>
+<span class="nc" id="L576">            follow = Util.followParam(followParam);</span>
+        }
+
+<span class="nc bnc" id="L579" title="All 2 branches missed.">        if (!locationParam.isEmpty()) {</span>
+<span class="nc" id="L580">            locations = Util.locationParam(locationParam);</span>
+        }
+
+<span class="nc bnc" id="L583" title="All 2 branches missed.">        if (!geocode.isEmpty()) {</span>
+<span class="nc" id="L584">            Query.Unit unit = null;</span>
+<span class="nc" id="L585">            String[] parts = geocode.split(TwitterConstants.DELIMITER);</span>
+<span class="nc" id="L586">            String radiusstr = parts[2].trim();</span>
+            try {
+<span class="nc" id="L588">                latitude = Double.parseDouble(parts[0]);</span>
+<span class="nc" id="L589">                longitude = Double.parseDouble(parts[1]);</span>
+<span class="nc" id="L590">                radius = Double.parseDouble(radiusstr.substring(0, radiusstr.length() - 2));</span>
+<span class="nc" id="L591">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L592">                throw new SiddhiAppValidationException(&quot;In geocode, Latitude,Longitude,Radius should be &quot; +</span>
+<span class="nc" id="L593">                        &quot;a double value : &quot; + e.getMessage());</span>
+<span class="nc" id="L594">            }</span>
+
+<span class="nc bnc" id="L596" title="All 2 branches missed.">            for (Query.Unit value : Query.Unit.values()) {</span>
+<span class="nc bnc" id="L597" title="All 2 branches missed.">                if (radiusstr.endsWith(value.name())) {</span>
+<span class="nc" id="L598">                    unit = value;</span>
+<span class="nc" id="L599">                    break;</span>
+                }
+            }
+
+<span class="nc bnc" id="L603" title="All 2 branches missed.">            if (unit == null) {</span>
+<span class="nc" id="L604">                throw new SiddhiAppValidationException(&quot;Unrecognized geocode radius: &quot; + radiusstr + &quot;. Radius units&quot; +</span>
+                        &quot; must be specified as either 'mi' (miles) or 'km' (kilometers).&quot;);
+            }
+<span class="nc" id="L607">            unitName = unit.name();</span>
+        }
+
+<span class="nc bnc" id="L610" title="All 2 branches missed.">        if (!TwitterConstants.FILTER_LEVELS.contains(filterLevel)) {</span>
+<span class="nc" id="L611">            throw new SiddhiAppValidationException(&quot;There are only three possible values for filter.level :&quot; +</span>
+                    &quot; low or medium or none. But found '&quot; + filterLevel + &quot;'.&quot;);
+        }
+
+<span class="nc bnc" id="L615" title="All 2 branches missed.">        if (!TwitterConstants.RESULT_TYPES.contains(resultType1)) {</span>
+<span class="nc" id="L616">            throw new SiddhiAppValidationException(&quot;There are only three possible values for result.type :&quot; +</span>
+                    &quot; mixed or popular or recent. But found '&quot; + resultType + &quot;'.&quot;);
+        }
+<span class="nc" id="L619">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

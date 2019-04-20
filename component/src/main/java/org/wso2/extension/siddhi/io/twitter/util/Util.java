@@ -18,7 +18,7 @@
 
 package org.wso2.extension.siddhi.io.twitter.util;
 
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import io.siddhi.query.api.exception.SiddhiAppValidationException;
 import twitter4j.Status;
 
 import java.util.HashMap;

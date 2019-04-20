@@ -1,0 +1,6 @@
+/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/util/QueryBuilder.java
+/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/source/TwitterSource.java
+/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/source/TwitterPoller.java
+/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/util/TwitterConstants.java
+/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/util/Util.java
+/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/source/TwitterStatusListener.java
