@@ -1,7 +1,0 @@
-#Sat Apr 20 15:54:34 IST 2019
-/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/util/TwitterConstants.java=1555498897000
-/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/util/QueryBuilder.java=1555498897000
-/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/util/Util.java=1555498897000
-/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/source/TwitterPoller.java=1555499120000
-/home/ajaya/siddhi-refactoring/siddhi-io-twitter/component/src/main/java/org/wso2/extension/siddhi/io/twitter/source/TwitterStatusListener.java=1555499120000
-configuration*?=E6D339B209D65C26E9260633F416BF90A4A63C26

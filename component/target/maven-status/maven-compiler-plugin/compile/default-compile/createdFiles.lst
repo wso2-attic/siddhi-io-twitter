@@ -1,8 +1,0 @@
-org/wso2/extension/siddhi/io/twitter/source/TwitterStatusListener.class
-org/wso2/extension/siddhi/io/twitter/source/TwitterSource$TwitterSourceExtensionState.class
-org/wso2/extension/siddhi/io/twitter/util/TwitterConstants.class
-META-INF/annotations/io.siddhi.annotation.Extension
-org/wso2/extension/siddhi/io/twitter/source/TwitterSource.class
-org/wso2/extension/siddhi/io/twitter/source/TwitterPoller.class
-org/wso2/extension/siddhi/io/twitter/util/QueryBuilder.class
-org/wso2/extension/siddhi/io/twitter/util/Util.class
