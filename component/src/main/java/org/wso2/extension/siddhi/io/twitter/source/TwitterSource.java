@@ -17,21 +17,24 @@
  */
 package org.wso2.extension.siddhi.io.twitter.source;
 
+import io.siddhi.annotation.Example;
+import io.siddhi.annotation.Extension;
+import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiAppContext;
+import io.siddhi.core.exception.ConnectionUnavailableException;
+import io.siddhi.core.stream.ServiceDeploymentInfo;
+import io.siddhi.core.stream.input.source.Source;
+import io.siddhi.core.stream.input.source.SourceEventListener;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.core.util.transport.OptionHolder;
+import io.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.io.twitter.util.QueryBuilder;
 import org.wso2.extension.siddhi.io.twitter.util.TwitterConstants;
 import org.wso2.extension.siddhi.io.twitter.util.Util;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.input.source.Source;
-import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import twitter4j.FilterQuery;
 import twitter4j.Query;
 import twitter4j.Twitter;
@@ -295,7 +298,7 @@ import java.util.concurrent.TimeUnit;
         }
 )
 
-public class TwitterSource extends Source {
+public class TwitterSource extends Source<TwitterSource.TwitterSourceExtensionState> {
     private static final Logger log = Logger.getLogger(TwitterSource.class);
     private TwitterPoller twitterPoller;
     private TwitterStatusListener twitterStatusListener;
@@ -332,6 +335,11 @@ public class TwitterSource extends Source {
     private ScheduledFuture scheduledFuture;
 
 
+    @Override
+    protected ServiceDeploymentInfo exposeServiceDeploymentInfo() {
+        return null;
+    }
+
     /**
      * The initialization method for {@link Source}, will be called before other methods. It used to validate
      * all configurations and to get initial values.
@@ -340,13 +348,15 @@ public class TwitterSource extends Source {
      *                            Listener will then pass on the events to the appropriate mappers for processing .
      * @param optionHolder        Option holder containing static configuration related to the {@link Source}
      * @param configReader        ConfigReader is used to read the {@link Source} related system configuration.
-     * @param siddhiAppContext    the context of the {@link org.wso2.siddhi.query.api.SiddhiApp} used to get Siddhi
+     * @param siddhiAppContext    the context of the {@link io.siddhi.query.api.SiddhiApp} used to get Siddhi
      *                            related utility functions.
      */
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
-                     String[] requestedTransportPropertyNames, ConfigReader configReader,
-                     SiddhiAppContext siddhiAppContext) {
+    public StateFactory<TwitterSourceExtensionState> init(SourceEventListener sourceEventListener,
+                                                          OptionHolder optionHolder,
+                                                          String[] requestedTransportPropertyNames,
+                                                          ConfigReader configReader,
+                                                          SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         consumerKey = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_KEY);
         consumerSecret = optionHolder.validateAndGetStaticValue(TwitterConstants.CONSUMER_SECRET);
@@ -386,6 +396,7 @@ public class TwitterSource extends Source {
         staticOptionsKeys = optionHolder.getStaticOptionsKeys();
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
         validateParameter();
+        return () -> new TwitterSourceExtensionState();
     }
 
     /**
@@ -407,7 +418,8 @@ public class TwitterSource extends Source {
      * @throws ConnectionUnavailableException if it cannot connect to the source backend immediately.
      */
     @Override
-    public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
+    public void connect(ConnectionCallback connectionCallback, TwitterSourceExtensionState twitterSourceExtensionState)
+            throws ConnectionUnavailableException {
         Query query;
         FilterQuery filterQuery;
         Twitter twitter;
@@ -498,29 +510,37 @@ public class TwitterSource extends Source {
         }
     }
 
-    /**
-     * Used to collect the serializable state of the processing element, that need to be
-     * persisted for the reconstructing the element to the same state on a different point of time
-     *
-     * @return stateful objects of the processing element as a map
-     */
-    @Override
-    public Map<String, Object> currentState() {
-        Map<String, Object> currentState = new HashMap<>();
-        currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, twitterPoller.tweetId);
-        return currentState;
-    }
+    class TwitterSourceExtensionState extends State {
 
-    /**
-     * Used to restore serialized state of the processing element, for reconstructing
-     * the element to the same state as if was on a previous point of time.
-     *
-     * @param map the stateful objects of the processing element as a map.
-     *            This map will have the  same keys that is created upon calling currentState() method.
-     */
-    @Override
-    public void restoreState(Map<String, Object> map) {
-        sinceId = Long.parseLong(map.get(TwitterConstants.POLLING_SEARCH_SINCEID).toString());
+        @Override
+        public boolean canDestroy() {
+            return false;
+        }
+
+        /**
+         * Used to collect the serializable state of the processing element, that need to be
+         * persisted for the reconstructing the element to the same state on a different point of time
+         *
+         * @return stateful objects of the processing element as a map
+         */
+        @Override
+        public Map<String, Object> snapshot() {
+            Map<String, Object> currentState = new HashMap<>();
+            currentState.put(TwitterConstants.POLLING_SEARCH_SINCEID, twitterPoller.tweetId);
+            return currentState;
+        }
+
+        /**
+         * Used to restore serialized state of the processing element, for reconstructing
+         * the element to the same state as if was on a previous point of time.
+         *
+         * @param map the stateful objects of the processing element as a map.
+         *            This map will have the  same keys that is created upon calling currentState() method.
+         */
+        @Override
+        public void restore(Map<String, Object> map) {
+            sinceId = Long.parseLong(map.get(TwitterConstants.POLLING_SEARCH_SINCEID).toString());
+        }
     }
 
     /**

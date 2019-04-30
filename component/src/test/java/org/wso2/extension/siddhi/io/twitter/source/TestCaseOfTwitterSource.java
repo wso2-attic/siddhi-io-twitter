@@ -18,22 +18,22 @@
 
 package org.wso2.extension.siddhi.io.twitter.source;
 
+import io.siddhi.core.SiddhiAppRuntime;
+import io.siddhi.core.SiddhiManager;
+import io.siddhi.core.event.Event;
+import io.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
+import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.query.output.callback.QueryCallback;
+import io.siddhi.core.stream.input.source.Source;
+import io.siddhi.core.util.EventPrinter;
+import io.siddhi.core.util.SiddhiTestHelper;
+import io.siddhi.core.util.persistence.InMemoryPersistenceStore;
+import io.siddhi.core.util.persistence.PersistenceStore;
+import io.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.stream.input.source.Source;
-import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
-import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
-import org.wso2.siddhi.core.util.persistence.PersistenceStore;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Collection;
 import java.util.List;
@@ -50,10 +50,10 @@ public class TestCaseOfTwitterSource {
     private String streamingConsumerSecret = "5e4yM0QT653Dabsy6dVj8r4zOvNjBOKrPfV2huIBNn5HTTRZAd";
     private String streamingAccessToken = "948469744398733312-m2Qv52gCiyM3Rc1uKa5qIWlLX1ehpOm";
     private String streamingAccessTokenSecret = "Cqzh7UKlbk0s6597fwLFwRshMV2NOEm3bLyKD6vp6N1c0";
-    private String consumerKey = "5dU1zRlWDbRRl5BAeiBMcjg9L";
-    private String consumerSecret = "ZcoN9inlymuIeVklAtFT8oY68BNd8PmHZaItZOKs7F4xxcys9O";
-    private String accessToken = "345216227-bZDqBywsRupsc7iZZo82eO01EHbZJp8C5BSbKSl7";
-    private String accessTokenSecret = "jYovH0mm3vLehpkYFdYoIwRdRiZin5dtgqDyHENRn8ZEm";
+    private String consumerKey = "ngtuatOnuYIFKXO4LaWmGtCxo";
+    private String consumerSecret = "WbTpntprxglIz6byF9regzJQM0CRem9bFfzhLW0D6DgQEuLHhc";
+    private String accessToken = "1118837061002330113-JWRlV6DcyC18ztns74Z2F7R4tAjpTl";
+    private String accessTokenSecret = "DLwvTjKjGYhuD7YRJ8GdDYf6UMT7nuRFJDXnXjtTwSz4Q";
 
     @BeforeMethod
     public void init() {
@@ -925,4 +925,3 @@ public class TestCaseOfTwitterSource {
         siddhiAppRuntime.shutdown();
     }
 }
-
